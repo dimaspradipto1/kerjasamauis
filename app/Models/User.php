@@ -48,4 +48,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the role attribute (compatibility with both roles and role).
+     */
+    public function getRoleAttribute()
+    {
+        return $this->roles;
+    }
+
+    /**
+     * Set the role attribute.
+     */
+    public function setRoleAttribute($value)
+    {
+        $this->attributes['roles'] = $value;
+    }
 }
