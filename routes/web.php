@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BentukKegiatanController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::get('login', 'login')->name('login');
@@ -14,4 +15,5 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('user', UserController::class);
+    Route::resource('bentuk-kegiatan', BentukKegiatanController::class);
 });
