@@ -37,12 +37,8 @@ class UserController extends Controller
         $data['password']  = Hash::make($data['password']);
         $data['is_active'] = $request->has('is_active') ? true : false;
 
-        // Admin tidak bisa set role — user baru dibuat dengan role 'user'
-        if (Auth::user()->roles === 'admin') {
-            $data['roles'] = 'user';
-        } else {
-            $data['roles'] = $data['role'] ?? 'user';
-        }
+        // Map role request parameter ke kolom roles di database
+        $data['roles'] = $data['role'] ?? 'user';
         unset($data['role']);
 
         $user = User::create($data);
@@ -72,12 +68,8 @@ class UserController extends Controller
         $data    = $request->validated();
         $data['is_active'] = $request->has('is_active') ? true : false;
 
-        // Admin tidak bisa mengubah role pengguna — pertahankan role yang ada
-        if (Auth::user()->roles === 'admin') {
-            $data['roles'] = $user->roles; // tetap pakai role lama
-        } else {
-            $data['roles'] = $data['role'] ?? $user->roles;
-        }
+        // Map role request parameter ke kolom roles di database
+        $data['roles'] = $data['role'] ?? $user->roles;
         unset($data['role']);
 
         // Hanya update password jika diisi

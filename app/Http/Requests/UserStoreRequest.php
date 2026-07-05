@@ -14,15 +14,11 @@ class UserStoreRequest extends FormRequest
 
     public function rules(): array
     {
-        $authUser = Auth::user();
-        $isAdmin  = $authUser && $authUser->roles === 'admin';
-
         return [
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            // Admin tidak bisa memilih/set role — field disembunyikan di form
-            'role'     => $isAdmin ? 'nullable|string' : 'required|string|in:superadmin,admin,pimpinan,user',
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|string|email|max:255|unique:users',
+            'password'  => 'required|string|min:6|confirmed',
+            'role'      => 'required|string|in:superadmin,admin,pimpinan,user',
             'is_active' => 'nullable|boolean',
         ];
     }
