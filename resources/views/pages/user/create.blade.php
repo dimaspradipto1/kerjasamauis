@@ -86,28 +86,16 @@
                 <label for="role" class="form-label fw-medium">
                   Hak Akses (Role) <span class="text-danger">*</span>
                 </label>
-
-                @if(Auth::user()->roles === 'admin')
-                  {{-- Admin tidak bisa mengatur role --}}
-                  <div class="d-flex align-items-center gap-2 mt-1">
-                    <span class="badge bg-info text-dark rounded-pill px-3 py-2 fs-6">
-                      <i class="bi bi-person-fill me-1"></i>User
-                    </span>
-                    <small class="text-muted">Role ditentukan otomatis oleh sistem</small>
-                  </div>
-                  <input type="hidden" name="role" value="user">
-                @else
-                  <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
-                    <option value="" disabled selected>Pilih Hak Akses</option>
-                    <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
-                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="pimpinan" {{ old('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
-                    <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
-                  </select>
-                  @error('role')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-                @endif
+                <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
+                  <option value="" disabled selected>Pilih Hak Akses</option>
+                  <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
+                  <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                  <option value="pimpinan" {{ old('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                  <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
+                </select>
+                @error('role')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
               </div>
 
               <div class="col-md-6 mb-3 d-flex align-items-end pb-1">
