@@ -87,15 +87,36 @@
                 <label for="role" class="form-label fw-medium">
                   Hak Akses (Role) <span class="text-danger">*</span>
                 </label>
-                <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
-                  <option value="superadmin" {{ old('role', $user->roles) == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
-                  <option value="admin" {{ old('role', $user->roles) == 'admin' ? 'selected' : '' }}>Admin</option>
-                  <option value="pimpinan" {{ old('role', $user->roles) == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
-                  <option value="user" {{ old('role', $user->roles) == 'user' ? 'selected' : '' }}>User</option>
-                </select>
-                @error('role')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+
+                @if(Auth::user()->roles === 'admin')
+                  {{-- Admin tidak bisa mengubah role pengguna --}}
+                  @php
+                    $roleLabels = [
+                      'superadmin' => ['Super Admin', 'bg-danger'],
+                      'admin'      => ['Admin', 'bg-primary'],
+                      'pimpinan'   => ['Pimpinan', 'bg-success'],
+                      'user'       => ['User', 'bg-info text-dark'],
+                    ];
+                    [$roleLabel, $roleBadge] = $roleLabels[$user->roles] ?? [ucfirst($user->roles), 'bg-secondary'];
+                  @endphp
+                  <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="badge {{ $roleBadge }} rounded-pill px-3 py-2 fs-6">
+                      <i class="bi bi-shield-fill me-1"></i>{{ $roleLabel }}
+                    </span>
+                    <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>Tidak dapat diubah oleh Admin</small>
+                  </div>
+                  <input type="hidden" name="role" value="{{ $user->roles }}">
+                @else
+                  <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
+                    <option value="superadmin" {{ old('role', $user->roles) == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
+                    <option value="admin" {{ old('role', $user->roles) == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="pimpinan" {{ old('role', $user->roles) == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                    <option value="user" {{ old('role', $user->roles) == 'user' ? 'selected' : '' }}>User</option>
+                  </select>
+                  @error('role')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                @endif
               </div>
 
               <div class="col-md-6 mb-3 d-flex align-items-end pb-1">

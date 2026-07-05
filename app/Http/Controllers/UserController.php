@@ -10,27 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-
-class UserController extends Controller implements HasMiddleware
+class UserController extends Controller
 {
-    /**
-     * Define the middleware for the controller.
-     */
-    public static function middleware(): array
-    {
-        return [
-            new Middleware(function ($request, $next) {
-                $user = \Illuminate\Support\Facades\Auth::user();
-                if ($user && ($user->role == 'user' || $user->role == 'pimpinan')) {
-                    abort(403, 'Anda tidak memiliki hak akses untuk mengelola data pengguna.');
-                }
-                return $next($request);
-            }),
-        ];
-    }
-
     /**
      * Display a listing of the resource using Yajra DataTables.
      */
@@ -53,14 +34,21 @@ class UserController extends Controller implements HasMiddleware
     public function store(UserStoreRequest $request)
     {
         $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
+        $data['password']  = Hash::make($data['password']);
         $data['is_active'] = $request->has('is_active') ? true : false;
-        
-        // Map role request parameter to roles database column
-        $data['roles'] = $data['role'];
+
+        // Admin tidak bisa set role — user baru dibuat dengan role 'user'
+        if (Auth::user()->roles === 'admin') {
+            $data['roles'] = 'user';
+        } else {
+            $data['roles'] = $data['role'] ?? 'user';
+        }
         unset($data['role']);
 
-        User::create($data);
+        $user = User::create($data);
+
+        // Otomatis buat default permissions berdasarkan role
+        $user->generateDefaultPermissions();
 
         return redirect()->route('user.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
@@ -79,25 +67,35 @@ class UserController extends Controller implements HasMiddleware
      */
     public function update(UserUpdateRequest $request, $id)
     {
-        $user = User::findOrFail($id);
-        $data = $request->validated();
+        $user    = User::findOrFail($id);
+        $oldRole = $user->roles;
+        $data    = $request->validated();
         $data['is_active'] = $request->has('is_active') ? true : false;
 
-        // Map role request parameter to roles database column
-        $data['roles'] = $data['role'];
+        // Admin tidak bisa mengubah role pengguna — pertahankan role yang ada
+        if (Auth::user()->roles === 'admin') {
+            $data['roles'] = $user->roles; // tetap pakai role lama
+        } else {
+            $data['roles'] = $data['role'] ?? $user->roles;
+        }
         unset($data['role']);
 
-        // Hanya update password jika diisi. Jika kosong, hapus dari data agar password lama tetap digunakan.
+        // Hanya update password jika diisi
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
         }
 
-        // Hapus field konfirmasi password agar tidak masuk ke database
+        // Hapus field konfirmasi password
         unset($data['password_confirmation']);
 
         $user->update($data);
+
+        // Jika role berubah (hanya bisa dilakukan superadmin), regenerasi permissions
+        if ($oldRole !== $data['roles']) {
+            $user->generateDefaultPermissions();
+        }
 
         return redirect()->route('user.index')->with('success', 'Pengguna berhasil diperbarui.');
     }
