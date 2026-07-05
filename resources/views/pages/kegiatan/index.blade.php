@@ -13,9 +13,14 @@
                 </ol>
             </nav>
         </div>
-        <a href="{{ route('kegiatan.create') }}" class="btn btn-primary rounded-3 px-3 py-2 d-flex align-items-center gap-1 text-white">
-            <i class="bi bi-plus-lg"></i> Tambah Data
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-success d-flex align-items-center justify-content-center text-white" style="width: 36px; height: 36px; border-radius: 8px; background-color: #0b7a61; border: none;" title="Import Excel">
+                <i class="bi bi-upload fs-5"></i>
+            </button>
+            <a href="{{ route('kegiatan.create') }}" class="btn btn-primary rounded-3 px-3 py-2 d-flex align-items-center gap-1 text-white" style="height: 36px;">
+                <i class="bi bi-plus-lg"></i> Tambah Data
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -70,6 +75,33 @@
                 ]) }}
             </div>
 
+        </div>
+    </div>
+
+    <!-- Modal Import -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div class="modal-header border-bottom py-3 px-4" style="background-color: #fff;">
+                    <h6 class="modal-title fw-bold text-dark" id="importModalLabel">Import Data Kegiatan</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('kegiatan.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <p class="text-dark mb-2" style="font-size: 0.9rem;">Silahkan Unduh Terlebih dahulu format file import data</p>
+                        <a href="{{ route('kegiatan.download-template') }}" class="text-primary fw-semibold d-inline-block mb-4" style="font-size: 0.9rem; text-decoration: underline;">Download</a>
+                        
+                        <div class="mb-3">
+                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required style="border-radius: 8px; padding: 10px;">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top py-3 px-4 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal" style="border-radius: 8px; background-color: #6c757d; border: none; font-size: 0.875rem;">Tutup</button>
+                        <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px; background-color: #0d6efd; border: none; font-size: 0.875rem;">Import</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 @endsection

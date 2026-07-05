@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\JsonResponse;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\KegiatanExport;
 use App\Imports\KegiatanImport;
 
 class KegiatanController extends Controller
@@ -203,12 +202,6 @@ class KegiatanController extends Controller
         return response()->json(['success' => false]);
     }
 
-    // ══ Excel Import / Export ══
-    public function export()
-    {
-        return Excel::download(new KegiatanExport(), 'data-kegiatan.xlsx');
-    }
-
     public function import(\Illuminate\Http\Request $request)
     {
         $request->validate([
@@ -227,21 +220,20 @@ class KegiatanController extends Controller
             public function headings(): array
             {
                 return [
+                    'Nomor Dokumen Kegiatan',
+                    'Nomor Dokumen Mitra',
                     'Induk Kerjasama',
-                    'Unit Kerja',
+                    'Unit Kerja Pengusul',
                     'Mitra',
                     'Sasaran Kinerja',
                     'Bentuk Kegiatan',
                     'Indikator Sasaran',
-                    'Nomor Dokumen Kegiatan',
-                    'Nomor Dokumen Mitra',
                     'Judul Kegiatan',
                     'Tanggal Awal Kegiatan',
                     'Tanggal Akhir Kegiatan',
+                    'Nilai Kontrak',
                     'Ruang Lingkup',
                     'Hasil Pelaksanaan',
-                    'Nilai Kontrak',
-                    'Link Dokumen Kegiatan',
                 ];
             }
         }, 'format-import-kegiatan.xlsx');

@@ -31,6 +31,7 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::resource('kriteria-mitra', KriteriaMitraController::class);
     Route::resource('sumber-dana', SumberDanaController::class);
     Route::resource('jenis-dokumen', JenisDokumenController::class);
+    Route::get('mitra/export', [MitraController::class, 'export'])->name('mitra.export');
     Route::resource('mitra', MitraController::class);
     Route::resource('unit-kerja', UnitKerjaController::class);
     
@@ -45,9 +46,9 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('kegiatan/ajax/indikator-by-sasaran/{sasaranKinerjaId}', [KegiatanController::class, 'getIndikatorBySasaran']);
     
     // Excel Kegiatan Routes
-    Route::get('kegiatan/export', [KegiatanController::class, 'export'])->name('kegiatan.export');
     Route::post('kegiatan/import', [KegiatanController::class, 'import'])->name('kegiatan.import');
     Route::get('kegiatan/download-template', [KegiatanController::class, 'downloadTemplate'])->name('kegiatan.download-template');
+    
     Route::resource('kegiatan', KegiatanController::class);
 
     // Laporan Kerjasama

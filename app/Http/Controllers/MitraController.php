@@ -8,6 +8,8 @@ use App\Models\KontakMitra;
 use App\DataTables\MitraDataTable;
 use App\Http\Requests\MitraRequest;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MitraExport;
 
 class MitraController extends Controller
 {
@@ -98,5 +100,10 @@ class MitraController extends Controller
 
         return redirect()->route('mitra.index')
             ->with('success', 'Mitra berhasil dihapus.');
+    }
+
+    public function export()
+    {
+        return Excel::download(new MitraExport(), 'data-mitra.xlsx');
     }
 }

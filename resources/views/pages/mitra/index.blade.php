@@ -3,14 +3,24 @@
 @section('title', 'Mitra - SIM Kerjasama UIS')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Mitra</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item active">Mitra</li>
-            </ol>
-        </nav>
+    <div class="pagetitle d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="fw-bold text-dark">Mitra</h1>
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Mitra</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('mitra.export') }}" class="btn btn-dark d-flex align-items-center justify-content-center text-white" style="width: 36px; height: 36px; border-radius: 8px; background-color: #212529; border: none;" title="Export Excel">
+                <i class="bi bi-printer text-white fs-5"></i>
+            </a>
+            <a href="{{ route('mitra.create') }}" class="btn btn-primary rounded-3 px-3 py-2 d-flex align-items-center gap-1 text-white" style="height: 36px;">
+                <i class="bi bi-plus-lg"></i> Tambah Data
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -27,17 +37,12 @@
         </div>
     @endif
 
-    <div class="card">
-        <div class="card-header">
-            <a href="{{ route('mitra.create') }}" class="btn btn-primary rounded btn-sm">
-                <i class="bi bi-plus-lg"></i> Tambah Mitra
-            </a>
-        </div>
-        <div class="card-block table-border-style">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 {{ $dataTable->table([
-                    'class' => 'table table-striped table-bordered',
-                    'style' => 'width:100%; overflow-x: auto',
+                    'class' => 'table table-hover align-middle border-light',
+                    'style' => 'width:100%; border-collapse: collapse;',
                 ]) }}
             </div>
         </div>
