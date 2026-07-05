@@ -25,7 +25,7 @@
       </li>
 
        <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-blank.html">
+        <a class="nav-link collapsed" href="{{ route('mitra.index') }}">
           <i class="bi bi-file-earmark"></i>
           <span>Mitra</span>
         </a>
@@ -57,7 +57,7 @@
             </a>
           </li>
           <li>
-            <a href="components-buttons.html">
+            <a href="{{ route('jenis-dokumen.index') }}">
               <i class="bi bi-circle"></i><span>Jenis Dokumen</span>
             </a>
           </li>

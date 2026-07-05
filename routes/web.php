@@ -8,6 +8,8 @@ use App\Http\Controllers\BentukKegiatanController;
 use App\Http\Controllers\SasaranKinerjaController;
 use App\Http\Controllers\KriteriaMitraController;
 use App\Http\Controllers\SumberDanaController;
+use App\Http\Controllers\JenisDokumenController;
+use App\Http\Controllers\MitraController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::get('login', 'login')->name('login');
@@ -22,4 +24,6 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::resource('sasaran-kinerja', SasaranKinerjaController::class);
     Route::resource('kriteria-mitra', KriteriaMitraController::class);
     Route::resource('sumber-dana', SumberDanaController::class);
+    Route::resource('jenis-dokumen', JenisDokumenController::class);
+    Route::resource('mitra', MitraController::class);
 });
