@@ -16,8 +16,8 @@
 </div>
 
 <section class="section">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
+  <div class="row">
+    <div class="col-12">
 
       @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show" role="alert">

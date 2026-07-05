@@ -42,17 +42,17 @@
             </a>
           </li>
           <li>
-            <a href="components-accordion.html">
+            <a href="{{ route('sasaran-kinerja.index') }}">
               <i class="bi bi-circle"></i><span>Sasaran Kinerja</span>
             </a>
           </li>
           <li>
-            <a href="components-badges.html">
+            <a href="{{ route('kriteria-mitra.index') }}">
               <i class="bi bi-circle"></i><span>Kriteria Mitra</span>
             </a>
           </li>
           <li>
-            <a href="components-breadcrumbs.html">
+            <a href="{{ route('sumber-dana.index') }}">
               <i class="bi bi-circle"></i><span>Sumber Dana</span>
             </a>
           </li>

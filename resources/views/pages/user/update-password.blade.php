@@ -15,8 +15,8 @@
 </div>
 
 <section class="section">
-  <div class="row justify-content-center">
-    <div class="col-lg-6">
+  <div class="row">
+    <div class="col-12">
       <div class="card shadow-sm border-0">
         <div class="card-body pt-4">
           <h5 class="card-title mb-2" style="color: #157347;">Form Perbarui Password</h5>
