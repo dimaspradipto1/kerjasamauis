@@ -15,8 +15,9 @@ class KriteriaMitraDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addIndexColumn()
-            ->addColumn('DT_RowIndex', '')
+            ->addColumn('checkbox', function ($item) {
+                return '<div class="form-check d-flex justify-content-center align-items-center"><input class="form-check-input row-checkbox" type="checkbox" value="' . $item->id . '"></div>';
+            })
             ->addColumn('kriteria_mitra', function ($item) {
                 return '<span class="text-primary">' . e($item->kriteria_mitra) . '</span>';
             })
@@ -32,8 +33,7 @@ class KriteriaMitraDataTable extends DataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->setRowId('DT_RowIndex')
-            ->rawColumns(['action', 'kriteria_mitra', 'keterangan']);
+            ->rawColumns(['checkbox', 'action', 'kriteria_mitra', 'keterangan']);
     }
 
     public function query(KriteriaMitra $model): QueryBuilder
@@ -62,10 +62,12 @@ class KriteriaMitraDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('DT_RowIndex')
-                ->title('NO')
-                ->width('5%')
+            Column::computed('checkbox')
+                ->title('<div class="form-check d-flex justify-content-center align-items-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div>')
+                ->width('4%')
                 ->addClass('text-center')
+                ->exportable(false)
+                ->printable(false)
                 ->searchable(false)
                 ->orderable(false),
             Column::make('kriteria_mitra')

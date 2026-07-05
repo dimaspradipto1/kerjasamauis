@@ -6,4 +6,5 @@ use Yajra\DataTables\DataTablesServiceProvider;
 return [
     AppServiceProvider::class,
     DataTablesServiceProvider::class,
+    Maatwebsite\Excel\ExcelServiceProvider::class,
 ];
