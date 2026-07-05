@@ -1,85 +1,45 @@
 @extends('layouts.dashboard.template')
 
-@section('title', 'Manajemen Pengguna - SIM Kerjasama UIS')
-
 @section('content')
-<div class="pagetitle d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1>Manajemen Pengguna</h1>
-    <nav>
-      <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-        <li class="breadcrumb-item active">Pengguna</li>
-      </ol>
-    </nav>
-  </div>
-  <div>
-    <a href="{{ route('user.create') }}" class="btn btn-uis shadow-sm d-flex align-items-center gap-2">
-      <i class="fa-solid fa-user-plus"></i> Tambah Pengguna Baru
-    </a>
-  </div>
-</div>
-
-<section class="section">
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-body pt-4">
-          <div class="table-responsive">
-            {{ $dataTable->table(['class' => 'table table-hover table-striped w-100']) }}
-          </div>
-        </div>
-      </div>
+    <div class="pagetitle">
+        <h1>Manajemen Pengguna</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.index') }}">Manajemen Pengguna</a></li>
+            </ol>
+        </nav>
     </div>
-  </div>
-</section>
+
+    <div class="card">
+        <div class="card-header">
+            <a href="{{ route('user.create') }}" class="btn btn-primary rounded btn-sm"><i class="fa-solid fa-plus"></i>
+                Tambah</a>
+            <div class="card-header-right">
+                <ul class="list-unstyled card-option">
+                    <li><i class="fa fa fa-wrench open-card-option"></i></li>
+                    <li><i class="fa fa-window-maximize full-card"></i></li>
+                    <li><i class="fa fa-minus minimize-card"></i></li>
+                    <li><i class="fa fa-refresh reload-card"></i></li>
+                    <li><i class="fa fa-trash close-card"></i></li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-block table-border-style">
+            <div class="table-responsive">
+                {{ $dataTable->table([
+                    'class' => 'table table-striped table-bordered',
+                    'style' => 'width:100%; overflow-x: auto',
+                ]) }}
+            </div>
+        </div>
+    </div>
 @endsection
 
-@push('styles')
-  <!-- DataTables Bootstrap 5 CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
-  <style>
-    .dt-buttons .btn {
-      font-size: 13px !important;
-      padding: 5px 12px !important;
-      border-radius: 6px !important;
-      margin-right: 5px;
-    }
-    .dt-buttons .btn-secondary {
-      background-color: #6c757d !important;
-      border-color: #6c757d !important;
-      color: white !important;
-    }
-    table.dataTable.no-footer {
-      border-bottom: 1px solid #dee2e6 !important;
-    }
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-      padding: 0 !important;
-      margin-left: 0 !important;
-    }
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-      border: none !important;
-      background: none !important;
-    }
-  </style>
-@endpush
-
 @push('scripts')
-  <!-- jQuery & DataTables CDN -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
-  
-  <!-- DataTables Buttons CDN -->
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-
-  <!-- Output the JS from Yajra HTML builder -->
-  {{ $dataTable->scripts() }}
+    @if (app()->environment('production'))
+        {!! str_replace('http:', 'https:', $dataTable->scripts()) !!}
+    @else
+        {!! $dataTable->scripts() !!}
+    @endif
 @endpush

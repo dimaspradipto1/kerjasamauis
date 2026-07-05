@@ -24,7 +24,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $user = Auth::user();
             
-            // Check if user is active
             if (!$user->is_active) {
                 Auth::logout();
                 return redirect()->back()->withInput()->withErrors([

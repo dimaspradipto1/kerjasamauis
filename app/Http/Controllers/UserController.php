@@ -87,6 +87,16 @@ class UserController extends Controller implements HasMiddleware
         $data['roles'] = $data['role'];
         unset($data['role']);
 
+        // Hanya update password jika diisi. Jika kosong, hapus dari data agar password lama tetap digunakan.
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        // Hapus field konfirmasi password agar tidak masuk ke database
+        unset($data['password_confirmation']);
+
         $user->update($data);
 
         return redirect()->route('user.index')->with('success', 'Pengguna berhasil diperbarui.');

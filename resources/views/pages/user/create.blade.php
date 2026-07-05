@@ -1,6 +1,6 @@
 @extends('layouts.dashboard.template')
 
-@section('title', 'Tambah Pengguna Baru - SIM Kerjasama UIS')
+@section('title', 'Tambah Pengguna - SIM Kerjasama UIS')
 
 @section('content')
 <div class="pagetitle mb-3">
@@ -16,36 +16,66 @@
 
 <section class="section">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow-sm border-0">
-        <div class="card-body pt-4">
-          <h5 class="card-title mb-4" style="color: #157347;">Form Tambah Pengguna</h5>
+    <div class="col-lg-9">
 
-          @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <ul class="mb-0 ps-3">
-                @foreach($errors->all() as $error)
-                  <li>{{ $error }}</li>
-                @endforeach
-              </ul>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <strong>Terdapat kesalahan:</strong>
+          <ul class="mb-0 ps-3 mt-1">
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      @endif
+
+      <form action="{{ route('user.store') }}" method="POST">
+        @csrf
+
+        {{-- Section: Informasi Akun --}}
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <div class="d-flex align-items-center gap-2">
+              <div class="section-icon">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <h6 class="mb-0 fw-semibold text-dark">Informasi Akun</h6>
             </div>
-          @endif
-
-          <form action="{{ route('user.store') }}" method="POST">
-            @csrf
-
-            <div class="mb-3">
-              <label for="name" class="form-label">Nama Lengkap</label>
-              <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="Masukkan nama lengkap" required>
+          </div>
+          <div class="card-body px-4 py-4">
+            <div class="mb-4">
+              <label for="name" class="form-label fw-medium">
+                Nama Lengkap <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                class="form-control form-control-user @error('name') is-invalid @enderror"
+                value="{{ old('name') }}"
+                placeholder="Masukkan nama lengkap"
+                required
+              >
               @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
 
-            <div class="mb-3">
-              <label for="email" class="form-label">Alamat Email</label>
-              <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" placeholder="nama@gmail.com" required>
+            <div class="mb-4">
+              <label for="email" class="form-label fw-medium">
+                Alamat Email <span class="text-danger">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                class="form-control form-control-user @error('email') is-invalid @enderror"
+                value="{{ old('email') }}"
+                placeholder="nama@gmail.com"
+                required
+              >
               @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -53,22 +83,10 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Min. 6 karakter" required>
-                @error('password')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Ulangi password" required>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="role" class="form-label">Hak Akses (Role)</label>
-                <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
+                <label for="role" class="form-label fw-medium">
+                  Hak Akses (Role) <span class="text-danger">*</span>
+                </label>
+                <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
                   <option value="" disabled selected>Pilih Hak Akses</option>
                   <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
                   <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
@@ -79,24 +97,166 @@
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
-              
-              <div class="col-md-6 mb-3 d-flex align-items-center">
-                <div class="form-check form-switch mt-4">
-                  <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', '1') == '1' ? 'checked' : '' }}>
-                  <label class="form-check-label fw-semibold" for="is_active" style="color: #495057;">Status Aktif</label>
+
+              <div class="col-md-6 mb-3 d-flex align-items-end pb-1">
+                <div>
+                  <label class="form-label fw-medium d-block">Status Pengguna</label>
+                  <div class="form-check form-switch mt-1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="is_active"
+                      id="is_active"
+                      value="1"
+                      {{ old('is_active', '1') == '1' ? 'checked' : '' }}
+                      style="width: 2.5em; height: 1.3em;"
+                    >
+                    <label class="form-check-label fw-semibold ms-2" for="is_active">Aktif</label>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div class="d-flex justify-content-end gap-2 mt-4">
-              <a href="{{ route('user.index') }}" class="btn btn-secondary px-4">Batal</a>
-              <button type="submit" class="btn btn-uis px-4">Simpan Pengguna</button>
-            </div>
-
-          </form>
+          </div>
         </div>
-      </div>
+
+        {{-- Section: Password --}}
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <div class="d-flex align-items-center gap-2">
+              <div class="section-icon">
+                <i class="bi bi-shield-lock-fill"></i>
+              </div>
+              <h6 class="mb-0 fw-semibold text-dark">Keamanan Akun</h6>
+            </div>
+          </div>
+          <div class="card-body px-4 py-4">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label fw-medium">
+                  Password <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="form-control form-control-user @error('password') is-invalid @enderror"
+                    placeholder="Min. 6 karakter"
+                    required
+                  >
+                  <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+                    <i class="bi bi-eye" id="eyeIcon"></i>
+                  </button>
+                  @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="password_confirmation" class="form-label fw-medium">
+                  Konfirmasi Password <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    name="password_confirmation"
+                    id="password_confirmation"
+                    class="form-control form-control-user"
+                    placeholder="Ulangi password"
+                    required
+                  >
+                  <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirm" tabindex="-1">
+                    <i class="bi bi-eye" id="eyeIconConfirm"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{-- Actions --}}
+        <div class="d-flex justify-content-end gap-2 mb-4">
+          <a href="{{ route('user.index') }}" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-arrow-left me-1"></i> Batal
+          </a>
+          <button type="submit" class="btn btn-success px-4 text-white">
+            <i class="bi bi-check-lg me-1"></i> Simpan Pengguna
+          </button>
+        </div>
+
+      </form>
     </div>
   </div>
 </section>
+
+<style>
+  .section-icon {
+    width: 32px;
+    height: 32px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #157347;
+    font-size: 1rem;
+  }
+
+  .form-control-user,
+  .form-select-user {
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-control-user:focus,
+  .form-select-user:focus {
+    border-color: #157347;
+    box-shadow: 0 0 0 0.2rem rgba(21, 115, 71, 0.12);
+  }
+
+  .form-control-user::placeholder {
+    color: #adb5bd;
+    font-size: 0.875rem;
+  }
+
+  .card-header {
+    background: #fff;
+  }
+
+  .input-group .btn-outline-secondary {
+    border-color: #dee2e6;
+    border-left: none;
+    color: #6c757d;
+  }
+
+  .input-group .btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: #157347;
+    border-color: #157347;
+  }
+</style>
+
 @endsection
+
+@push('scripts')
+<script>
+  function toggleVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    if (!input) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+  }
+
+  document.getElementById('togglePassword')?.addEventListener('click', () => toggleVisibility('password', 'eyeIcon'));
+  document.getElementById('togglePasswordConfirm')?.addEventListener('click', () => toggleVisibility('password_confirmation', 'eyeIconConfirm'));
+</script>
+@endpush

@@ -45,9 +45,9 @@ class UserDataTable extends DataTable
                     return '';
                 }
                 $btn = '<div class="d-flex justify-content-center align-items-center" style="gap: 5px;">';
-                $btn .= '<a href="' . route('user.updatePasswordForm', $user->id) . '" class="btn btn-sm btn-info text-white rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Update Password"><i class="fa-solid fa-key" style="font-size: 11px;"></i></a>';
-                $btn .= '<a href="' . route('user.edit', $user->id) . '" class="btn btn-sm btn-warning text-white rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Edit"><i class="fa-solid fa-pen-to-square" style="font-size: 11px;"></i></a>';
-                $btn .= '<form action="' . route('user.destroy', $user->id) . '" method="POST" class="m-0">' . csrf_field() . method_field('DELETE') . '<button type="submit" class="btn btn-danger btn-sm rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Hapus" onclick="return confirm(\'Yakin ingin menghapus data ini?\')"><i class="fa-solid fa-trash-can" style="font-size: 11px;"></i></button></form>';
+                $btn .= '<a href="' . route('user.edit', $user->id) . '#password-section" class="btn btn-sm btn-info text-white rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Update Password"><i class="bi bi-key-fill" style="font-size: 13px;"></i></a>';
+                $btn .= '<a href="' . route('user.edit', $user->id) . '" class="btn btn-sm btn-warning text-white rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Edit"><i class="bi bi-pencil-square" style="font-size: 13px;"></i></a>';
+                $btn .= '<form action="' . route('user.destroy', $user->id) . '" method="POST" class="m-0">' . csrf_field() . method_field('DELETE') . '<button type="submit" class="btn btn-danger btn-sm rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Hapus" onclick="return confirm(\'Yakin ingin menghapus data ini?\')"><i class="bi bi-trash3-fill" style="font-size: 13px;"></i></button></form>';
                 $btn .= '</div>';
                 
                 return $btn;
