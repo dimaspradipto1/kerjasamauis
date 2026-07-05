@@ -14,11 +14,17 @@ class UserStoreRequest extends FormRequest
 
     public function rules(): array
     {
+        $authUser = Auth::user();
+        $allowedRoles = ['admin', 'pimpinan', 'user'];
+        if ($authUser && $authUser->roles === 'superadmin') {
+            $allowedRoles[] = 'superadmin';
+        }
+
         return [
             'name'      => 'required|string|max:255',
             'email'     => 'required|string|email|max:255|unique:users',
             'password'  => 'required|string|min:6|confirmed',
-            'role'      => 'required|string|in:superadmin,admin,pimpinan,user',
+            'role'      => 'required|string|in:' . implode(',', $allowedRoles),
             'is_active' => 'nullable|boolean',
         ];
     }

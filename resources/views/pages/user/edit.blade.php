@@ -87,15 +87,18 @@
                 <label for="role" class="form-label fw-medium">
                   Hak Akses (Role) <span class="text-danger">*</span>
                 </label>
-                <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
-                  <option value="superadmin" {{ old('role', $user->roles) == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
-                  <option value="admin" {{ old('role', $user->roles) == 'admin' ? 'selected' : '' }}>Admin</option>
-                  <option value="pimpinan" {{ old('role', $user->roles) == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
-                  <option value="user" {{ old('role', $user->roles) == 'user' ? 'selected' : '' }}>User</option>
-                </select>
-                @error('role')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+
+                  <select name="role" id="role" class="form-select form-select-user @error('role') is-invalid @enderror" required>
+                    @if(Auth::user()->roles === 'superadmin' || $user->roles === 'superadmin')
+                      <option value="superadmin" {{ old('role', $user->roles) == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
+                    @endif
+                    <option value="admin" {{ old('role', $user->roles) == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="pimpinan" {{ old('role', $user->roles) == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                    <option value="user" {{ old('role', $user->roles) == 'user' ? 'selected' : '' }}>User</option>
+                  </select>
+                  @error('role')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
               </div>
 
               <div class="col-md-6 mb-3 d-flex align-items-end pb-1">

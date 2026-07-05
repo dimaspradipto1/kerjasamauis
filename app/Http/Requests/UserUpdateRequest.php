@@ -16,13 +16,15 @@ class UserUpdateRequest extends FormRequest
     {
         $userId   = $this->route('user');
         $authUser = Auth::user();
-        $isAdmin  = $authUser && $authUser->roles === 'admin';
+        $allowedRoles = ['admin', 'pimpinan', 'user'];
+        if ($authUser && $authUser->roles === 'superadmin') {
+            $allowedRoles[] = 'superadmin';
+        }
 
         return [
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|string|email|max:255|unique:users,email,' . $userId,
-            // Admin tidak bisa mengubah role — field disembunyikan di form
-            'role'                  => $isAdmin ? 'nullable|string' : 'required|string|in:superadmin,admin,pimpinan,user',
+            'role'                  => 'required|string|in:' . implode(',', $allowedRoles),
             'is_active'             => 'nullable|boolean',
             // Password opsional saat update
             'password'              => 'nullable|string|min:6|confirmed',

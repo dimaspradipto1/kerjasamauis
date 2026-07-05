@@ -37,7 +37,6 @@ class UserController extends Controller
         $data['password']  = Hash::make($data['password']);
         $data['is_active'] = $request->has('is_active') ? true : false;
 
-        // Map role request parameter ke kolom roles di database
         $data['roles'] = $data['role'] ?? 'user';
         unset($data['role']);
 
@@ -68,7 +67,6 @@ class UserController extends Controller
         $data    = $request->validated();
         $data['is_active'] = $request->has('is_active') ? true : false;
 
-        // Map role request parameter ke kolom roles di database
         $data['roles'] = $data['role'] ?? $user->roles;
         unset($data['role']);
 
@@ -84,7 +82,7 @@ class UserController extends Controller
 
         $user->update($data);
 
-        // Jika role berubah (hanya bisa dilakukan superadmin), regenerasi permissions
+        // Jika role berubah, regenerasi permissions
         if ($oldRole !== $data['roles']) {
             $user->generateDefaultPermissions();
         }
