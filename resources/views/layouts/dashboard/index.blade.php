@@ -96,13 +96,54 @@
             </div>
         </div>
 
-        {{-- Row 2: Jenis Dokumen, Ruang Lingkup Mitra, Jenis Mitra --}}
+        {{-- Row Skala Kerjasama: Nasional & Internasional Cards --}}
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #0d6efd !important; background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-primary fw-bold d-flex align-items-center gap-2 mb-1" style="font-size: 0.95rem;">
+                                    <i class="bi bi-flag-fill"></i> Kerjasama Nasional
+                                </span>
+                                <h2 class="fw-bold text-dark mb-0">{{ $nasionalCount }}</h2>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-geo-alt-fill fs-3"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Jumlah total dokumen kerjasama berskala Nasional.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #6f42c1 !important; background: linear-gradient(135deg, #ffffff 0%, #f8f0ff 100%);">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="fw-bold d-flex align-items-center gap-2 mb-1" style="color: #6f42c1; font-size: 0.95rem;">
+                                    <i class="bi bi-globe2"></i> Kerjasama Internasional
+                                </span>
+                                <h2 class="fw-bold text-dark mb-0">{{ $internasionalCount }}</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">
+                                <i class="bi bi-globe fs-3"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Jumlah total dokumen kerjasama berskala Internasional.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Row 2: Jenis Dokumen, Skala Kerjasama, Ruang Lingkup Mitra, Jenis Mitra --}}
         <div class="row g-3 mb-4">
             {{-- Jenis Dokumen --}}
-            <div class="col-lg-4">
+            <div class="col-xl-3 col-md-6">
                 <div class="card shadow-sm border-0 rounded-3 h-100">
                     <div class="card-header bg-white py-3 border-bottom">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-file-earmark-bar-graph me-1"></i> Jenis Dokumen</h6>
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.85rem;"><i class="bi bi-file-earmark-bar-graph me-1"></i> Jenis Dokumen</h6>
                     </div>
                     <div class="card-body p-3">
                         <div id="chartJenisDokumen" style="min-height: 280px; width: 100%;"></div>
@@ -110,11 +151,23 @@
                 </div>
             </div>
 
-            {{-- Ruang Lingkup Mitra --}}
-            <div class="col-lg-4">
+            {{-- Skala Kerjasama Chart --}}
+            <div class="col-xl-3 col-md-6">
                 <div class="card shadow-sm border-0 rounded-3 h-100">
                     <div class="card-header bg-white py-3 border-bottom">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-globe me-1"></i> Ruang Lingkup Mitra</h6>
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.85rem;"><i class="bi bi-pie-chart-fill me-1"></i> Skala Kerjasama</h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="chartSkalaKerjasama" style="min-height: 280px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Ruang Lingkup Mitra --}}
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.85rem;"><i class="bi bi-globe me-1"></i> Ruang Lingkup Mitra</h6>
                     </div>
                     <div class="card-body p-3">
                         <div id="chartRuangLingkup" style="min-height: 280px; width: 100%;"></div>
@@ -123,10 +176,10 @@
             </div>
 
             {{-- Jenis Mitra --}}
-            <div class="col-lg-4">
+            <div class="col-xl-3 col-md-6">
                 <div class="card shadow-sm border-0 rounded-3 h-100">
                     <div class="card-header bg-white py-3 border-bottom">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-tag me-1"></i> Jenis Mitra</h6>
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.85rem;"><i class="bi bi-tag me-1"></i> Jenis Mitra</h6>
                     </div>
                     <div class="card-body p-3">
                         <div id="chartJenisMitra" style="min-height: 280px; width: 100%;"></div>
@@ -211,6 +264,97 @@
                     </div>
                     <div class="card-body p-3">
                         <div id="chartImplementasiKerjasama" style="min-height: 300px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Row 6: Tabel Rekapitulasi Detail Kerjasama (Nasional & Internasional) --}}
+        <div class="row g-3 mt-3">
+            {{-- Tabel Rekapitulasi Berdasarkan Skala Kerjasama --}}
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2 text-primary"></i> Tabel Rekapitulasi Detail Skala Kerjasama</h6>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">Nasional & Internasional</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3">Skala Kerjasama</th>
+                                        <th class="text-center py-3">Total Dokumen</th>
+                                        <th class="text-center py-3 text-success">Aktif</th>
+                                        <th class="text-center py-3 text-info">Perpanjangan</th>
+                                        <th class="text-center py-3 text-warning">Kedaluwarsa</th>
+                                        <th class="text-center py-3 text-danger">Tidak Aktif</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($rekapSkalaDetail as $skala => $detail)
+                                    <tr>
+                                        <td class="ps-3 fw-semibold">
+                                            @if($skala === 'Nasional')
+                                                <i class="bi bi-flag-fill text-primary me-2"></i> Kerjasama Nasional
+                                            @elseif($skala === 'Internasional')
+                                                <i class="bi bi-globe2 me-2" style="color: #6f42c1;"></i> Kerjasama Internasional
+                                            @else
+                                                <i class="bi bi-geo-alt-fill text-success me-2"></i> Kerjasama Lokal / Wilayah
+                                            @endif
+                                        </td>
+                                        <td class="text-center fw-bold">{{ $detail['total'] }}</td>
+                                        <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">{{ $detail['aktif'] }}</span></td>
+                                        <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">{{ $detail['perpanjangan'] }}</span></td>
+                                        <td class="text-center"><span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">{{ $detail['kedaluwarsa'] }}</span></td>
+                                        <td class="text-center"><span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">{{ $detail['tidak_aktif'] }}</span></td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tabel Rekapitulasi per Unit Kerja / Fakultas --}}
+            <div class="col-12 mt-3">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-buildings-fill me-2 text-success"></i> Rekapitulasi Kerjasama per Unit Kerja / Fakultas</h6>
+                        <span class="badge bg-success bg-opacity-10 text-success">Rincian per Unit</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3" style="width: 50px;">No</th>
+                                        <th class="py-3">Unit Kerja / Fakultas</th>
+                                        <th class="text-center py-3 text-primary"><i class="bi bi-flag me-1"></i> Nasional</th>
+                                        <th class="text-center py-3" style="color: #6f42c1;"><i class="bi bi-globe me-1"></i> Internasional</th>
+                                        <th class="text-center py-3 text-success"><i class="bi bi-check-circle me-1"></i> Aktif</th>
+                                        <th class="text-center py-3 pe-3">Total Kerjasama</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($rekapUnitKerjaList as $index => $uk)
+                                    <tr>
+                                        <td class="ps-3 text-muted">{{ $index + 1 }}</td>
+                                        <td class="fw-semibold text-dark">{{ $uk->nama_unit_kerja }}</td>
+                                        <td class="text-center fw-bold text-primary">{{ $uk->nasional_count }}</td>
+                                        <td class="text-center fw-bold" style="color: #6f42c1;">{{ $uk->internasional_count }}</td>
+                                        <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">{{ $uk->aktif_count }}</span></td>
+                                        <td class="text-center pe-3 fw-bold">{{ $uk->total_kerjasama }}</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3 text-muted">Belum ada data unit kerja.</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -464,9 +608,29 @@
                 }]
             });
 
+            // Skala Kerjasama (Pie / Donut)
+            const chartSK = echarts.init(document.getElementById('chartSkalaKerjasama'));
+            chartSK.setOption({
+                tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+                legend: { bottom: '0', left: 'center', itemWidth: 10, itemHeight: 10, textStyle: { fontSize: 10 } },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['50%', '45%'],
+                    data: [
+                        { name: 'Nasional', value: {{ $nasionalCount }} },
+                        { name: 'Internasional', value: {{ $internasionalCount }} },
+                        { name: 'Lokal / Wilayah', value: {{ $lokalCount }} }
+                    ],
+                    color: ['#0d6efd', '#6f42c1', '#198754'],
+                    label: { show: true, fontSize: 10, formatter: '{c}' }
+                }]
+            });
+
             // Make all charts responsive to window resize
             window.addEventListener('resize', function () {
                 chartJD.resize();
+                chartSK.resize();
                 chartRL.resize();
                 chartJM.resize();
                 chartBK.resize();

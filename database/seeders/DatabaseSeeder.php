@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             UnitKerjaSeeder::class,
             MitraSeeder::class,
             KerjasamaSeeder::class,
+            StaffSeeder::class,
         ]);
     }
 }

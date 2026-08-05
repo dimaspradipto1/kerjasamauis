@@ -11,6 +11,7 @@ use App\Http\Controllers\SumberDanaController;
 use App\Http\Controllers\JenisDokumenController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\UnitKerjaController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\KerjasamaController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\LaporanKerjasamaController;
@@ -71,6 +72,14 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     // Unit Kerja
     Route::middleware(['checkpermission:unit_kerja'])->group(function () {
         Route::resource('unit-kerja', UnitKerjaController::class);
+    });
+
+    // Data Staff
+    Route::middleware(['checkpermission:staff'])->group(function () {
+        Route::get('staff/export', [StaffController::class, 'export'])->name('staff.export');
+        Route::post('staff/import', [StaffController::class, 'import'])->name('staff.import');
+        Route::get('staff/download-template', [StaffController::class, 'downloadTemplate'])->name('staff.download-template');
+        Route::resource('staff', StaffController::class);
     });
 
     // Data Kerjasama

@@ -3,6 +3,9 @@
 @section('title', 'Tambah Kegiatan - SIM Kerjasama UIS')
 
 @section('content')
+@php
+  $staffList = $staffList ?? \App\Models\Staff::where('status', 'Aktif')->orderBy('nama_staff', 'asc')->get();
+@endphp
 <div class="pagetitle mb-3">
   <h1>Tambah Kegiatan</h1>
   <nav>
@@ -194,7 +197,17 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">Nama *</label>
-                    <input type="text" name="pihak[1][penanggung_jawab_pjs][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required value="{{ old('pihak.1.penanggung_jawab_pjs.0.nama') }}">
+                    <select name="pihak[1][penanggung_jawab_pjs][0][nama]" class="form-select form-control-m select-pj-nama" required>
+                      <option value=""></option>
+                      @foreach($staffList as $st)
+                        <option value="{{ $st->nama_staff }}" data-nup="{{ $st->nup }}" data-jabatan="{{ $st->jabatan }}" data-email="{{ $st->email }}" data-hp="{{ $st->nomor_hp }}" data-alamat="{{ $st->alamat }}" {{ old('pihak.1.penanggung_jawab_pjs.0.nama') == $st->nama_staff ? 'selected' : '' }}>
+                          {{ $st->nama_staff }} @if($st->nup)({{ $st->nup }})@endif
+                        </option>
+                      @endforeach
+                      @if(old('pihak.1.penanggung_jawab_pjs.0.nama') && !$staffList->pluck('nama_staff')->contains(old('pihak.1.penanggung_jawab_pjs.0.nama')))
+                        <option value="{{ old('pihak.1.penanggung_jawab_pjs.0.nama') }}" selected>{{ old('pihak.1.penanggung_jawab_pjs.0.nama') }}</option>
+                      @endif
+                    </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">NUP</label>
@@ -265,7 +278,17 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">Nama *</label>
-                    <input type="text" name="pihak[2][penanggung_jawab_pjs][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required value="{{ old('pihak.2.penanggung_jawab_pjs.0.nama') }}">
+                    <select name="pihak[2][penanggung_jawab_pjs][0][nama]" class="form-select form-control-m select-pj-nama" required>
+                      <option value=""></option>
+                      @foreach($staffList as $st)
+                        <option value="{{ $st->nama_staff }}" data-nup="{{ $st->nup }}" data-jabatan="{{ $st->jabatan }}" data-email="{{ $st->email }}" data-hp="{{ $st->nomor_hp }}" data-alamat="{{ $st->alamat }}" {{ old('pihak.2.penanggung_jawab_pjs.0.nama') == $st->nama_staff ? 'selected' : '' }}>
+                          {{ $st->nama_staff }} @if($st->nup)({{ $st->nup }})@endif
+                        </option>
+                      @endforeach
+                      @if(old('pihak.2.penanggung_jawab_pjs.0.nama') && !$staffList->pluck('nama_staff')->contains(old('pihak.2.penanggung_jawab_pjs.0.nama')))
+                        <option value="{{ old('pihak.2.penanggung_jawab_pjs.0.nama') }}" selected>{{ old('pihak.2.penanggung_jawab_pjs.0.nama') }}</option>
+                      @endif
+                    </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">NUP</label>
@@ -389,11 +412,33 @@
     }
   }
 
+  function makeStaffOptionsHtml() {
+    let optionsHtml = '<option value=""></option>';
+    if (window.staffData && window.staffData.length > 0) {
+      window.staffData.forEach(function(st) {
+        const nupText = st.nup ? ` (${st.nup})` : '';
+        optionsHtml += `<option value="${st.nama_staff}" data-nup="${st.nup || ''}" data-jabatan="${st.jabatan || ''}" data-email="${st.email || ''}" data-hp="${st.nomor_hp || ''}" data-alamat="${st.alamat || ''}">${st.nama_staff}${nupText}</option>`;
+      });
+    }
+    return optionsHtml;
+  }
+
+  function initStaffSelect2(element) {
+    $(element).select2({
+      placeholder: "Cari data staff atau ketik nama...",
+      allowClear: true,
+      tags: true,
+      width: '100%'
+    });
+  }
+
   // ══ Dynamic Penanggung Jawab Pihak 1 ══
   let pj1Count = 1;
   document.getElementById('btnTambahPj1').addEventListener('click', function() {
     const block = makePjBlock(1, pj1Count);
     document.getElementById('pj1-wrapper').insertAdjacentHTML('beforeend', block);
+    const lastAdded = document.querySelector('#pj1-wrapper .pj-item:last-child .select-pj-nama');
+    if (lastAdded) initStaffSelect2(lastAdded);
     pj1Count++;
     renumberPjs(1);
   });
@@ -403,6 +448,8 @@
   document.getElementById('btnTambahPj2').addEventListener('click', function() {
     const block = makePjBlock(2, pj2Count);
     document.getElementById('pj2-wrapper').insertAdjacentHTML('beforeend', block);
+    const lastAdded = document.querySelector('#pj2-wrapper .pj-item:last-child .select-pj-nama');
+    if (lastAdded) initStaffSelect2(lastAdded);
     pj2Count++;
     renumberPjs(2);
   });
@@ -427,7 +474,9 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="small text-muted mb-1 d-block">Nama *</label>
-            <input type="text" name="pihak[${pihak}][penanggung_jawab_pjs][${index}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required>
+            <select name="pihak[${pihak}][penanggung_jawab_pjs][${index}][nama]" class="form-select form-control-m select-pj-nama" required>
+              ${makeStaffOptionsHtml()}
+            </select>
           </div>
           <div class="col-md-6 mb-3">
             <label class="small text-muted mb-1 d-block">NUP</label>
@@ -458,5 +507,47 @@
       item.querySelector('.btn-remove-pj').classList.toggle('d-none', items.length <= 1);
     });
   }
+
+  @php
+    $staffList = $staffList ?? \App\Models\Staff::where('status', 'Aktif')->orderBy('nama_staff', 'asc')->get();
+  @endphp
+  window.staffData = @json($staffList);
+
+  $(document).ready(function() {
+    $('.select-pj-nama').each(function() {
+      initStaffSelect2(this);
+    });
+  });
+
+  $(document).on('change select2:select', '.select-pj-nama', function() {
+    const selectedVal = $(this).val();
+    const item = $(this).closest('.pj-item');
+    if (!item.length || !selectedVal) return;
+
+    const selectedOpt = $(this).find('option:selected');
+    let nup = selectedOpt.data('nup');
+    let jabatan = selectedOpt.data('jabatan');
+    let email = selectedOpt.data('email');
+    let hp = selectedOpt.data('hp');
+    let alamat = selectedOpt.data('alamat');
+
+    if (nup === undefined && jabatan === undefined) {
+      const matched = window.staffData.find(s => s.nama_staff.toLowerCase() === selectedVal.trim().toLowerCase());
+      if (matched) {
+        nup = matched.nup;
+        jabatan = matched.jabatan;
+        email = matched.email;
+        hp = matched.nomor_hp;
+        alamat = matched.alamat;
+      }
+    }
+
+    if (nup !== undefined || jabatan !== undefined || email !== undefined || hp !== undefined) {
+      item.find('input[name*="[nip]"]').val(nup || '');
+      item.find('input[name*="[jabatan]"]').val(jabatan || '');
+      item.find('input[name*="[email]"]').val(email || '');
+      item.find('input[name*="[nomor_hp]"]').val(hp || '');
+    }
+  });
 </script>
 @endpush

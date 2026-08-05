@@ -11,6 +11,7 @@ use App\Models\Mitra;
 use App\Models\BentukKegiatan;
 use App\Models\SasaranKinerja;
 use App\Models\IndikatorSasaran;
+use App\Models\Staff;
 use App\DataTables\KegiatanDataTable;
 use App\Http\Requests\KegiatanRequest;
 use Illuminate\Support\Facades\DB;
@@ -36,8 +37,9 @@ class KegiatanController extends Controller
         $unitKerjas      = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
         $bentukKegiatans = BentukKegiatan::orderBy('nama_bentuk_kegiatan', 'asc')->get();
         $sasaranKinerjas = SasaranKinerja::orderBy('sasaran_kinerja', 'asc')->get();
+        $staffList       = Staff::where('status', 'Aktif')->orderBy('nama_staff', 'asc')->get();
 
-        return view('pages.kegiatan.create', compact('kerjasamas', 'unitKerjas', 'bentukKegiatans', 'sasaranKinerjas'));
+        return view('pages.kegiatan.create', compact('kerjasamas', 'unitKerjas', 'bentukKegiatans', 'sasaranKinerjas', 'staffList'));
     }
 
     public function store(KegiatanRequest $request)
@@ -111,7 +113,9 @@ class KegiatanController extends Controller
         $pihak1 = $kegiatan->kegiatanPihaks->where('pihak_ke', '1')->first();
         $pihak2 = $kegiatan->kegiatanPihaks->where('pihak_ke', '2')->first();
 
-        return view('pages.kegiatan.edit', compact('kegiatan', 'kerjasamas', 'unitKerjas', 'bentukKegiatans', 'sasaranKinerjas', 'indikatorSasarans', 'pihak1', 'pihak2'));
+        $staffList = Staff::where('status', 'Aktif')->orderBy('nama_staff', 'asc')->get();
+
+        return view('pages.kegiatan.edit', compact('kegiatan', 'kerjasamas', 'unitKerjas', 'bentukKegiatans', 'sasaranKinerjas', 'indikatorSasarans', 'pihak1', 'pihak2', 'staffList'));
     }
 
     public function update(KegiatanRequest $request, Kegiatan $kegiatan)

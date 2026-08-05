@@ -20,6 +20,7 @@ class CheckPermission
         'kerjasama'         => 'kerjasama',
         'kegiatan'          => 'kegiatan',
         'unit-kerja'        => 'unit_kerja',
+        'staff'             => 'staff',
         'bentuk-kegiatan'   => 'bentuk_kegiatan',
         'sasaran-kinerja'   => 'sasaran_kinerja',
         'kriteria-mitra'    => 'kriteria_mitra',

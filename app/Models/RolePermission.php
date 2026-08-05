@@ -15,6 +15,7 @@ class RolePermission extends Model
         'kerjasama'        => 'Data Kerjasama',
         'kegiatan'         => 'Data Kegiatan',
         'unit_kerja'       => 'Unit Kerja',
+        'staff'            => 'Data Staff',
         'bentuk_kegiatan'  => 'Bentuk Kegiatan',
         'sasaran_kinerja'  => 'Sasaran Kinerja',
         'kriteria_mitra'   => 'Kriteria Mitra',

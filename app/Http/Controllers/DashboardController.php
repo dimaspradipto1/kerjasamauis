@@ -10,6 +10,7 @@ use App\Models\UnitKerja;
 use App\Models\BentukKegiatan;
 use App\Models\KriteriaMitra;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -87,11 +88,89 @@ class DashboardController extends Controller
             $q->whereNull('hasil_pelaksanaan')->orWhere('hasil_pelaksanaan', '');
         })->count();
 
+        // 11. Skala Kerjasama Data (Nasional & Internasional)
+        $nasionalCount = Kerjasama::where(function($q) {
+            $q->whereJsonContains('skala_kerjasama', 'Nasional')
+              ->orWhere('skala_kerjasama', 'like', '%Nasional%');
+        })->count();
+
+        $internasionalCount = Kerjasama::where(function($q) {
+            $q->whereJsonContains('skala_kerjasama', 'Internasional')
+              ->orWhere('skala_kerjasama', 'like', '%Internasional%');
+        })->count();
+
+        $lokalCount = Kerjasama::where(function($q) {
+            $q->whereJsonContains('skala_kerjasama', 'Lokal')
+              ->orWhere('skala_kerjasama', 'like', '%Lokal%');
+        })->count();
+
+        // 12. Rekapitulasi Detail Skala Kerjasama
+        $skalaTypes = ['Nasional', 'Internasional', 'Lokal'];
+        $rekapSkalaDetail = [];
+        foreach ($skalaTypes as $stype) {
+            $rekapSkalaDetail[$stype] = [
+                'total' => Kerjasama::where(function($q) use ($stype) {
+                    $q->whereJsonContains('skala_kerjasama', $stype)
+                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
+                })->count(),
+                'aktif' => Kerjasama::where('status_kerjasama', 'Aktif')->where(function($q) use ($stype) {
+                    $q->whereJsonContains('skala_kerjasama', $stype)
+                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
+                })->count(),
+                'perpanjangan' => Kerjasama::where('status_kerjasama', 'Perpanjangan')->where(function($q) use ($stype) {
+                    $q->whereJsonContains('skala_kerjasama', $stype)
+                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
+                })->count(),
+                'kedaluwarsa' => Kerjasama::where('status_kerjasama', 'Kedaluwarsa')->where(function($q) use ($stype) {
+                    $q->whereJsonContains('skala_kerjasama', $stype)
+                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
+                })->count(),
+                'tidak_aktif' => Kerjasama::where('status_kerjasama', 'Tidak Aktif')->where(function($q) use ($stype) {
+                    $q->whereJsonContains('skala_kerjasama', $stype)
+                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
+                })->count(),
+            ];
+        }
+
+        // 13. Rekapitulasi per Unit Kerja / Fakultas
+        $unitKerjasAll = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
+        $rekapUnitKerjaList = $unitKerjasAll->map(function ($uk) {
+            $kerjasamaIds = DB::table('kerjasama_unit_kerja')
+                ->where('unit_kerja_id', $uk->id)
+                ->pluck('kerjasama_id')
+                ->toArray();
+
+            $query = Kerjasama::where(function ($q) use ($uk, $kerjasamaIds) {
+                $q->where('unit_kerja_id', $uk->id);
+                if (!empty($kerjasamaIds)) {
+                    $q->orWhereIn('id', $kerjasamaIds);
+                }
+            });
+
+            $uk->total_kerjasama = (clone $query)->count();
+
+            $uk->nasional_count = (clone $query)->where(function ($sub) {
+                $sub->whereJsonContains('skala_kerjasama', 'Nasional')
+                    ->orWhere('skala_kerjasama', 'like', '%Nasional%');
+            })->count();
+
+            $uk->internasional_count = (clone $query)->where(function ($sub) {
+                $sub->whereJsonContains('skala_kerjasama', 'Internasional')
+                    ->orWhere('skala_kerjasama', 'like', '%Internasional%');
+            })->count();
+
+            $uk->aktif_count = (clone $query)->where('status_kerjasama', 'Aktif')->count();
+
+            return $uk;
+        });
+
         return view('layouts.dashboard.index', compact(
             'aktifCount', 'perpanjanganCount', 'kedaluwarsaCount', 'tidakAktifCount',
             'jenisDokumenData', 'ruangLingkupData', 'jenisMitraData', 'bentukKegiatanData',
             'unitKerjaData', 'provinsiMitraData', 'kriteriaMitraData',
-            'denganHasilKegiatan', 'tanpaHasilKegiatan', 'denganHasilKerjasama', 'tanpaHasilKerjasama'
+            'denganHasilKegiatan', 'tanpaHasilKegiatan', 'denganHasilKerjasama', 'tanpaHasilKerjasama',
+            'nasionalCount', 'internasionalCount', 'lokalCount',
+            'rekapSkalaDetail', 'rekapUnitKerjaList'
         ));
     }
 }

@@ -53,18 +53,19 @@
         $canReadSumberDana     = $authUser->hasPermission('sumber_dana', 'can_read');
         $canReadJenisDokumen   = $authUser->hasPermission('jenis_dokumen', 'can_read');
         $canReadUnitKerja      = $authUser->hasPermission('unit_kerja', 'can_read');
+        $canReadStaff          = $authUser->hasPermission('staff', 'can_read') || $authUser->roles === 'superadmin';
         $hasAnyRef = $canReadBentukKegiatan || $canReadSasaranKinerja || $canReadKriteriaMitra
-                  || $canReadSumberDana || $canReadJenisDokumen || $canReadUnitKerja;
+                  || $canReadSumberDana || $canReadJenisDokumen || $canReadUnitKerja || $canReadStaff;
       @endphp
 
       @if($hasAnyRef)
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('bentuk-kegiatan.*','sasaran-kinerja.*','kriteria-mitra.*','sumber-dana.*','jenis-dokumen.*','unit-kerja.*') ? '' : 'collapsed' }}"
+        <a class="nav-link {{ request()->routeIs('bentuk-kegiatan.*','sasaran-kinerja.*','kriteria-mitra.*','sumber-dana.*','jenis-dokumen.*','unit-kerja.*','staff.*') ? '' : 'collapsed' }}"
            data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-menu-button-wide"></i><span>Data Referensi</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="components-nav"
-            class="nav-content collapse {{ request()->routeIs('bentuk-kegiatan.*','sasaran-kinerja.*','kriteria-mitra.*','sumber-dana.*','jenis-dokumen.*','unit-kerja.*') ? 'show' : '' }}"
+            class="nav-content collapse {{ request()->routeIs('bentuk-kegiatan.*','sasaran-kinerja.*','kriteria-mitra.*','sumber-dana.*','jenis-dokumen.*','unit-kerja.*','staff.*') ? 'show' : '' }}"
             data-bs-parent="#sidebar-nav">
           @if($canReadBentukKegiatan)
           <li>
@@ -105,6 +106,13 @@
           <li>
             <a href="{{ route('unit-kerja.index') }}" class="{{ request()->routeIs('unit-kerja.*') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Unit Kerja</span>
+            </a>
+          </li>
+          @endif
+          @if($canReadStaff)
+          <li>
+            <a href="{{ route('staff.index') }}" class="{{ request()->routeIs('staff.*') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Data Staff</span>
             </a>
           </li>
           @endif

@@ -38,18 +38,18 @@
             {{-- Row 1: Tanggal Awal & Akhir --}}
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label for="tanggal_awal" class="form-label fw-semibold">Tanggal Awal Kerjasama <span class="text-danger">*</span></label>
-                <input type="date" name="tanggal_awal" id="tanggal_awal" class="form-control form-control-m" required value="{{ request('tanggal_awal') }}">
+                <label for="tanggal_awal" class="form-label fw-semibold">Tanggal Awal Kerjasama</label>
+                <input type="date" name="tanggal_awal" id="tanggal_awal" class="form-control form-control-m" value="{{ request('tanggal_awal') }}">
               </div>
               <div class="col-md-6">
-                <label for="tanggal_akhir" class="form-label fw-semibold">Tanggal Akhir Kerjasama <span class="text-danger">*</span></label>
-                <input type="date" name="tanggal_akhir" id="tanggal_akhir" class="form-control form-control-m" required value="{{ request('tanggal_akhir') }}">
+                <label for="tanggal_akhir" class="form-label fw-semibold">Tanggal Akhir Kerjasama</label>
+                <input type="date" name="tanggal_akhir" id="tanggal_akhir" class="form-control form-control-m" value="{{ request('tanggal_akhir') }}">
               </div>
             </div>
 
             {{-- Row 2: Jenis Dokumen --}}
             <div class="mb-4">
-              <label for="jenis_dokumen_id" class="form-label fw-semibold">Jenis Dokumen Kerjasama <span class="text-danger">*</span></label>
+              <label for="jenis_dokumen_id" class="form-label fw-semibold">Jenis Dokumen Kerjasama</label>
               <select name="jenis_dokumen_id" id="jenis_dokumen_id" class="form-select form-control-m">
                 <option value="">Semua Jenis Dokumen Kerjasama</option>
                 @foreach($jenisDokumens as $jd)

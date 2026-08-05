@@ -89,7 +89,11 @@ class User extends Authenticatable
             ->first();
 
         if (!$permission) {
-            // Fallback: tidak ada record, default false (kecuali can_read)
+            // Fallback jika belum ada record permission untuk modul ini
+            $defaults = RolePermission::ROLE_DEFAULTS[$this->roles] ?? null;
+            if ($defaults && isset($defaults[$action])) {
+                return (bool) $defaults[$action];
+            }
             return $action === 'can_read';
         }
 
