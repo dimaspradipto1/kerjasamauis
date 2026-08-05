@@ -103,7 +103,7 @@ class KerjasamaDataTable extends DataTable
             ->setTableId('kerjasama-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->dom('Brtip')
+            ->dom('t<"d-flex justify-content-between align-items-center mt-4 pt-4 border-top mb-2"<"dataTables_info_wrapper"i><"dataTables_paginate_wrapper"p>>')
             ->orderBy(1)
             ->selectStyleSingle()
             ->buttons([

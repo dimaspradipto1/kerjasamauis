@@ -23,7 +23,25 @@ class KerjasamaController extends Controller
     public function index(KerjasamaDataTable $dataTable)
     {
         $mitras = Mitra::orderBy('nama_mitra', 'asc')->get();
-        return $dataTable->render('pages.kerjasama.index', compact('mitras'));
+
+        $moaCount = Kerjasama::whereHas('jenisDokumen', function($q){
+            $q->where('nama_jenis_dokumen', 'like', '%MoA%')
+              ->orWhere('nama_jenis_dokumen', 'like', '%Agreement%');
+        })->count();
+
+        $mouCount = Kerjasama::whereHas('jenisDokumen', function($q){
+            $q->where('nama_jenis_dokumen', 'like', '%MoU%')
+              ->orWhere('nama_jenis_dokumen', 'like', '%Understanding%');
+        })->count();
+
+        $iaCount = Kerjasama::whereHas('jenisDokumen', function($q){
+            $q->where('nama_jenis_dokumen', 'like', '%IA%')
+              ->orWhere('nama_jenis_dokumen', 'like', '%Arrangement%');
+        })->count();
+
+        $totalKerjasamaCount = Kerjasama::count();
+
+        return $dataTable->render('pages.kerjasama.index', compact('mitras', 'moaCount', 'mouCount', 'iaCount', 'totalKerjasamaCount'));
     }
 
     public function create()

@@ -16,14 +16,35 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $tahunSelected = request('tahun');
+
+        $tahunList = Kerjasama::whereNotNull('tanggal_waktu_berlaku')
+            ->selectRaw('YEAR(tanggal_waktu_berlaku) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        // Statistik Kerjasama Per Tahun (Trend Chart)
+        $kerjasamaPerTahunData = Kerjasama::whereNotNull('tanggal_waktu_berlaku')
+            ->selectRaw('YEAR(tanggal_waktu_berlaku) as label, count(*) as value')
+            ->groupBy('label')
+            ->orderBy('label', 'asc')
+            ->get();
+
+        $baseKerjasama = Kerjasama::query();
+        if ($tahunSelected) {
+            $baseKerjasama->whereYear('tanggal_waktu_berlaku', $tahunSelected);
+        }
+
         // 1. Status metrics
-        $aktifCount = Kerjasama::where('status_kerjasama', 'Aktif')->count();
-        $perpanjanganCount = Kerjasama::where('status_kerjasama', 'Perpanjangan')->count();
-        $kedaluwarsaCount = Kerjasama::where('status_kerjasama', 'Kedaluwarsa')->count();
-        $tidakAktifCount = Kerjasama::where('status_kerjasama', 'Tidak Aktif')->count();
+        $aktifCount = (clone $baseKerjasama)->where('status_kerjasama', 'Aktif')->count();
+        $perpanjanganCount = (clone $baseKerjasama)->where('status_kerjasama', 'Perpanjangan')->count();
+        $kedaluwarsaCount = (clone $baseKerjasama)->where('status_kerjasama', 'Kedaluwarsa')->count();
+        $tidakAktifCount = (clone $baseKerjasama)->where('status_kerjasama', 'Tidak Aktif')->count();
 
         // 2. Jenis Dokumen Chart data
-        $jenisDokumenData = Kerjasama::join('jenis_dokumens', 'kerjasamas.jenis_dokumen_id', '=', 'jenis_dokumens.id')
+        $jenisDokumenData = (clone $baseKerjasama)
+            ->join('jenis_dokumens', 'kerjasamas.jenis_dokumen_id', '=', 'jenis_dokumens.id')
             ->selectRaw('jenis_dokumens.nama_jenis_dokumen as label, count(*) as value')
             ->groupBy('jenis_dokumens.id', 'jenis_dokumens.nama_jenis_dokumen')
             ->get();
@@ -46,13 +67,140 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // 6. Top 5 Unit Kerja
-        $unitKerjaData = Kerjasama::join('unit_kerjas', 'kerjasamas.unit_kerja_id', '=', 'unit_kerjas.id')
-            ->selectRaw('unit_kerjas.nama_unit_kerja as label, count(*) as value')
-            ->groupBy('unit_kerjas.id', 'unit_kerjas.nama_unit_kerja')
-            ->orderByDesc('value')
-            ->limit(5)
-            ->get();
+        // 6. Rekapitulasi per Unit Kerja / Fakultas (Accurate counting with pivot table & optional Year filter)
+        $unitKerjasAll = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
+        $rekapUnitKerjaList = $unitKerjasAll->map(function ($uk) use ($tahunSelected) {
+            $kerjasamaIds = DB::table('kerjasama_unit_kerja')
+                ->where('unit_kerja_id', $uk->id)
+                ->pluck('kerjasama_id')
+                ->toArray();
+
+            $query = Kerjasama::where(function ($q) use ($uk, $kerjasamaIds) {
+                $q->where('unit_kerja_id', $uk->id);
+                if (!empty($kerjasamaIds)) {
+                    $q->orWhereIn('id', $kerjasamaIds);
+                }
+            });
+
+            if ($tahunSelected) {
+                $query->whereYear('tanggal_waktu_berlaku', $tahunSelected);
+            }
+
+            $uk->total_kerjasama = (clone $query)->count();
+
+            $uk->nasional_count = (clone $query)->where(function ($sub) {
+                $sub->whereJsonContains('skala_kerjasama', 'Nasional')
+                    ->orWhere('skala_kerjasama', 'like', '%Nasional%');
+            })->count();
+
+            $uk->internasional_count = (clone $query)->where(function ($sub) {
+                $sub->whereJsonContains('skala_kerjasama', 'Internasional')
+                    ->orWhere('skala_kerjasama', 'like', '%Internasional%');
+            })->count();
+
+            $uk->mou_count = (clone $query)->whereHas('jenisDokumen', function ($jd) {
+                $jd->where('nama_jenis_dokumen', 'like', '%MoU%')
+                   ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Understanding%');
+            })->count();
+
+            $uk->moa_count = (clone $query)->whereHas('jenisDokumen', function ($jd) {
+                $jd->where('nama_jenis_dokumen', 'like', '%MoA%')
+                   ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Agreement%');
+            })->count();
+
+            $uk->ia_count = (clone $query)->whereHas('jenisDokumen', function ($jd) {
+                $jd->where('nama_jenis_dokumen', 'like', '%IA%')
+                   ->orWhere('nama_jenis_dokumen', 'like', '%Implementation Arrangement%');
+            })->count();
+
+            return $uk;
+        });
+
+        // Top 5 Unit Kerja berdasarkan Total Kerjasama (Filtered by Year if selected)
+        $top5UnitKerjaList = $rekapUnitKerjaList->filter(function($uk) {
+            return $uk->total_kerjasama > 0;
+        })->sortByDesc('total_kerjasama')->take(5)->values();
+
+        if ($top5UnitKerjaList->isEmpty()) {
+            $top5UnitKerjaList = $rekapUnitKerjaList->sortByDesc('total_kerjasama')->take(5)->values();
+        }
+
+        // Top 5 Unit Kerja berdasarkan MoU, MoA, IA
+        $top5MoUList = $rekapUnitKerjaList->sortByDesc('mou_count')->take(5)->values();
+        $top5MoAList = $rekapUnitKerjaList->sortByDesc('moa_count')->take(5)->values();
+        $top5IAList  = $rekapUnitKerjaList->sortByDesc('ia_count')->take(5)->values();
+
+        $unitKerjaData = $top5UnitKerjaList->map(function($uk) {
+            return [
+                'label' => $uk->nama_unit_kerja,
+                'value' => $uk->total_kerjasama,
+                'mou' => $uk->mou_count,
+                'moa' => $uk->moa_count,
+                'ia' => $uk->ia_count,
+            ];
+        });
+
+        // Data Grafik Rekapitulasi Vertical Column (MoU, MoA, IA per Unit Kerja)
+        $activeUnitKerjas = $rekapUnitKerjaList->filter(function($uk) {
+            return $uk->total_kerjasama > 0;
+        })->values();
+
+        if ($activeUnitKerjas->isEmpty()) {
+            $activeUnitKerjas = $rekapUnitKerjaList->take(6)->values();
+        }
+
+        $chartDokumenPerUnitKerja = [
+            'labels' => $activeUnitKerjas->map(function($uk) {
+                // Clean display label
+                return preg_replace('/^(S1|S2|S3|D3)\s*-\s*/i', '', $uk->nama_unit_kerja);
+            })->toArray(),
+            'full_labels' => $activeUnitKerjas->pluck('nama_unit_kerja')->toArray(),
+            'mou'  => $activeUnitKerjas->pluck('mou_count')->toArray(),
+            'moa'  => $activeUnitKerjas->pluck('moa_count')->toArray(),
+            'ia'   => $activeUnitKerjas->pluck('ia_count')->toArray(),
+        ];
+
+        // Data Grafik Tahunan per Top 5 Unit Kerja
+        $recentYears = Kerjasama::whereNotNull('tanggal_waktu_berlaku')
+            ->selectRaw('YEAR(tanggal_waktu_berlaku) as th')
+            ->distinct()
+            ->orderBy('th', 'asc')
+            ->pluck('th')
+            ->toArray();
+
+        if (empty($recentYears)) {
+            $recentYears = [(int)date('Y')];
+        }
+
+        $top5TahunanSeries = [];
+        foreach ($top5UnitKerjaList as $uk) {
+            $kerjasamaIds = DB::table('kerjasama_unit_kerja')
+                ->where('unit_kerja_id', $uk->id)
+                ->pluck('kerjasama_id')
+                ->toArray();
+
+            $countsPerYear = [];
+            foreach ($recentYears as $yr) {
+                $c = Kerjasama::where(function ($q) use ($uk, $kerjasamaIds) {
+                    $q->where('unit_kerja_id', $uk->id);
+                    if (!empty($kerjasamaIds)) {
+                        $q->orWhereIn('id', $kerjasamaIds);
+                    }
+                })->whereYear('tanggal_waktu_berlaku', $yr)->count();
+
+                $countsPerYear[] = $c;
+            }
+
+            $top5TahunanSeries[] = [
+                'name' => $uk->nama_unit_kerja,
+                'data' => $countsPerYear
+            ];
+        }
+
+        $top5TahunanData = [
+            'years' => array_map(fn($y) => 'Tahun ' . $y, $recentYears),
+            'series' => $top5TahunanSeries
+        ];
 
         // 7. Top 5 Provinsi Mitra
         $provinsiMitraData = Mitra::selectRaw('provinsi as label, count(*) as value')
@@ -81,25 +229,25 @@ class DashboardController extends Controller
         })->count();
 
         // 10. Implementasi Kerjasama
-        $denganHasilKerjasama = Kerjasama::whereNotNull('hasil_pelaksanaan')
+        $denganHasilKerjasama = (clone $baseKerjasama)->whereNotNull('hasil_pelaksanaan')
             ->where('hasil_pelaksanaan', '!=', '')
             ->count();
-        $tanpaHasilKerjasama = Kerjasama::where(function($q) {
+        $tanpaHasilKerjasama = (clone $baseKerjasama)->where(function($q) {
             $q->whereNull('hasil_pelaksanaan')->orWhere('hasil_pelaksanaan', '');
         })->count();
 
         // 11. Skala Kerjasama Data (Nasional & Internasional)
-        $nasionalCount = Kerjasama::where(function($q) {
+        $nasionalCount = (clone $baseKerjasama)->where(function($q) {
             $q->whereJsonContains('skala_kerjasama', 'Nasional')
               ->orWhere('skala_kerjasama', 'like', '%Nasional%');
         })->count();
 
-        $internasionalCount = Kerjasama::where(function($q) {
+        $internasionalCount = (clone $baseKerjasama)->where(function($q) {
             $q->whereJsonContains('skala_kerjasama', 'Internasional')
               ->orWhere('skala_kerjasama', 'like', '%Internasional%');
         })->count();
 
-        $lokalCount = Kerjasama::where(function($q) {
+        $lokalCount = (clone $baseKerjasama)->where(function($q) {
             $q->whereJsonContains('skala_kerjasama', 'Lokal')
               ->orWhere('skala_kerjasama', 'like', '%Lokal%');
         })->count();
@@ -109,60 +257,28 @@ class DashboardController extends Controller
         $rekapSkalaDetail = [];
         foreach ($skalaTypes as $stype) {
             $rekapSkalaDetail[$stype] = [
-                'total' => Kerjasama::where(function($q) use ($stype) {
+                'total' => (clone $baseKerjasama)->where(function($q) use ($stype) {
                     $q->whereJsonContains('skala_kerjasama', $stype)
                       ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
                 })->count(),
-                'aktif' => Kerjasama::where('status_kerjasama', 'Aktif')->where(function($q) use ($stype) {
+                'aktif' => (clone $baseKerjasama)->where('status_kerjasama', 'Aktif')->where(function($q) use ($stype) {
                     $q->whereJsonContains('skala_kerjasama', $stype)
                       ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
                 })->count(),
-                'perpanjangan' => Kerjasama::where('status_kerjasama', 'Perpanjangan')->where(function($q) use ($stype) {
+                'perpanjangan' => (clone $baseKerjasama)->where('status_kerjasama', 'Perpanjangan')->where(function($q) use ($stype) {
                     $q->whereJsonContains('skala_kerjasama', $stype)
                       ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
                 })->count(),
-                'kedaluwarsa' => Kerjasama::where('status_kerjasama', 'Kedaluwarsa')->where(function($q) use ($stype) {
+                'kedaluwarsa' => (clone $baseKerjasama)->where('status_kerjasama', 'Kedaluwarsa')->where(function($q) use ($stype) {
                     $q->whereJsonContains('skala_kerjasama', $stype)
                       ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
                 })->count(),
-                'tidak_aktif' => Kerjasama::where('status_kerjasama', 'Tidak Aktif')->where(function($q) use ($stype) {
+                'tidak_aktif' => (clone $baseKerjasama)->where('status_kerjasama', 'Tidak Aktif')->where(function($q) use ($stype) {
                     $q->whereJsonContains('skala_kerjasama', $stype)
                       ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
                 })->count(),
             ];
         }
-
-        // 13. Rekapitulasi per Unit Kerja / Fakultas
-        $unitKerjasAll = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
-        $rekapUnitKerjaList = $unitKerjasAll->map(function ($uk) {
-            $kerjasamaIds = DB::table('kerjasama_unit_kerja')
-                ->where('unit_kerja_id', $uk->id)
-                ->pluck('kerjasama_id')
-                ->toArray();
-
-            $query = Kerjasama::where(function ($q) use ($uk, $kerjasamaIds) {
-                $q->where('unit_kerja_id', $uk->id);
-                if (!empty($kerjasamaIds)) {
-                    $q->orWhereIn('id', $kerjasamaIds);
-                }
-            });
-
-            $uk->total_kerjasama = (clone $query)->count();
-
-            $uk->nasional_count = (clone $query)->where(function ($sub) {
-                $sub->whereJsonContains('skala_kerjasama', 'Nasional')
-                    ->orWhere('skala_kerjasama', 'like', '%Nasional%');
-            })->count();
-
-            $uk->internasional_count = (clone $query)->where(function ($sub) {
-                $sub->whereJsonContains('skala_kerjasama', 'Internasional')
-                    ->orWhere('skala_kerjasama', 'like', '%Internasional%');
-            })->count();
-
-            $uk->aktif_count = (clone $query)->where('status_kerjasama', 'Aktif')->count();
-
-            return $uk;
-        });
 
         return view('layouts.dashboard.index', compact(
             'aktifCount', 'perpanjanganCount', 'kedaluwarsaCount', 'tidakAktifCount',
@@ -170,7 +286,10 @@ class DashboardController extends Controller
             'unitKerjaData', 'provinsiMitraData', 'kriteriaMitraData',
             'denganHasilKegiatan', 'tanpaHasilKegiatan', 'denganHasilKerjasama', 'tanpaHasilKerjasama',
             'nasionalCount', 'internasionalCount', 'lokalCount',
-            'rekapSkalaDetail', 'rekapUnitKerjaList'
+            'rekapSkalaDetail', 'rekapUnitKerjaList', 'top5UnitKerjaList',
+            'top5MoUList', 'top5MoAList', 'top5IAList',
+            'tahunSelected', 'tahunList', 'kerjasamaPerTahunData', 'top5TahunanData',
+            'chartDokumenPerUnitKerja'
         ));
     }
 }

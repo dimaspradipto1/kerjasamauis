@@ -3,7 +3,7 @@
 @section('title', 'Daftar Kerjasama - SIM Kerjasama UIS')
 
 @section('content')
-    <div class="pagetitle d-flex justify-content-between align-items-center mb-3">
+    <div class="pagetitle d-flex justify-content-between align-items-center" style="margin-bottom: 28px !important;">
         <div>
             <h1 class="fw-bold text-dark">Daftar Kerjasama</h1>
             <nav>
@@ -27,17 +27,108 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 25px !important;">
             <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body p-4">
+    {{-- Rekapitulasi Cards: MoA, MoU, IA, Total --}}
+    <div class="row g-3" style="margin-top: 10px !important; margin-bottom: 30px !important;">
+        {{-- MoA Card --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #0d6efd !important; background: #ffffff;">
+                <div class="card-body p-3" style="padding: 1.25rem !important;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-primary fw-bold mb-1 d-block" style="font-size: 0.82rem; letter-spacing: 0.3px;">
+                                MEMORANDUM OF AGREEMENT
+                            </span>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h3 class="fw-bold text-dark mb-0">{{ $moaCount ?? 0 }}</h3>
+                                <span class="badge bg-primary bg-opacity-10 text-primary">MoA</span>
+                            </div>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="bi bi-file-earmark-text-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- MoU Card --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #198754 !important; background: #ffffff;">
+                <div class="card-body p-3" style="padding: 1.25rem !important;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-success fw-bold mb-1 d-block" style="font-size: 0.82rem; letter-spacing: 0.3px;">
+                                MEMORANDUM OF UNDERSTANDING
+                            </span>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h3 class="fw-bold text-dark mb-0">{{ $mouCount ?? 0 }}</h3>
+                                <span class="badge bg-success bg-opacity-10 text-success">MoU</span>
+                            </div>
+                        </div>
+                        <div class="bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="bi bi-file-earmark-check-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- IA Card --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #6f42c1 !important; background: #ffffff;">
+                <div class="card-body p-3" style="padding: 1.25rem !important;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="fw-bold mb-1 d-block" style="color: #6f42c1; font-size: 0.82rem; letter-spacing: 0.3px;">
+                                IMPLEMENTATION ARRANGEMENT
+                            </span>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h3 class="fw-bold text-dark mb-0">{{ $iaCount ?? 0 }}</h3>
+                                <span class="badge bg-opacity-10" style="background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">IA</span>
+                            </div>
+                        </div>
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">
+                            <i class="bi bi-journal-text fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Total Kerjasama Card --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #fd7e14 !important; background: #ffffff;">
+                <div class="card-body p-3" style="padding: 1.25rem !important;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="fw-bold mb-1 d-block" style="color: #fd7e14; font-size: 0.82rem; letter-spacing: 0.3px;">
+                                TOTAL KERJASAMA
+                            </span>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h3 class="fw-bold text-dark mb-0">{{ $totalKerjasamaCount ?? 0 }}</h3>
+                                <span class="badge bg-warning bg-opacity-10 text-warning">Total</span>
+                            </div>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="bi bi-folder-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3" style="margin-top: 25px !important; margin-bottom: 30px !important;">
+        <div class="card-body p-4" style="padding-top: 25px !important;">
             
             {{-- Custom Filters Section matching Mockup --}}
-            <div class="row mb-3 g-2 align-items-center">
+            <div class="row g-2 align-items-center" style="margin-top: 5px !important; margin-bottom: 25px !important;">
                 <div class="col-md-3">
                     <div class="position-relative">
                         <input type="text" id="filter-search" class="form-control form-control-filter" placeholder="Cari data ...">
@@ -131,6 +222,29 @@
   }
   .bg-secondary-light {
     background-color: #e2e3e5 !important;
+  }
+  /* Datatables Pagination & Spacing alignment */
+  .dataTables_wrapper {
+    padding-top: 0.5rem;
+    padding-bottom: 1.25rem;
+  }
+  .dataTables_paginate {
+    float: right !important;
+    margin-top: 0.75rem !important;
+  }
+  .dataTables_paginate .pagination {
+    margin-bottom: 0 !important;
+    justify-content: flex-end !important;
+    gap: 4px;
+  }
+  .dataTables_info {
+    font-size: 0.875rem !important;
+    color: #6c757d !important;
+    padding-top: 0.75rem !important;
+  }
+  .dataTables_info_wrapper, .dataTables_paginate_wrapper {
+    margin-top: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
   }
 </style>
 @endsection
