@@ -66,13 +66,30 @@
 
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label for="unit_kerja_id" class="form-label fw-semibold">Unit Kerja <span class="text-danger">*</span></label>
-                <select name="unit_kerja_id" id="unit_kerja_id" class="form-select form-control-m" required>
-                  <option value="" disabled>Pilih Unit Kerja</option>
+                <label class="form-label fw-semibold">Unit Kerja <span class="text-danger">*</span></label>
+                @php
+                  $selectedUnitKerjas = old('unit_kerja_ids', $kerjasama->unitKerjas->pluck('id')->toArray());
+                  if (empty($selectedUnitKerjas) && $kerjasama->unit_kerja_id) {
+                      $selectedUnitKerjas = [$kerjasama->unit_kerja_id];
+                  }
+                @endphp
+                <div class="border rounded-3 p-3 bg-white" style="max-height: 220px; overflow-y: auto; border: 1.5px solid #dee2e6 !important;">
                   @foreach($unitKerjas as $uk)
-                    <option value="{{ $uk->id }}" {{ old('unit_kerja_id', $kerjasama->unit_kerja_id) == $uk->id ? 'selected' : '' }}>{{ $uk->nama_unit_kerja }}</option>
+                    @php
+                      $isHeader = str_contains(strtolower($uk->nama_unit_kerja), 'fakultas') || str_contains(strtolower($uk->nama_unit_kerja), 'universitas');
+                    @endphp
+                    <div class="form-check mb-2 {{ $isHeader ? 'pt-2 border-top first-no-border' : 'ms-3' }}">
+                      <input class="form-check-input" type="checkbox" name="unit_kerja_ids[]" id="uk_{{ $uk->id }}" value="{{ $uk->id }}" {{ in_array($uk->id, $selectedUnitKerjas) ? 'checked' : '' }}>
+                      <label class="form-check-label text-dark small {{ $isHeader ? 'fw-bold text-success' : '' }}" for="uk_{{ $uk->id }}">
+                        @if($isHeader)
+                          <i class="bi bi-building me-1"></i>
+                        @endif
+                        {{ $uk->nama_unit_kerja }}
+                      </label>
+                    </div>
                   @endforeach
-                </select>
+                </div>
+                <div class="form-text text-muted" style="font-size: 0.78rem;"><i class="bi bi-info-circle me-1"></i>Pilih satu atau lebih fakultas / prodi unit kerja yang terlibat</div>
               </div>
               <div class="col-md-6">
                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -98,11 +115,38 @@
               <textarea name="deskripsi_kerjasama" id="deskripsi_kerjasama" class="form-control form-control-m" rows="3" placeholder="Masukkan Deskripsi Kerjasama" required>{{ old('deskripsi_kerjasama', $kerjasama->deskripsi_kerjasama) }}</textarea>
             </div>
 
+            {{-- Skala / Tingkat Kerjasama --}}
+            <div class="mb-4">
+              <label class="form-label fw-semibold d-block">Tingkat / Skala Kerjasama</label>
+              @php
+                $skalaSelected = old('skala_kerjasama', $kerjasama->skala_kerjasama ?? []);
+                if (is_string($skalaSelected)) {
+                    $skalaSelected = json_decode($skalaSelected, true) ?? explode(',', $skalaSelected);
+                }
+                $skalaSelected = (array) $skalaSelected;
+              @endphp
+              <div class="form-check form-check-inline me-4">
+                <input class="form-check-input" type="checkbox" name="skala_kerjasama[]" id="skala_nasional" value="Nasional" {{ in_array('Nasional', $skalaSelected) ? 'checked' : '' }}>
+                <label class="form-check-label fw-medium text-dark" for="skala_nasional">
+                  <i class="bi bi-flag me-1 text-primary"></i> Nasional
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="skala_kerjasama[]" id="skala_internasional" value="Internasional" {{ in_array('Internasional', $skalaSelected) ? 'checked' : '' }}>
+                <label class="form-check-label fw-medium text-dark" for="skala_internasional">
+                  <i class="bi bi-globe me-1 text-success"></i> Internasional
+                </label>
+              </div>
+            </div>
+
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label for="sumber_dana_id" class="form-label fw-semibold">Sumber Dana <span class="text-danger">*</span></label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label for="sumber_dana_id" class="form-label fw-semibold mb-0">Sumber Dana <span class="text-danger">*</span></label>
+                  <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalTambahSumberDana" class="small text-success fw-semibold" style="text-decoration: none;"><i class="bi bi-plus-lg me-1"></i>Tambah Custom Sumber Dana</a>
+                </div>
                 <select name="sumber_dana_id" id="sumber_dana_id" class="form-select form-control-m" required>
-                  <option value="" disabled>Pilih Sumber Dana</option>
+                  <option value="" disabled>Pilih atau Ketik Sumber Dana</option>
                   @foreach($sumberDanas as $sd)
                     <option value="{{ $sd->id }}" {{ old('sumber_dana_id', $kerjasama->sumber_dana_id) == $sd->id ? 'selected' : '' }}>{{ $sd->nama_sumber_dana }}</option>
                   @endforeach
@@ -201,8 +245,8 @@
                     <input type="text" name="pihak[1][penanggung_jawab][{{ $i }}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required value="{{ old('pihak.1.penanggung_jawab.'.$i.'.nama', $pj->nama) }}">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-                    <input type="text" name="pihak[1][penanggung_jawab][{{ $i }}][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)" value="{{ old('pihak.1.penanggung_jawab.'.$i.'.nip', $pj->nip) }}">
+                    <label class="small text-muted mb-1 d-block">NUP</label>
+                    <input type="text" name="pihak[1][penanggung_jawab][{{ $i }}][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)" value="{{ old('pihak.1.penanggung_jawab.'.$i.'.nip', $pj->nip) }}">
                   </div>
                 </div>
                 <div class="row">
@@ -232,8 +276,8 @@
                     <input type="text" name="pihak[1][penanggung_jawab][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-                    <input type="text" name="pihak[1][penanggung_jawab][0][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)">
+                    <label class="small text-muted mb-1 d-block">NUP</label>
+                    <input type="text" name="pihak[1][penanggung_jawab][0][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)">
                   </div>
                 </div>
                 <div class="row">
@@ -306,8 +350,8 @@
                     <input type="text" name="pihak[2][penanggung_jawab][{{ $i }}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required value="{{ old('pihak.2.penanggung_jawab.'.$i.'.nama', $pj->nama) }}">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-                    <input type="text" name="pihak[2][penanggung_jawab][{{ $i }}][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)" value="{{ old('pihak.2.penanggung_jawab.'.$i.'.nip', $pj->nip) }}">
+                    <label class="small text-muted mb-1 d-block">NUP</label>
+                    <input type="text" name="pihak[2][penanggung_jawab][{{ $i }}][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)" value="{{ old('pihak.2.penanggung_jawab.'.$i.'.nip', $pj->nip) }}">
                   </div>
                 </div>
                 <div class="row">
@@ -337,8 +381,8 @@
                     <input type="text" name="pihak[2][penanggung_jawab][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-                    <input type="text" name="pihak[2][penanggung_jawab][0][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)">
+                    <label class="small text-muted mb-1 d-block">NUP</label>
+                    <input type="text" name="pihak[2][penanggung_jawab][0][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)">
                   </div>
                 </div>
                 <div class="row">
@@ -430,6 +474,34 @@
     overflow: hidden !important;
   }
 </style>
+
+{{-- ══ Modal Tambah Sumber Dana ══ --}}
+<div class="modal fade" id="modalTambahSumberDana" tabindex="-1" aria-labelledby="modalTambahSumberDanaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="modalTambahSumberDanaLabel" style="font-size: 1rem;"><i class="bi bi-wallet2 me-2"></i>Tambah Custom Sumber Dana</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="formTambahSumberDana">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label for="modal_nama_sumber_dana" class="form-label fw-semibold">Nama Sumber Dana <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-m" id="modal_nama_sumber_dana" required placeholder="Contoh: Dana Hibah Kedaireka / Swasta">
+          </div>
+          <div class="mb-3">
+            <label for="modal_keterangan_sumber_dana" class="form-label fw-semibold">Keterangan</label>
+            <textarea class="form-control form-control-m" id="modal_keterangan_sumber_dana" rows="2" placeholder="Masukkan keterangan (opsional)"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer bg-light px-4 py-3">
+          <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-success btn-sm px-4 text-white" id="btnSimpanSumberDana"><i class="bi bi-check-lg me-1"></i>Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -437,10 +509,42 @@
   $(document).ready(function() {
     // Initialize Select2 search
     $('#jenis_dokumen_id').select2({ placeholder: "Pilih Jenis Dokumen" });
-    $('#unit_kerja_id').select2({ placeholder: "Pilih Unit Kerja" });
     $('#mitra_id').select2({ placeholder: "Pilih Mitra" });
-    $('#sumber_dana_id').select2({ placeholder: "Pilih Sumber Dana" });
+    $('#sumber_dana_id').select2({
+      placeholder: "Pilih atau Ketik Sumber Dana",
+      tags: true
+    });
     $('#status_kerjasama').select2({ placeholder: "Pilih Status" });
+
+    // Handle AJAX Sumber Dana
+    $('#formTambahSumberDana').on('submit', function(e) {
+      e.preventDefault();
+      const nama = $('#modal_nama_sumber_dana').val();
+      const ket = $('#modal_keterangan_sumber_dana').val();
+
+      $.ajax({
+        url: "{{ route('sumber-dana.ajax-store') }}",
+        type: "POST",
+        data: {
+          _token: "{{ csrf_token() }}",
+          nama_sumber_dana: nama,
+          keterangan: ket
+        },
+        success: function(res) {
+          if (res.status === 'success') {
+            const newOption = new Option(res.data.nama_sumber_dana, res.data.id, true, true);
+            $('#sumber_dana_id').append(newOption).trigger('change');
+            const modalEl = document.getElementById('modalTambahSumberDana');
+            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.hide();
+            $('#formTambahSumberDana')[0].reset();
+          }
+        },
+        error: function(err) {
+          alert('Gagal menambah sumber dana.');
+        }
+      });
+    });
   });
 
   function updateFileNameLabel(input) {
@@ -493,8 +597,8 @@
             <input type="text" name="pihak[${pihak}][penanggung_jawab][${index}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-            <input type="text" name="pihak[${pihak}][penanggung_jawab][${index}][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)">
+            <label class="small text-muted mb-1 d-block">NUP</label>
+            <input type="text" name="pihak[${pihak}][penanggung_jawab][${index}][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)">
           </div>
         </div>
         <div class="row">

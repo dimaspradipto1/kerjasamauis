@@ -10,17 +10,27 @@ class UnitKerjaSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            'S2 - S2 Manajemen',
+            'Universitas Ibnu Sina',
+
+            // Fakultas Ekonomi dan Bisnis
+            'Fakultas Ekonomi dan Bisnis',
             'S1 - S1 Manajemen',
             'S1 - S1 Akuntansi',
-            'S2 - Magister Kesehatan Masyarakat',
-            'S1 - Kesehatan dan Keselamatan Kerja',
-            'S1 - Kesehatan Lingkungan',
-            'S1 - Teknik Industri',
-            'S1 - Teknik Perkapalan',
+            'S2 - S2 Manajemen',
+
+            // Fakultas Sains dan Teknologi
+            'Fakultas Sains dan Teknologi',
             'S1 - Teknik Informatika',
             'S1 - Sistem Informasi',
+            'S1 - Teknik Industri',
+            'S1 - Teknik Perkapalan',
             'S1 - Teknik Logistik',
+
+            // Fakultas Ilmu Kesehatan
+            'Fakultas Ilmu Kesehatan',
+            'S1 - Kesehatan dan Keselamatan Kerja',
+            'S1 - Kesehatan Lingkungan',
+            'S2 - Magister Kesehatan Masyarakat',
         ];
 
         foreach ($data as $item) {

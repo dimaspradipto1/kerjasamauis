@@ -197,8 +197,8 @@
                     <input type="text" name="pihak[1][penanggung_jawab_pjs][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required value="{{ old('pihak.1.penanggung_jawab_pjs.0.nama') }}">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-                    <input type="text" name="pihak[1][penanggung_jawab_pjs][0][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)" value="{{ old('pihak.1.penanggung_jawab_pjs.0.nip') }}">
+                    <label class="small text-muted mb-1 d-block">NUP</label>
+                    <input type="text" name="pihak[1][penanggung_jawab_pjs][0][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)" value="{{ old('pihak.1.penanggung_jawab_pjs.0.nip') }}">
                   </div>
                 </div>
                 <div class="row">
@@ -268,8 +268,8 @@
                     <input type="text" name="pihak[2][penanggung_jawab_pjs][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required value="{{ old('pihak.2.penanggung_jawab_pjs.0.nama') }}">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-                    <input type="text" name="pihak[2][penanggung_jawab_pjs][0][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)" value="{{ old('pihak.2.penanggung_jawab_pjs.0.nip') }}">
+                    <label class="small text-muted mb-1 d-block">NUP</label>
+                    <input type="text" name="pihak[2][penanggung_jawab_pjs][0][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)" value="{{ old('pihak.2.penanggung_jawab_pjs.0.nip') }}">
                   </div>
                 </div>
                 <div class="row">
@@ -430,8 +430,8 @@
             <input type="text" name="pihak[${pihak}][penanggung_jawab_pjs][${index}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="small text-muted mb-1 d-block">Nomor Induk Pegawai (NIP)</label>
-            <input type="text" name="pihak[${pihak}][penanggung_jawab_pjs][${index}][nip]" class="form-control form-control-m" placeholder="Masukkan Nomor Induk Pegawai (opsional)">
+            <label class="small text-muted mb-1 d-block">NUP</label>
+            <input type="text" name="pihak[${pihak}][penanggung_jawab_pjs][${index}][nip]" class="form-control form-control-m" placeholder="Masukkan NUP (opsional)">
           </div>
         </div>
         <div class="row">

@@ -195,7 +195,7 @@
                   <tr>
                     <th style="width: 50px;" class="text-center">No</th>
                     <th>Nama</th>
-                    <th>Nomor Induk Pegawai</th>
+                    <th>NUP</th>
                     <th>Jabatan</th>
                     <th>Email</th>
                     <th>Nomor Telepon</th>
@@ -247,7 +247,7 @@
                   <tr>
                     <th style="width: 50px;" class="text-center">No</th>
                     <th>Nama</th>
-                    <th>Nomor Induk Pegawai</th>
+                    <th>NUP</th>
                     <th>Jabatan</th>
                     <th>Email</th>
                     <th>Nomor Telepon</th>

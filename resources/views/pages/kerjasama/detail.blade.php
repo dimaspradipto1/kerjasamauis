@@ -61,7 +61,29 @@
               </div>
               <div class="row mb-2">
                 <div class="col-5 text-muted">Unit Kerja</div>
-                <div class="col-7">: {{ $kerjasama->unitKerja ? $kerjasama->unitKerja->nama_unit_kerja : '-' }}</div>
+                <div class="col-7">: 
+                  @if($kerjasama->unitKerjas->isNotEmpty())
+                    {{ $kerjasama->unitKerjas->pluck('nama_unit_kerja')->implode(', ') }}
+                  @else
+                    {{ $kerjasama->unitKerja ? $kerjasama->unitKerja->nama_unit_kerja : '-' }}
+                  @endif
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-5 text-muted">Skala / Tingkat Kerjasama</div>
+                <div class="col-7">: 
+                  @php
+                    $skala = $kerjasama->skala_kerjasama ?? [];
+                    if (is_string($skala)) { $skala = json_decode($skala, true) ?? explode(',', $skala); }
+                  @endphp
+                  @if(!empty($skala) && is_array($skala))
+                    @foreach($skala as $s)
+                      <span class="badge bg-light text-dark border px-2 py-1 me-1"><i class="bi bi-tag me-1 text-success"></i>{{ $s }}</span>
+                    @endforeach
+                  @else
+                    -
+                  @endif
+                </div>
               </div>
               <div class="row mb-2">
                 <div class="col-5 text-muted">Mitra</div>
@@ -188,7 +210,7 @@
                   <tr>
                     <th style="width: 50px;" class="text-center">No</th>
                     <th>Nama</th>
-                    <th>Nomor Induk Pegawai</th>
+                    <th>NUP</th>
                     <th>Jabatan</th>
                     <th>Email</th>
                     <th>Nomor Telepon</th>
@@ -240,7 +262,7 @@
                   <tr>
                     <th style="width: 50px;" class="text-center">No</th>
                     <th>Nama</th>
-                    <th>Nomor Induk Pegawai</th>
+                    <th>NUP</th>
                     <th>Jabatan</th>
                     <th>Email</th>
                     <th>Nomor Telepon</th>

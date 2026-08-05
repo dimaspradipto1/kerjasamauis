@@ -19,6 +19,9 @@ class KerjasamaDataTable extends DataTable
                 return '<div class="form-check d-flex justify-content-center align-items-center"><input class="form-check-input row-checkbox" type="checkbox" value="' . $item->id . '"></div>';
             })
             ->addColumn('unit_kerja', function ($item) {
+                if ($item->unitKerjas->isNotEmpty()) {
+                    return e($item->unitKerjas->pluck('nama_unit_kerja')->implode(', '));
+                }
                 return $item->unitKerja ? e($item->unitKerja->nama_unit_kerja) : '-';
             })
             ->addColumn('judul_kerjasama', function ($item) {
@@ -68,7 +71,7 @@ class KerjasamaDataTable extends DataTable
 
     public function query(Kerjasama $model): QueryBuilder
     {
-        $query = $model->newQuery()->with(['jenisDokumen', 'mitra', 'unitKerja'])->orderBy('created_at', 'desc');
+        $query = $model->newQuery()->with(['jenisDokumen', 'mitra', 'unitKerja', 'unitKerjas'])->orderBy('created_at', 'desc');
 
         if ($mitraId = request('mitra_id')) {
             $query->where('mitra_id', $mitraId);

@@ -46,4 +46,22 @@ class SumberDanaController extends Controller
         return redirect()->route('sumber-dana.index')
             ->with('success', 'Sumber dana berhasil dihapus.');
     }
+
+    public function ajaxStore(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'nama_sumber_dana' => 'required|string|max:255',
+            'keterangan'       => 'nullable|string',
+        ]);
+
+        $sumberDana = SumberDana::firstOrCreate(
+            ['nama_sumber_dana' => trim($request->nama_sumber_dana)],
+            ['keterangan' => $request->keterangan]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $sumberDana,
+        ]);
+    }
 }

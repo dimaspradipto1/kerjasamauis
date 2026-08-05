@@ -52,6 +52,7 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     });
 
     // Referensi: Sumber Dana
+    Route::post('sumber-dana/ajax-store', [SumberDanaController::class, 'ajaxStore'])->name('sumber-dana.ajax-store');
     Route::middleware(['checkpermission:sumber_dana'])->group(function () {
         Route::resource('sumber-dana', SumberDanaController::class);
     });

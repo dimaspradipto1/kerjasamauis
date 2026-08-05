@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kerjasama extends Model
@@ -18,6 +19,7 @@ class Kerjasama extends Model
         'unit_kerja_id',
         'judul_kerjasama',
         'deskripsi_kerjasama',
+        'skala_kerjasama',
         'sumber_dana_id',
         'anggaran',
         'tanggal_waktu_berlaku',
@@ -31,6 +33,7 @@ class Kerjasama extends Model
     protected $casts = [
         'tanggal_waktu_berlaku' => 'date',
         'tanggal_akhir_berlaku' => 'date',
+        'skala_kerjasama'       => 'array',
     ];
 
     public function jenisDokumen(): BelongsTo
@@ -46,6 +49,11 @@ class Kerjasama extends Model
     public function unitKerja(): BelongsTo
     {
         return $this->belongsTo(UnitKerja::class, 'unit_kerja_id');
+    }
+
+    public function unitKerjas(): BelongsToMany
+    {
+        return $this->belongsToMany(UnitKerja::class, 'kerjasama_unit_kerja', 'kerjasama_id', 'unit_kerja_id');
     }
 
     public function sumberDana(): BelongsTo

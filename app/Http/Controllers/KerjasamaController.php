@@ -29,7 +29,7 @@ class KerjasamaController extends Controller
     {
         $jenisDokumens = JenisDokumen::orderBy('nama_jenis_dokumen', 'asc')->get();
         $mitras        = Mitra::orderBy('nama_mitra', 'asc')->get();
-        $unitKerjas    = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
+        $unitKerjas    = UnitKerja::orderBy('id', 'asc')->get();
         $sumberDanas   = SumberDana::orderBy('nama_sumber_dana', 'asc')->get();
 
         return view('pages.kerjasama.create', compact('jenisDokumens', 'mitras', 'unitKerjas', 'sumberDanas'));
@@ -40,6 +40,15 @@ class KerjasamaController extends Controller
         DB::transaction(function () use ($request) {
             $data = $request->validated();
 
+            // Handle custom sumber_dana_id if user typed a custom value
+            if (!is_numeric($data['sumber_dana_id'])) {
+                $sd = SumberDana::firstOrCreate(['nama_sumber_dana' => trim($data['sumber_dana_id'])]);
+                $data['sumber_dana_id'] = $sd->id;
+            }
+
+            // Set primary unit_kerja_id (first item) for backward compatibility
+            $data['unit_kerja_id'] = $request->unit_kerja_ids[0] ?? null;
+
             // Handle file upload
             if ($request->hasFile('dokumen_file')) {
                 $data['url_file'] = $request->file('dokumen_file')->store('dokumen', 'public');
@@ -49,6 +58,11 @@ class KerjasamaController extends Controller
 
             // Save Kerjasama
             $kerjasama = Kerjasama::create($data);
+
+            // Sync multi-select unit kerjas
+            if (!empty($request->unit_kerja_ids)) {
+                $kerjasama->unitKerjas()->sync($request->unit_kerja_ids);
+            }
 
             // Save Pihak 1 & 2
             foreach ($request->pihak as $key => $p) {
@@ -80,7 +94,7 @@ class KerjasamaController extends Controller
     public function show(Kerjasama $kerjasama)
     {
         $kerjasama->load([
-            'jenisDokumen', 'mitra', 'unitKerja', 'sumberDana',
+            'jenisDokumen', 'mitra', 'unitKerja', 'unitKerjas', 'sumberDana',
             'kerjasamaPihaks.penanggungJawabs'
         ]);
 
@@ -93,11 +107,11 @@ class KerjasamaController extends Controller
 
     public function edit(Kerjasama $kerjasama)
     {
-        $kerjasama->load('kerjasamaPihaks.penanggungJawabs');
+        $kerjasama->load(['unitKerjas', 'kerjasamaPihaks.penanggungJawabs']);
         
         $jenisDokumens = JenisDokumen::orderBy('nama_jenis_dokumen', 'asc')->get();
         $mitras        = Mitra::orderBy('nama_mitra', 'asc')->get();
-        $unitKerjas    = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
+        $unitKerjas    = UnitKerja::orderBy('id', 'asc')->get();
         $sumberDanas   = SumberDana::orderBy('nama_sumber_dana', 'asc')->get();
 
         $pihak1 = $kerjasama->kerjasamaPihaks->where('pihak_ke', '1')->first();
@@ -111,6 +125,15 @@ class KerjasamaController extends Controller
         DB::transaction(function () use ($request, $kerjasama) {
             $data = $request->validated();
 
+            // Handle custom sumber_dana_id if user typed a custom value
+            if (!is_numeric($data['sumber_dana_id'])) {
+                $sd = SumberDana::firstOrCreate(['nama_sumber_dana' => trim($data['sumber_dana_id'])]);
+                $data['sumber_dana_id'] = $sd->id;
+            }
+
+            // Set primary unit_kerja_id (first item) for backward compatibility
+            $data['unit_kerja_id'] = $request->unit_kerja_ids[0] ?? null;
+
             // Handle file upload
             if ($request->hasFile('dokumen_file')) {
                 // Delete old file if exists
@@ -122,6 +145,11 @@ class KerjasamaController extends Controller
 
             // Update Kerjasama
             $kerjasama->update($data);
+
+            // Sync multi-select unit kerjas
+            if (!empty($request->unit_kerja_ids)) {
+                $kerjasama->unitKerjas()->sync($request->unit_kerja_ids);
+            }
 
             // Recreate Pihak and Penanggung Jawab
             // 1. Delete existing

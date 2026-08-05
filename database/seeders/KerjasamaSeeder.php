@@ -167,6 +167,7 @@ class KerjasamaSeeder extends Seeder
                     'mitra_id'              => $val['mitra_id'],
                     'judul_kerjasama'       => $val['judul_kerjasama'],
                     'deskripsi_kerjasama'   => $val['deskripsi_kerjasama'],
+                    'skala_kerjasama'       => ['Nasional'],
                     'sumber_dana_id'        => $sumberDana->id,
                     'anggaran'              => 0,
                     'tanggal_waktu_berlaku' => $val['tanggal_waktu_berlaku'],
@@ -174,6 +175,8 @@ class KerjasamaSeeder extends Seeder
                     'status_kerjasama'      => 'Aktif',
                     'status'                => 'active',
                 ]);
+
+                $kerjasama->unitKerjas()->attach($val['unit_kerja_id']);
 
                 // Pihak 1
                 $pihak1 = KerjasamaPihak::create([
