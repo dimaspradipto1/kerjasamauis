@@ -69,7 +69,7 @@
               </div>
               <div class="row mb-2">
                 <div class="col-5 text-muted">Negara</div>
-                <div class="col-7">: Indonesia</div>
+                <div class="col-7">: {{ $mitra->negara ?? 'Indonesia' }}</div>
               </div>
             </div>
 
@@ -81,11 +81,16 @@
               <div class="row mb-2">
                 <div class="col-4 text-muted">Alamat</div>
                 <div class="col-8">: 
-                  @if($mitra->alamat)
-                    {{ $mitra->alamat }}, Kecamatan {{ ucwords(strtolower($mitra->kecamatan)) }}, {{ ucwords(strtolower($mitra->kabupaten_kota)) }}, {{ ucwords(strtolower($mitra->provinsi)) }} {{ $mitra->kodepos }}
-                  @else
-                    -
-                  @endif
+                  @php
+                    $parts = array_filter([
+                      $mitra->alamat,
+                      $mitra->kecamatan ? 'Kecamatan ' . ucwords(strtolower($mitra->kecamatan)) : null,
+                      $mitra->kabupaten_kota ? ucwords(strtolower($mitra->kabupaten_kota)) : null,
+                      $mitra->provinsi ? ucwords(strtolower($mitra->provinsi)) : null,
+                      $mitra->kodepos,
+                    ]);
+                  @endphp
+                  {{ !empty($parts) ? implode(', ', $parts) : '-' }}
                 </div>
               </div>
               <div class="row mb-2">

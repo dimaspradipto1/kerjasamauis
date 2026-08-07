@@ -135,12 +135,16 @@
                 <div class="col-4 text-muted">Anggaran</div>
                 <div class="col-8">: Rp {{ number_format($kerjasama->anggaran, 0, ',', '.') }}</div>
               </div>
+              @php
+                $namaJd = strtolower($kerjasama->jenisDokumen->nama_jenis_dokumen ?? '');
+                $isIA = str_contains($namaJd, 'ia') || str_contains($namaJd, 'implementation');
+              @endphp
               <div class="row mb-2">
-                <div class="col-4 text-muted">Tanggal Awal Berlaku</div>
+                <div class="col-4 text-muted">{{ $isIA ? 'Tanggal Awal Pelaksanaan' : 'Tanggal Awal Berlaku' }}</div>
                 <div class="col-8">: {{ $kerjasama->tanggal_waktu_berlaku ? $kerjasama->tanggal_waktu_berlaku->format('d M Y') : '-' }}</div>
               </div>
               <div class="row mb-2">
-                <div class="col-4 text-muted">Tanggal Akhir Berlaku</div>
+                <div class="col-4 text-muted">{{ $isIA ? 'Tanggal Akhir Pelaksanaan' : 'Tanggal Akhir Berlaku' }}</div>
                 <div class="col-8">: {{ $kerjasama->tanggal_akhir_berlaku ? $kerjasama->tanggal_akhir_berlaku->format('d M Y') : '-' }}</div>
               </div>
               <div class="row mb-2">

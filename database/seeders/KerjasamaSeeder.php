@@ -46,7 +46,7 @@ class KerjasamaSeeder extends Seeder
                 'kriteria_mitra_id' => 1
             ]);
 
-            $fst = UnitKerja::firstOrCreate(['nama_unit_kerja' => 'S1 - Fakultas Sains dan Teknologi']);
+            $fst = UnitKerja::firstOrCreate(['nama_unit_kerja' => 'Fakultas Sains dan Teknologi']);
             $uis = UnitKerja::firstOrCreate(['nama_unit_kerja' => 'Universitas Ibnu Sina']);
             $ti  = UnitKerja::firstOrCreate(['nama_unit_kerja' => 'S1 - Teknik Informatika']);
             $fik = UnitKerja::firstOrCreate(['nama_unit_kerja' => 'Fakultas Ilmu Kesehatan']);

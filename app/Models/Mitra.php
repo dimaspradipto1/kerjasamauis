@@ -17,6 +17,7 @@ class Mitra extends Model
         'nomor_izin_usaha',
         'npwp',
         'lingkup_mitra',
+        'negara',
         'provinsi',
         'kabupaten_kota',
         'kecamatan',

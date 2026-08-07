@@ -100,31 +100,38 @@
               </div>
             </div>
 
-            <div class="row mb-4">
-              <div class="col-md-6">
-                <label for="provinsi" class="form-label fw-semibold">Provinsi <span class="text-danger">*</span></label>
-                <select name="provinsi" id="provinsi" class="form-select form-control-m" required>
-                  <option value="" disabled selected>Pilih Provinsi</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label for="kabupaten_kota" class="form-label fw-semibold">Kota / Kabupaten <span class="text-danger">*</span></label>
-                <select name="kabupaten_kota" id="kabupaten_kota" class="form-select form-control-m" required disabled>
-                  <option value="" disabled selected>Pilih Kota / Kabupaten</option>
-                </select>
-              </div>
+            <div id="internasional_location_container" class="mb-4" style="display: none;">
+              <label for="negara" class="form-label fw-semibold">Negara <span class="text-danger">*</span></label>
+              <input type="text" name="negara" id="negara" class="form-control form-control-m" value="{{ old('negara') }}" placeholder="Masukkan Nama Negara (contoh: Malaysia, Japan, dll)">
             </div>
 
-            <div class="row mb-4">
-              <div class="col-md-6">
-                <label for="kecamatan" class="form-label fw-semibold">Kecamatan <span class="text-danger">*</span></label>
-                <select name="kecamatan" id="kecamatan" class="form-select form-control-m" required disabled>
-                  <option value="" disabled selected>Pilih Kecamatan</option>
-                </select>
+            <div id="lokal_location_container">
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <label for="provinsi" class="form-label fw-semibold">Provinsi</label>
+                  <select name="provinsi" id="provinsi" class="form-select form-control-m">
+                    <option value="" selected>Pilih Provinsi (opsional)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="kabupaten_kota" class="form-label fw-semibold">Kota / Kabupaten</label>
+                  <select name="kabupaten_kota" id="kabupaten_kota" class="form-select form-control-m" disabled>
+                    <option value="" selected>Pilih Kota / Kabupaten (opsional)</option>
+                  </select>
+                </div>
               </div>
-              <div class="col-md-6">
-                <label for="kodepos" class="form-label fw-semibold">Kode POS</label>
-                <input type="text" name="kodepos" id="kodepos" class="form-control form-control-m" value="{{ old('kodepos') }}" placeholder="Masukkan Kode POS (opsional)">
+
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <label for="kecamatan" class="form-label fw-semibold">Kecamatan</label>
+                  <select name="kecamatan" id="kecamatan" class="form-select form-control-m" disabled>
+                    <option value="" selected>Pilih Kecamatan (opsional)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="kodepos" class="form-label fw-semibold">Kode POS</label>
+                  <input type="text" name="kodepos" id="kodepos" class="form-control form-control-m" value="{{ old('kodepos') }}" placeholder="Masukkan Kode POS (opsional)">
+                </div>
               </div>
             </div>
 
@@ -367,6 +374,30 @@
           .catch(err => console.error('Error fetching districts:', err));
       }
     });
+
+    // Toggle Lingkup Mitra (Internasional vs Domestic)
+    function toggleLingkupMitra() {
+      const selectedLingkup = $('input[name="lingkup_mitra"]:checked').val();
+      if (selectedLingkup === 'Internasional') {
+        $('#lokal_location_container').hide();
+        $('#internasional_location_container').show();
+        $('#provinsi').val(null).trigger('change');
+        $('#kabupaten_kota').val(null).trigger('change');
+        $('#kecamatan').val(null).trigger('change');
+        if ($('#negara').val() === 'Indonesia') {
+          $('#negara').val('');
+        }
+      } else {
+        $('#lokal_location_container').show();
+        $('#internasional_location_container').hide();
+        if (!$('#negara').val() || $('#negara').val().trim() === '') {
+          $('#negara').val('Indonesia');
+        }
+      }
+    }
+
+    $('input[name="lingkup_mitra"]').on('change', toggleLingkupMitra);
+    toggleLingkupMitra();
   });
 
   // ══ Dynamic Contacts ══

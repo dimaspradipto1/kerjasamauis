@@ -61,7 +61,7 @@
               <select name="jenis_dokumen_id" id="jenis_dokumen_id" class="form-select form-control-m" required>
                 <option value="" disabled selected>Pilih Jenis Dokumen</option>
                 @foreach($jenisDokumens as $jd)
-                  <option value="{{ $jd->id }}" {{ old('jenis_dokumen_id') == $jd->id ? 'selected' : '' }}>{{ $jd->nama_jenis_dokumen }}</option>
+                  <option value="{{ $jd->id }}" data-nama="{{ strtolower($jd->nama_jenis_dokumen) }}" {{ old('jenis_dokumen_id') == $jd->id ? 'selected' : '' }}>{{ $jd->nama_jenis_dokumen }}</option>
                 @endforeach
               </select>
             </div>
@@ -150,11 +150,11 @@
 
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label for="tanggal_waktu_berlaku" class="form-label fw-semibold">Tanggal Awal Berlaku <span class="text-danger">*</span></label>
+                <label for="tanggal_waktu_berlaku" id="label_tanggal_awal" class="form-label fw-semibold">Tanggal Awal Berlaku <span class="text-danger">*</span></label>
                 <input type="date" name="tanggal_waktu_berlaku" id="tanggal_waktu_berlaku" class="form-control form-control-m" required value="{{ old('tanggal_waktu_berlaku') }}">
               </div>
               <div class="col-md-6">
-                <label for="tanggal_akhir_berlaku" class="form-label fw-semibold">Tanggal Akhir Berlaku <span class="text-danger">*</span></label>
+                <label for="tanggal_akhir_berlaku" id="label_tanggal_akhir" class="form-label fw-semibold">Tanggal Akhir Berlaku <span class="text-danger">*</span></label>
                 <input type="date" name="tanggal_akhir_berlaku" id="tanggal_akhir_berlaku" class="form-control form-control-m" required value="{{ old('tanggal_akhir_berlaku') }}">
               </div>
             </div>
@@ -681,6 +681,22 @@
   window.staffData = @json($staffList);
 
   $(document).ready(function() {
+    function updateDateLabels() {
+      const selectedOption = $('#jenis_dokumen_id option:selected');
+      const namaJenis = (selectedOption.data('nama') || selectedOption.text() || '').toLowerCase();
+      
+      if (namaJenis.includes('ia') || namaJenis.includes('implementation')) {
+        $('#label_tanggal_awal').html('Tanggal Awal Pelaksanaan <span class="text-danger">*</span>');
+        $('#label_tanggal_akhir').html('Tanggal Akhir Pelaksanaan <span class="text-danger">*</span>');
+      } else {
+        $('#label_tanggal_awal').html('Tanggal Awal Berlaku <span class="text-danger">*</span>');
+        $('#label_tanggal_akhir').html('Tanggal Akhir Berlaku <span class="text-danger">*</span>');
+      }
+    }
+
+    $('#jenis_dokumen_id').on('change', updateDateLabels);
+    updateDateLabels();
+
     $('.select-pj-nama').each(function() {
       initStaffSelect2(this);
     });

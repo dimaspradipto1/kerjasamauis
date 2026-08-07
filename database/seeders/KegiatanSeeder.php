@@ -72,7 +72,7 @@ class KegiatanSeeder extends Seeder
                 'pihak_ke'         => '1',
                 'jenis_pihak'      => 'Unit',
                 'nomor_surat_izin' => null,
-                'penanggung_jawab' => 'S1 - Fakultas Sains dan Teknologi',
+                'penanggung_jawab' => 'Fakultas Sains dan Teknologi',
             ]);
 
             KegiatanPj::create([
