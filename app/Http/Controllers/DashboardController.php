@@ -20,9 +20,14 @@ class DashboardController extends Controller
 
         $tahunList = Kerjasama::whereNotNull('tanggal_waktu_berlaku')
             ->selectRaw('YEAR(tanggal_waktu_berlaku) as tahun')
+            ->whereRaw('YEAR(tanggal_waktu_berlaku) >= 2000')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');
+
+        if ($tahunList->isEmpty()) {
+            $tahunList = collect(range(now()->year, now()->year - 4));
+        }
 
         // Statistik Kerjasama Per Tahun (Trend Chart)
         $kerjasamaPerTahunData = Kerjasama::whereNotNull('tanggal_waktu_berlaku')

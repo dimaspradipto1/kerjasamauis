@@ -1419,6 +1419,9 @@ body {
   #main, #footer {
     margin-left: 240px !important;
   }
+  .toggle-sidebar #main, .toggle-sidebar #footer {
+    margin-left: 0 !important;
+  }
   .toggle-sidebar .sidebar {
     left: -240px !important;
   }

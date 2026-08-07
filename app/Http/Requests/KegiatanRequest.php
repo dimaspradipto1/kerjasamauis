@@ -30,6 +30,9 @@ class KegiatanRequest extends FormRequest
             'nilai_kontrak'           => 'nullable|integer|min:0',
             'link_dokumen_kegiatan'   => 'nullable|string|max:255',
             'dokumen_file'            => 'nullable|file|mimes:pdf,doc,docx|max:5120', // max 5MB
+            'dokumen_files'           => 'nullable|array',
+            'dokumen_files.*'         => 'file|mimes:pdf,doc,docx|max:5120',
+            'existing_files'          => 'nullable|array',
 
             // Pihak Pihak
             'pihak'                                => 'required|array|size:2',
@@ -61,6 +64,8 @@ class KegiatanRequest extends FormRequest
             'tanggal_akhir_kegiatan.after_or_equal' => 'Tanggal akhir kegiatan harus setelah atau sama dengan tanggal awal.',
             'dokumen_file.mimes'              => 'Format file harus berupa PDF, DOC, atau DOCX.',
             'dokumen_file.max'                => 'Ukuran file maksimal adalah 5 MB.',
+            'dokumen_files.*.mimes'           => 'Format file harus berupa PDF, DOC, atau DOCX.',
+            'dokumen_files.*.max'             => 'Ukuran file maksimal adalah 5 MB per file.',
             'pihak.*.jenis_pihak.required'    => 'Jenis pihak wajib ditentukan.',
             'pihak.*.penanggung_jawab.required' => 'Nama Pihak Penanggung Jawab wajib diisi.',
             'pihak.*.penanggung_jawab_pjs.required' => 'Minimal harus ada 1 penanggung jawab per pihak.',

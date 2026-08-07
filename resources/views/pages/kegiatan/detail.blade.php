@@ -135,20 +135,24 @@
           <div class="card bg-light border-0 mb-0 shadow-none">
             <div class="card-body p-3">
               <span class="small text-muted fw-semibold d-block mb-2">Lampiran</span>
-              @if($kegiatan->url_file)
-                <div class="d-flex align-items-center justify-content-between p-3 bg-white border rounded-3">
-                  <div class="d-flex align-items-center gap-3">
-                    <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 2.2rem;"></i>
-                    <div>
-                      <span class="fw-bold d-block text-dark small" style="font-size: 0.85rem;">{{ basename($kegiatan->url_file) }}</span>
-                      <span class="text-muted small" style="font-size: 0.75rem;">Dokumen Kegiatan</span>
+              @if(!empty($kegiatan->url_file) && count($kegiatan->url_file) > 0)
+                <div class="d-flex flex-column gap-2">
+                  @foreach($kegiatan->url_file as $filePath)
+                    <div class="d-flex align-items-center justify-content-between p-3 bg-white border rounded-3 shadow-sm">
+                      <div class="d-flex align-items-center gap-3 overflow-hidden me-2">
+                        <i class="bi {{ Str::endsWith(strtolower($filePath), '.pdf') ? 'bi-file-earmark-pdf text-danger' : 'bi-file-earmark-word text-primary' }}" style="font-size: 2.2rem;"></i>
+                        <div class="text-truncate">
+                          <span class="fw-bold d-block text-dark small text-truncate" style="font-size: 0.85rem;" title="{{ basename($filePath) }}">{{ basename($filePath) }}</span>
+                          <span class="text-muted small" style="font-size: 0.75rem;">Dokumen Kegiatan</span>
+                        </div>
+                      </div>
+                      <div>
+                        <a href="{{ asset('storage/' . $filePath) }}" target="_blank" class="btn btn-light btn-sm border d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" title="Lihat/Download Dokumen">
+                          <i class="bi bi-cloud-arrow-down text-secondary" style="font-size: 1.1rem;"></i>
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <a href="{{ asset('storage/' . $kegiatan->url_file) }}" target="_blank" class="btn btn-light btn-sm border d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" title="Lihat/Download Dokumen">
-                      <i class="bi bi-cloud-arrow-down text-secondary" style="font-size: 1.1rem;"></i>
-                    </a>
-                  </div>
+                  @endforeach
                 </div>
               @else
                 <div class="alert alert-warning mb-0 py-2 small" style="border-radius: 6px;">

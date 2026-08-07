@@ -36,6 +36,22 @@ class Kerjasama extends Model
         'skala_kerjasama'       => 'array',
     ];
 
+    public function getUrlFileAttribute($value)
+    {
+        if (empty($value)) {
+            return [];
+        }
+        if (is_array($value)) {
+            return $value;
+        }
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        return [$value];
+    }
+
+
     public function jenisDokumen(): BelongsTo
     {
         return $this->belongsTo(JenisDokumen::class, 'jenis_dokumen_id');

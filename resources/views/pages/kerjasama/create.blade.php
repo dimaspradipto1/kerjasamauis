@@ -171,13 +171,13 @@
 
             <div class="mb-4">
               <label class="form-label fw-semibold">Dokumen</label>
-              <div class="border rounded-3 p-4 text-center bg-light" style="border: 2px dashed #ced4da !important; cursor: pointer;" onclick="document.getElementById('dokumen_file').click();">
+              <div class="border rounded-3 p-4 text-center bg-light" style="border: 2px dashed #ced4da !important; cursor: pointer;" onclick="document.getElementById('dokumen_files').click();">
                 <i class="bi bi-cloud-arrow-up text-muted" style="font-size: 2.5rem;"></i>
                 <p class="mb-1 small fw-semibold mt-2">Klik untuk pilih file atau seret file ke sini</p>
-                <p class="text-muted small mb-0" style="font-size: 0.75rem;">PDF, DOC atau DOCX (Max. 5 MB)</p>
-                <input type="file" name="dokumen_file" id="dokumen_file" class="d-none" accept=".pdf,.doc,.docx" onchange="updateFileNameLabel(this)">
-                <div id="file-chosen-label" class="mt-2 text-success small fw-semibold"></div>
+                <p class="text-muted small mb-0" style="font-size: 0.75rem;">PDF, DOC atau DOCX (Max. 5 MB per file)</p>
+                <input type="file" name="dokumen_files[]" id="dokumen_files" class="d-none" accept=".pdf,.doc,.docx" multiple onchange="handleFileSelect(this)">
               </div>
+              <div id="file-list-container" class="mt-3"></div>
             </div>
 
             <div class="mb-2">
@@ -485,14 +485,99 @@
     });
   });
 
-  function updateFileNameLabel(input) {
-    const label = document.getElementById('file-chosen-label');
-    if (input.files && input.files[0]) {
-      label.textContent = 'Terpilih: ' + input.files[0].name + ' (' + (input.files[0].size / 1024 / 1024).toFixed(2) + ' MB)';
-    } else {
-      label.textContent = '';
+  const selectedFilesContainer = document.getElementById('file-list-container');
+  const fileInput = document.getElementById('dokumen_files');
+  const dt = new DataTransfer();
+
+  const dropZone = fileInput ? fileInput.closest('.border') : null;
+  if (dropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.borderColor = '#0d6efd';
+        dropZone.style.backgroundColor = '#eef5ff';
+      }, false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.borderColor = '#ced4da';
+        dropZone.style.backgroundColor = '#f8f9fa';
+      }, false);
+    });
+    dropZone.addEventListener('drop', (e) => {
+      const droppedFiles = e.dataTransfer.files;
+      if (droppedFiles && droppedFiles.length > 0) {
+        addFiles(droppedFiles);
+      }
+    });
+  }
+
+  function handleFileSelect(input) {
+    if (input.files && input.files.length > 0) {
+      addFiles(input.files);
     }
   }
+
+  function addFiles(newFiles) {
+    for (let i = 0; i < newFiles.length; i++) {
+      const file = newFiles[i];
+      let exists = false;
+      for (let j = 0; j < dt.files.length; j++) {
+        if (dt.files[j].name === file.name && dt.files[j].size === file.size) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) {
+        dt.items.add(file);
+      }
+    }
+    fileInput.files = dt.files;
+    renderFileList();
+  }
+
+  function removeSelectedFile(index) {
+    dt.items.remove(index);
+    fileInput.files = dt.files;
+    renderFileList();
+  }
+
+  function renderFileList() {
+    if (!selectedFilesContainer) return;
+    selectedFilesContainer.innerHTML = '';
+    if (dt.files.length === 0) return;
+
+    const listGroup = document.createElement('div');
+    listGroup.className = 'd-flex flex-column gap-2';
+
+    for (let i = 0; i < dt.files.length; i++) {
+      const file = dt.files[i];
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      const isPdf = file.name.toLowerCase().endsWith('.pdf');
+      const iconClass = isPdf ? 'bi-file-earmark-pdf text-danger' : 'bi-file-earmark-word text-primary';
+
+      const fileRow = document.createElement('div');
+      fileRow.className = 'd-flex align-items-center justify-content-between p-2 px-3 bg-white border rounded-3 shadow-sm';
+      fileRow.innerHTML = `
+        <div class="d-flex align-items-center gap-3 overflow-hidden me-2">
+          <i class="bi ${iconClass}" style="font-size: 1.5rem;"></i>
+          <div class="text-truncate">
+            <span class="fw-semibold d-block text-dark small text-truncate" style="font-size: 0.85rem;" title="${file.name}">${file.name}</span>
+            <span class="text-muted small" style="font-size: 0.75rem;">${fileSizeMB} MB</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger border-0 rounded-circle d-flex align-items-center justify-content-center p-1" style="width: 28px; height: 28px;" onclick="removeSelectedFile(${i})" title="Hapus File">
+          <i class="bi bi-x-lg" style="font-size: 0.8rem;"></i>
+        </button>
+      `;
+      listGroup.appendChild(fileRow);
+    }
+    selectedFilesContainer.appendChild(listGroup);
+  }
+
 
   function makeStaffOptionsHtml() {
     let optionsHtml = '<option value=""></option>';

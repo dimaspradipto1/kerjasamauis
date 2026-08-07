@@ -14,9 +14,9 @@ class UnitKerjaSeeder extends Seeder
 
             // Fakultas Ekonomi dan Bisnis
             'Fakultas Ekonomi dan Bisnis',
-            'S1 - S1 Manajemen',
-            'S1 - S1 Akuntansi',
-            'S2 - S2 Manajemen',
+            'S1 - Manajemen',
+            'S1 - Akuntansi',
+            'S2 - Manajemen',
 
             // Fakultas Sains dan Teknologi
             'Fakultas Sains dan Teknologi',

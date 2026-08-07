@@ -19,7 +19,10 @@ class KegiatanDataTable extends DataTable
                 return '<div class="form-check d-flex justify-content-center align-items-center"><input class="form-check-input row-checkbox" type="checkbox" value="' . $item->id . '"></div>';
             })
             ->addColumn('unit_kerja_pengusul', function ($item) {
-                return $item->unitKerja ? e($item->unitKerja->nama_unit_kerja) : '-';
+                if ($item->unitKerja) {
+                    return '<span class="badge bg-light text-dark border px-2 py-1" style="font-weight: 500; font-size: 11.5px;"><i class="bi bi-building me-1 text-primary"></i>' . e($item->unitKerja->nama_unit_kerja) . '</span>';
+                }
+                return '-';
             })
             ->addColumn('judul_kegiatan', function ($item) {
                 return '<a href="' . route('kegiatan.show', $item->id) . '" class="text-primary fw-semibold">' . e($item->judul_kegiatan) . '</a>';
@@ -42,8 +45,17 @@ class KegiatanDataTable extends DataTable
                 $btn = '<div class="d-flex justify-content-center align-items-center" style="gap: 5px;">';
                 
                 // View file
-                if ($item->url_file) {
-                    $btn .= '<a href="' . asset('storage/' . $item->url_file) . '" target="_blank" class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Lihat File"><i class="bi bi-file-earmark-text" style="font-size: 13px;"></i></a>';
+                $files = is_array($item->url_file) ? $item->url_file : (empty($item->url_file) ? [] : (json_decode($item->url_file, true) ?: [$item->url_file]));
+                if (count($files) === 1) {
+                    $btn .= '<a href="' . asset('storage/' . $files[0]) . '" target="_blank" class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Lihat File (' . e(basename($files[0])) . ')"><i class="bi bi-file-earmark-text" style="font-size: 13px;"></i></a>';
+                } elseif (count($files) > 1) {
+                    $btn .= '<div class="dropdown d-inline-block">';
+                    $btn .= '<button class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 30px; height: 30px; padding: 0 6px;" title="Lihat File (' . count($files) . ' file)"><i class="bi bi-file-earmark-text me-1" style="font-size: 13px;"></i><span class="badge bg-secondary" style="font-size: 9px;">' . count($files) . '</span></button>';
+                    $btn .= '<ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 12px;">';
+                    foreach ($files as $f) {
+                        $btn .= '<li><a class="dropdown-item text-truncate" style="max-width: 220px;" href="' . asset('storage/' . $f) . '" target="_blank" title="' . e(basename($f)) . '"><i class="bi bi-file-earmark-arrow-down me-1 text-primary"></i> ' . e(basename($f)) . '</a></li>';
+                    }
+                    $btn .= '</ul></div>';
                 } else {
                     $btn .= '<button class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Tidak ada file" disabled><i class="bi bi-file-earmark-text text-muted" style="font-size: 13px;"></i></button>';
                 }
@@ -57,7 +69,7 @@ class KegiatanDataTable extends DataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->rawColumns(['checkbox', 'judul_kegiatan', 'durasi_kegiatan', 'action']);
+            ->rawColumns(['checkbox', 'unit_kerja_pengusul', 'judul_kegiatan', 'durasi_kegiatan', 'action']);
     }
 
     public function query(Kegiatan $model): QueryBuilder

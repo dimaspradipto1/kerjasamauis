@@ -166,10 +166,10 @@
             </div>
 
             {{-- Table Grid --}}
-            <div class="table-responsive mt-3">
+            <div class="table-responsive mt-3" style="width: 100%;">
                 {{ $dataTable->table([
-                    'class' => 'table table-hover align-middle border-light',
-                    'style' => 'width:100%; border-collapse: collapse;',
+                    'class' => 'table table-hover align-middle border-light w-100',
+                    'style' => 'width:100% !important; border-collapse: collapse;',
                 ]) }}
             </div>
 
@@ -242,9 +242,59 @@
     color: #6c757d !important;
     padding-top: 0.75rem !important;
   }
-  .dataTables_info_wrapper, .dataTables_paginate_wrapper {
-    margin-top: 1.25rem !important;
-    margin-bottom: 0.5rem !important;
+  /* Fullwidth Table Layout & Responsiveness */
+  .table-responsive {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #kerjasama-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  #kerjasama-table th {
+    font-size: 0.785rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    color: #495057;
+    background-color: #f8f9fa !important;
+    padding: 0.7rem 0.5rem !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+  }
+
+  #kerjasama-table td {
+    font-size: 0.825rem !important;
+    padding: 0.7rem 0.5rem !important;
+    vertical-align: middle !important;
+    color: #212529;
+  }
+
+  #kerjasama-table th:nth-child(2),
+  #kerjasama-table td:nth-child(2) {
+    min-width: 280px !important;
+  }
+
+  #kerjasama-table a {
+    font-size: 0.85rem !important;
+  }
+
+  ol.unit-kerja-list {
+    font-size: 0.825rem !important;
+    line-height: 1.45 !important;
+    padding-left: 1.25rem !important;
+    margin: 0 !important;
+    min-width: 260px !important;
+  }
+
+  ol.unit-kerja-list li {
+    margin-bottom: 3px !important;
+    white-space: nowrap !important;
   }
 </style>
 @endsection
@@ -259,6 +309,15 @@
     <script>
         $(document).ready(function() {
             const tableId = 'kerjasama-table';
+
+            // Auto readjust datatable on sidebar toggle
+            $(document).on('click', '.toggle-sidebar-btn', function() {
+                setTimeout(function() {
+                    if ($.fn.DataTable.isDataTable('#' + tableId)) {
+                        $('#' + tableId).DataTable().columns.adjust();
+                    }
+                }, 300);
+            });
 
             // Initialize Select2 search on filters
             $('#filter-mitra').select2({ placeholder: "-- Semua Mitra Kerjasama --", allowClear: true });

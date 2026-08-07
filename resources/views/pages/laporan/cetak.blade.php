@@ -304,7 +304,32 @@
         @forelse($results as $index => $row)
           <tr>
             <td class="num-col">{{ $index + 1 }}</td>
-            <td>{{ $row->unitKerja ? $row->unitKerja->nama_unit_kerja : '-' }}</td>
+            <td>
+              @php
+                $rawUnits = $row->unitKerjas->isNotEmpty()
+                  ? $row->unitKerjas->pluck('nama_unit_kerja')->toArray()
+                  : ($row->unitKerja ? [$row->unitKerja->nama_unit_kerja] : []);
+                $units = [];
+                foreach ($rawUnits as $u) {
+                  if (str_contains($u, ',')) {
+                    foreach (array_map('trim', explode(',', $u)) as $p) {
+                      if ($p !== '') $units[] = $p;
+                    }
+                  } else {
+                    if (trim($u) !== '') $units[] = trim($u);
+                  }
+                }
+              @endphp
+              @if(!empty($units))
+                <ol style="margin: 0; padding-left: 1.1rem; list-style-type: decimal; line-height: 1.4;">
+                  @foreach($units as $u)
+                    <li>{{ $u }}</li>
+                  @endforeach
+                </ol>
+              @else
+                -
+              @endif
+            </td>
             <td class="mitra-col fw-bold">{{ $row->mitra ? $row->mitra->nama_mitra : '-' }}</td>
             <td>{{ $row->judul_kerjasama }}</td>
             <td>

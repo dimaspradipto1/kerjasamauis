@@ -19,10 +19,36 @@ class KerjasamaDataTable extends DataTable
                 return '<div class="form-check d-flex justify-content-center align-items-center"><input class="form-check-input row-checkbox" type="checkbox" value="' . $item->id . '"></div>';
             })
             ->addColumn('unit_kerja', function ($item) {
-                if ($item->unitKerjas->isNotEmpty()) {
-                    return e($item->unitKerjas->pluck('nama_unit_kerja')->implode(', '));
+                $rawUnits = $item->unitKerjas->isNotEmpty()
+                    ? $item->unitKerjas->pluck('nama_unit_kerja')->toArray()
+                    : ($item->unitKerja ? [$item->unitKerja->nama_unit_kerja] : []);
+
+                $units = [];
+                foreach ($rawUnits as $u) {
+                    if (str_contains($u, ',')) {
+                        foreach (array_map('trim', explode(',', $u)) as $p) {
+                            if ($p !== '') {
+                                $units[] = $p;
+                            }
+                        }
+                    } else {
+                        if (trim($u) !== '') {
+                            $units[] = trim($u);
+                        }
+                    }
                 }
-                return $item->unitKerja ? e($item->unitKerja->nama_unit_kerja) : '-';
+
+                if (empty($units)) {
+                    return '-';
+                }
+
+                $html = '<ol class="mb-0 text-dark unit-kerja-list" style="margin: 0; padding-left: 1.2rem; list-style-type: decimal; line-height: 1.4;">';
+                foreach ($units as $u) {
+                    $html .= '<li style="margin-bottom: 2px;">' . e($u) . '</li>';
+                }
+                $html .= '</ol>';
+
+                return $html;
             })
             ->addColumn('judul_kerjasama', function ($item) {
                 return '<a href="' . route('kerjasama.show', $item->id) . '" class="text-primary fw-semibold">' . e($item->judul_kerjasama) . '</a>';
@@ -39,20 +65,29 @@ class KerjasamaDataTable extends DataTable
             ->addColumn('durasi_kerjasama', function ($item) {
                 $awal = $item->tanggal_waktu_berlaku ? $item->tanggal_waktu_berlaku->translatedFormat('d M Y') : '-';
                 $akhir = $item->tanggal_akhir_berlaku ? $item->tanggal_akhir_berlaku->translatedFormat('d M Y') : '-';
-                return '<strong>' . $awal . '</strong> s.d. <strong>' . $akhir . '</strong>';
+                return '<span class="text-nowrap"><strong>' . $awal . '</strong> s.d. <strong>' . $akhir . '</strong></span>';
             })
             ->addColumn('status_kerjasama', function ($item) {
                 if ($item->status_kerjasama === 'Aktif') {
-                    return '<span class="badge bg-success-light text-success border border-success-subtle px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i> Aktif</span>';
+                    return '<span class="badge bg-success-light text-success border border-success-subtle px-2 py-1" style="font-weight: 500;"><i class="bi bi-check-circle-fill me-1"></i> Aktif</span>';
                 }
-                return '<span class="badge bg-secondary-light text-secondary border border-secondary-subtle px-2 py-1">' . e($item->status_kerjasama) . '</span>';
+                return '<span class="badge bg-secondary-light text-secondary border border-secondary-subtle px-2 py-1" style="font-weight: 500;">' . e($item->status_kerjasama) . '</span>';
             })
             ->addColumn('action', function ($item) {
                 $btn = '<div class="d-flex justify-content-center align-items-center" style="gap: 5px;">';
                 
                 // View file
-                if ($item->url_file) {
-                    $btn .= '<a href="' . asset('storage/' . $item->url_file) . '" target="_blank" class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Lihat File"><i class="bi bi-file-earmark-text" style="font-size: 13px;"></i></a>';
+                $files = is_array($item->url_file) ? $item->url_file : (empty($item->url_file) ? [] : (json_decode($item->url_file, true) ?: [$item->url_file]));
+                if (count($files) === 1) {
+                    $btn .= '<a href="' . asset('storage/' . $files[0]) . '" target="_blank" class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Lihat File (' . e(basename($files[0])) . ')"><i class="bi bi-file-earmark-text" style="font-size: 13px;"></i></a>';
+                } elseif (count($files) > 1) {
+                    $btn .= '<div class="dropdown d-inline-block">';
+                    $btn .= '<button class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 30px; height: 30px; padding: 0 6px;" title="Lihat File (' . count($files) . ' file)"><i class="bi bi-file-earmark-text me-1" style="font-size: 13px;"></i><span class="badge bg-secondary" style="font-size: 9px;">' . count($files) . '</span></button>';
+                    $btn .= '<ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 12px;">';
+                    foreach ($files as $f) {
+                        $btn .= '<li><a class="dropdown-item text-truncate" style="max-width: 220px;" href="' . asset('storage/' . $f) . '" target="_blank" title="' . e(basename($f)) . '"><i class="bi bi-file-earmark-arrow-down me-1 text-primary"></i> ' . e(basename($f)) . '</a></li>';
+                    }
+                    $btn .= '</ul></div>';
                 } else {
                     $btn .= '<button class="btn btn-sm btn-outline-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Tidak ada file" disabled><i class="bi bi-file-earmark-text text-muted" style="font-size: 13px;"></i></button>';
                 }
@@ -66,7 +101,7 @@ class KerjasamaDataTable extends DataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->rawColumns(['checkbox', 'judul_kerjasama', 'durasi_kerjasama', 'status_kerjasama', 'action']);
+            ->rawColumns(['checkbox', 'unit_kerja', 'judul_kerjasama', 'durasi_kerjasama', 'status_kerjasama', 'action']);
     }
 
     public function query(Kerjasama $model): QueryBuilder
@@ -103,7 +138,7 @@ class KerjasamaDataTable extends DataTable
             ->setTableId('kerjasama-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->dom('t<"d-flex justify-content-between align-items-center mt-4 pt-4 border-top mb-2"<"dataTables_info_wrapper"i><"dataTables_paginate_wrapper"p>>')
+            ->dom('<"table-responsive"t><"d-flex justify-content-between align-items-center mt-4 pt-4 border-top mb-2"<"dataTables_info_wrapper"i><"dataTables_paginate_wrapper"p>>')
             ->orderBy(1)
             ->selectStyleSingle()
             ->buttons([
@@ -121,32 +156,39 @@ class KerjasamaDataTable extends DataTable
         return [
             Column::computed('checkbox')
                 ->title('<div class="form-check d-flex justify-content-center align-items-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div>')
-                ->width('4%')
+                ->width('35px')
                 ->addClass('text-center')
                 ->exportable(false)
                 ->printable(false)
                 ->searchable(false)
                 ->orderable(false),
             Column::make('unit_kerja')
-                ->title('Unit Kerja'),
+                ->title('Unit Kerja')
+                ->width('280px'),
             Column::make('judul_kerjasama')
-                ->title('Judul Kerjasama'),
+                ->title('Judul Kerjasama')
+                ->width('220px'),
             Column::make('mitra')
-                ->title('Mitra'),
+                ->title('Mitra')
+                ->width('180px'),
             Column::make('jenis_dokumen')
-                ->title('Jenis Dokumen'),
+                ->title('Jenis Dokumen')
+                ->width('140px'),
             Column::make('nomor_dokumen_kerjasama')
-                ->title('Nomor Dokumen Kerjasama'),
+                ->title('Nomor Dokumen Kerjasama')
+                ->width('150px'),
             Column::make('durasi_kerjasama')
-                ->title('Durasi Kerjasama'),
+                ->title('Durasi Kerjasama')
+                ->width('170px'),
             Column::make('status_kerjasama')
                 ->title('Status Kerjasama')
+                ->width('100px')
                 ->addClass('text-center'),
             Column::computed('action')
                 ->title('Aksi')
                 ->exportable(false)
                 ->printable(false)
-                ->width('12%')
+                ->width('100px')
                 ->addClass('text-center'),
         ];
     }

@@ -31,6 +31,9 @@ class KerjasamaRequest extends FormRequest
             'status_kerjasama'        => 'required|string|max:100',
             'hasil_pelaksanaan'       => 'nullable|string',
             'dokumen_file'            => 'nullable|file|mimes:pdf,doc,docx|max:5120', // max 5MB
+            'dokumen_files'           => 'nullable|array',
+            'dokumen_files.*'         => 'file|mimes:pdf,doc,docx|max:5120',
+            'existing_files'          => 'nullable|array',
             
             // Pihak Pihak
             'pihak'                   => 'required|array|size:2',
@@ -66,6 +69,8 @@ class KerjasamaRequest extends FormRequest
             'status_kerjasama.required'        => 'Status kerjasama wajib dipilih.',
             'dokumen_file.mimes'               => 'Format file harus berupa PDF, DOC, atau DOCX.',
             'dokumen_file.max'                 => 'Ukuran file maksimal adalah 5 MB.',
+            'dokumen_files.*.mimes'            => 'Format file harus berupa PDF, DOC, atau DOCX.',
+            'dokumen_files.*.max'              => 'Ukuran file maksimal adalah 5 MB per file.',
             'pihak.*.jenis_pihak.required'     => 'Jenis pihak wajib ditentukan.',
             'pihak.*.penanggung_jawab.required' => 'Minimal harus ada 1 penanggung jawab per pihak.',
             'pihak.*.penanggung_jawab.*.nama.required' => 'Nama penanggung jawab wajib diisi.',

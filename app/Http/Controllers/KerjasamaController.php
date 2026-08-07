@@ -14,6 +14,7 @@ use App\DataTables\KerjasamaDataTable;
 use App\Http\Requests\KerjasamaRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KerjasamaExport;
 use App\Imports\KerjasamaImport;
@@ -69,10 +70,16 @@ class KerjasamaController extends Controller
             // Set primary unit_kerja_id (first item) for backward compatibility
             $data['unit_kerja_id'] = $request->unit_kerja_ids[0] ?? null;
 
-            // Handle file upload
-            if ($request->hasFile('dokumen_file')) {
-                $data['url_file'] = $request->file('dokumen_file')->store('dokumen', 'public');
+            // Handle file upload (multiple or single)
+            $uploadedFiles = [];
+            if ($request->hasFile('dokumen_files')) {
+                foreach ($request->file('dokumen_files') as $file) {
+                    $uploadedFiles[] = $this->storeUploadedFile($file, 'dokumen');
+                }
+            } elseif ($request->hasFile('dokumen_file')) {
+                $uploadedFiles[] = $this->storeUploadedFile($request->file('dokumen_file'), 'dokumen');
             }
+            $data['url_file'] = !empty($uploadedFiles) ? json_encode($uploadedFiles) : null;
 
             $data['status'] = 'active'; // default status
 
@@ -155,14 +162,29 @@ class KerjasamaController extends Controller
             // Set primary unit_kerja_id (first item) for backward compatibility
             $data['unit_kerja_id'] = $request->unit_kerja_ids[0] ?? null;
 
-            // Handle file upload
-            if ($request->hasFile('dokumen_file')) {
-                // Delete old file if exists
-                if ($kerjasama->url_file) {
-                    Storage::disk('public')->delete($kerjasama->url_file);
-                }
-                $data['url_file'] = $request->file('dokumen_file')->store('dokumen', 'public');
+            // Handle file upload & existing files
+            $existingFiles = $request->input('existing_files', []);
+            if (!is_array($existingFiles)) {
+                $existingFiles = [];
             }
+
+            // Delete removed files from storage
+            $currentFiles = $kerjasama->url_file;
+            foreach ($currentFiles as $oldFile) {
+                if (!in_array($oldFile, $existingFiles)) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+            }
+
+            $uploadedFiles = $existingFiles;
+            if ($request->hasFile('dokumen_files')) {
+                foreach ($request->file('dokumen_files') as $file) {
+                    $uploadedFiles[] = $this->storeUploadedFile($file, 'dokumen');
+                }
+            } elseif ($request->hasFile('dokumen_file')) {
+                $uploadedFiles[] = $this->storeUploadedFile($request->file('dokumen_file'), 'dokumen');
+            }
+            $data['url_file'] = !empty($uploadedFiles) ? json_encode($uploadedFiles) : null;
 
             // Update Kerjasama
             $kerjasama->update($data);
@@ -179,7 +201,7 @@ class KerjasamaController extends Controller
             }
             $kerjasama->kerjasamaPihaks()->delete();
 
-            // 2. Save new Pihak & Penanggung Jawab
+            // 2. Create new
             foreach ($request->pihak as $key => $p) {
                 $pihak = KerjasamaPihak::create([
                     'kerjasama_id' => $kerjasama->id,
@@ -209,8 +231,11 @@ class KerjasamaController extends Controller
     public function destroy(Kerjasama $kerjasama)
     {
         DB::transaction(function () use ($kerjasama) {
-            if ($kerjasama->url_file) {
-                Storage::disk('public')->delete($kerjasama->url_file);
+            $files = $kerjasama->url_file;
+            if (!empty($files)) {
+                foreach ($files as $filePath) {
+                    Storage::disk('public')->delete($filePath);
+                }
             }
             // Cascade deletion is handled by DB foreign keys, but we can do it explicitly as well
             foreach ($kerjasama->kerjasamaPihaks as $p) {
@@ -262,5 +287,17 @@ class KerjasamaController extends Controller
                 ];
             }
         }, 'format-import-kerjasama.xlsx');
+    }
+
+    private function storeUploadedFile($file, $folder)
+    {
+        $origName = $file->getClientOriginalName();
+        $filename = $origName;
+        if (Storage::disk('public')->exists($folder . '/' . $filename)) {
+            $nameOnly = pathinfo($origName, PATHINFO_FILENAME);
+            $ext = $file->getClientOriginalExtension();
+            $filename = $nameOnly . '_' . time() . ($ext ? '.' . $ext : '');
+        }
+        return $file->storeAs($folder, $filename, 'public');
     }
 }

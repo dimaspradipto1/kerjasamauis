@@ -34,6 +34,22 @@ class Kegiatan extends Model
         'tanggal_akhir_kegiatan' => 'date',
     ];
 
+    public function getUrlFileAttribute($value)
+    {
+        if (empty($value)) {
+            return [];
+        }
+        if (is_array($value)) {
+            return $value;
+        }
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        return [$value];
+    }
+
+
     public function kerjasama(): BelongsTo
     {
         return $this->belongsTo(Kerjasama::class, 'kerjasama_id');

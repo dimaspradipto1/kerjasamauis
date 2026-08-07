@@ -47,10 +47,16 @@ class KegiatanController extends Controller
         DB::transaction(function () use ($request) {
             $data = $request->validated();
 
-            // Handle file upload
-            if ($request->hasFile('dokumen_file')) {
-                $data['url_file'] = $request->file('dokumen_file')->store('dokumen_kegiatan', 'public');
+            // Handle file upload (multiple or single)
+            $uploadedFiles = [];
+            if ($request->hasFile('dokumen_files')) {
+                foreach ($request->file('dokumen_files') as $file) {
+                    $uploadedFiles[] = $this->storeUploadedFile($file, 'dokumen_kegiatan');
+                }
+            } elseif ($request->hasFile('dokumen_file')) {
+                $uploadedFiles[] = $this->storeUploadedFile($request->file('dokumen_file'), 'dokumen_kegiatan');
             }
+            $data['url_file'] = !empty($uploadedFiles) ? json_encode($uploadedFiles) : null;
 
             // Save Kegiatan
             $kegiatan = Kegiatan::create($data);
@@ -123,13 +129,29 @@ class KegiatanController extends Controller
         DB::transaction(function () use ($request, $kegiatan) {
             $data = $request->validated();
 
-            // Handle file upload
-            if ($request->hasFile('dokumen_file')) {
-                if ($kegiatan->url_file) {
-                    Storage::disk('public')->delete($kegiatan->url_file);
-                }
-                $data['url_file'] = $request->file('dokumen_file')->store('dokumen_kegiatan', 'public');
+            // Handle file upload & existing files
+            $existingFiles = $request->input('existing_files', []);
+            if (!is_array($existingFiles)) {
+                $existingFiles = [];
             }
+
+            // Delete removed files from storage
+            $currentFiles = $kegiatan->url_file;
+            foreach ($currentFiles as $oldFile) {
+                if (!in_array($oldFile, $existingFiles)) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+            }
+
+            $uploadedFiles = $existingFiles;
+            if ($request->hasFile('dokumen_files')) {
+                foreach ($request->file('dokumen_files') as $file) {
+                    $uploadedFiles[] = $this->storeUploadedFile($file, 'dokumen_kegiatan');
+                }
+            } elseif ($request->hasFile('dokumen_file')) {
+                $uploadedFiles[] = $this->storeUploadedFile($request->file('dokumen_file'), 'dokumen_kegiatan');
+            }
+            $data['url_file'] = !empty($uploadedFiles) ? json_encode($uploadedFiles) : null;
 
             // Update Kegiatan
             $kegiatan->update($data);
@@ -170,8 +192,11 @@ class KegiatanController extends Controller
     public function destroy(Kegiatan $kegiatan)
     {
         DB::transaction(function () use ($kegiatan) {
-            if ($kegiatan->url_file) {
-                Storage::disk('public')->delete($kegiatan->url_file);
+            $files = $kegiatan->url_file;
+            if (!empty($files)) {
+                foreach ($files as $filePath) {
+                    Storage::disk('public')->delete($filePath);
+                }
             }
             foreach ($kegiatan->kegiatanPihaks as $p) {
                 $p->penanggungJawabs()->delete();
@@ -241,5 +266,17 @@ class KegiatanController extends Controller
                 ];
             }
         }, 'format-import-kegiatan.xlsx');
+    }
+
+    private function storeUploadedFile($file, $folder)
+    {
+        $origName = $file->getClientOriginalName();
+        $filename = $origName;
+        if (Storage::disk('public')->exists($folder . '/' . $filename)) {
+            $nameOnly = pathinfo($origName, PATHINFO_FILENAME);
+            $ext = $file->getClientOriginalExtension();
+            $filename = $nameOnly . '_' . time() . ($ext ? '.' . $ext : '');
+        }
+        return $file->storeAs($folder, $filename, 'public');
     }
 }
