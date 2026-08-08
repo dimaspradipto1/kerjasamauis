@@ -87,6 +87,7 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
         Route::get('kerjasama/export', [KerjasamaController::class, 'export'])->name('kerjasama.export');
         Route::post('kerjasama/import', [KerjasamaController::class, 'import'])->name('kerjasama.import');
         Route::get('kerjasama/download-template', [KerjasamaController::class, 'downloadTemplate'])->name('kerjasama.download-template');
+        Route::post('kerjasama/bulk-delete', [KerjasamaController::class, 'bulkDelete'])->name('kerjasama.bulk-delete');
         Route::resource('kerjasama', KerjasamaController::class);
     });
 

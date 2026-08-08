@@ -59,6 +59,12 @@
                 <div class="col-5 text-muted">Jenis Dokumen</div>
                 <div class="col-7">: {{ $kerjasama->jenisDokumen ? $kerjasama->jenisDokumen->nama_jenis_dokumen : '-' }}</div>
               </div>
+              @if($kerjasama->bidang_implementasi)
+              <div class="row mb-2">
+                <div class="col-5 text-muted">Bidang Implementasi</div>
+                <div class="col-7">: <span class="badge bg-success-light text-success border border-success-subtle px-2 py-1" style="font-weight: 500;"><i class="bi bi-bookmark-check-fill me-1"></i>{{ $kerjasama->bidang_implementasi }}</span></div>
+              </div>
+              @endif
               <div class="row mb-2">
                 <div class="col-5 text-muted">Unit Kerja</div>
                 <div class="col-7">

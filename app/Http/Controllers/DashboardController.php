@@ -41,11 +41,28 @@ class DashboardController extends Controller
             $baseKerjasama->whereYear('tanggal_waktu_berlaku', $tahunSelected);
         }
 
-        // 1. Status metrics
+        // 1. Status & Document metrics
         $aktifCount = (clone $baseKerjasama)->where('status_kerjasama', 'Aktif')->count();
         $perpanjanganCount = (clone $baseKerjasama)->where('status_kerjasama', 'Perpanjangan')->count();
         $kedaluwarsaCount = (clone $baseKerjasama)->where('status_kerjasama', 'Kedaluwarsa')->count();
         $tidakAktifCount = (clone $baseKerjasama)->where('status_kerjasama', 'Tidak Aktif')->count();
+
+        $mouTotalCount = (clone $baseKerjasama)->whereHas('jenisDokumen', function ($jd) {
+            $jd->where('nama_jenis_dokumen', 'like', '%MoU%')
+               ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Understanding%');
+        })->count();
+
+        $moaTotalCount = (clone $baseKerjasama)->whereHas('jenisDokumen', function ($jd) {
+            $jd->where('nama_jenis_dokumen', 'like', '%MoA%')
+               ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Agreement%');
+        })->count();
+
+        $iaTotalCount = (clone $baseKerjasama)->whereHas('jenisDokumen', function ($jd) {
+            $jd->where('nama_jenis_dokumen', 'like', '%IA%')
+               ->orWhere('nama_jenis_dokumen', 'like', '%Implementation Arrangement%');
+        })->count();
+
+        $totalKerjasamaCount = (clone $baseKerjasama)->count();
 
         // 2. Jenis Dokumen Chart data
         $jenisDokumenData = (clone $baseKerjasama)
@@ -287,6 +304,7 @@ class DashboardController extends Controller
 
         return view('layouts.dashboard.index', compact(
             'aktifCount', 'perpanjanganCount', 'kedaluwarsaCount', 'tidakAktifCount',
+            'mouTotalCount', 'moaTotalCount', 'iaTotalCount', 'totalKerjasamaCount',
             'jenisDokumenData', 'ruangLingkupData', 'jenisMitraData', 'bentukKegiatanData',
             'unitKerjaData', 'provinsiMitraData', 'kriteriaMitraData',
             'denganHasilKegiatan', 'tanpaHasilKegiatan', 'denganHasilKerjasama', 'tanpaHasilKerjasama',

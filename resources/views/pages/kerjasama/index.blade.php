@@ -14,6 +14,9 @@
             </nav>
         </div>
         <div class="d-flex align-items-center gap-2">
+            <button type="button" id="btn-bulk-delete" class="btn btn-danger rounded-3 px-3 py-2 align-items-center gap-1 text-white" style="height: 36px; display: none !important;">
+                <i class="bi bi-trash"></i> Hapus Terpilih (<span id="selected-count">0</span>)
+            </button>
             <a href="{{ route('kerjasama.export') }}" class="btn btn-outline-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #ced4da; background: #fff;" title="Export Excel">
                 <i class="bi bi-printer text-dark fs-5"></i>
             </a>
@@ -26,9 +29,21 @@
         </div>
     </div>
 
+    <form id="form-bulk-delete" action="{{ route('kerjasama.bulk-delete') }}" method="POST" style="display: none;">
+        @csrf
+        <div id="bulk-delete-ids-container"></div>
+    </form>
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 25px !important;">
             <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-bottom: 25px !important;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
@@ -341,16 +356,94 @@
                 window.LaravelDataTables[tableId].search(this.value).draw();
             });
 
+            // Function to update bulk delete button count & visibility
+            function updateBulkDeleteState() {
+                const checkedCount = $('.row-checkbox:checked').length;
+                $('#selected-count').text(checkedCount);
+                if (checkedCount > 0) {
+                    $('#btn-bulk-delete').removeClass('d-none').css('display', 'inline-flex');
+                } else {
+                    $('#btn-bulk-delete').addClass('d-none').css('display', 'none');
+                }
+            }
+
             // Select-all checkbox handling
             $(document).on('change', '#select-all-checkbox', function() {
                 $('.row-checkbox').prop('checked', this.checked);
+                updateBulkDeleteState();
             });
             $(document).on('change', '.row-checkbox', function() {
                 if (!this.checked) {
                     $('#select-all-checkbox').prop('checked', false);
-                } else if ($('.row-checkbox:checked').length === $('.row-checkbox').length) {
+                } else if ($('.row-checkbox:checked').length === $('.row-checkbox').length && $('.row-checkbox').length > 0) {
                     $('#select-all-checkbox').prop('checked', true);
                 }
+                updateBulkDeleteState();
+            });
+
+            // Reset select-all and bulk delete button on Datatable redraw
+            $('#' + tableId).on('draw.dt', function() {
+                $('#select-all-checkbox').prop('checked', false);
+                updateBulkDeleteState();
+            });
+
+            // SweetAlert2 for Single Delete
+            $(document).on('submit', '.form-delete-single', function(e) {
+                e.preventDefault();
+                const form = this;
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: 'Data kerjasama ini akan dihapus!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmColor: '#dc3545',
+                    cancelColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // SweetAlert2 for Bulk Delete
+            $('#btn-bulk-delete').on('click', function() {
+                const selectedIds = $('.row-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Tidak Ada Data Terpilih',
+                        text: 'Silakan pilih minimal satu data kerjasama yang ingin dihapus.',
+                        confirmColor: '#0d6efd'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: `Anda akan menghapus ${selectedIds.length} data kerjasama yang dipilih!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmColor: '#dc3545',
+                    cancelColor: '#6c757d',
+                    confirmButtonText: `Ya, Hapus (${selectedIds.length}) Data!`,
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const container = $('#bulk-delete-ids-container');
+                        container.empty();
+                        selectedIds.forEach(id => {
+                            container.append(`<input type="hidden" name="ids[]" value="${id}">`);
+                        });
+                        $('#form-bulk-delete').submit();
+                    }
+                });
             });
         });
     </script>

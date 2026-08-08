@@ -15,6 +15,7 @@ class Kerjasama extends Model
         'nomor_dokumen_kerjasama',
         'nomor_dokumen_mitra',
         'jenis_dokumen_id',
+        'bidang_implementasi',
         'mitra_id',
         'unit_kerja_id',
         'judul_kerjasama',

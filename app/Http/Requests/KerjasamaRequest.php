@@ -17,6 +17,7 @@ class KerjasamaRequest extends FormRequest
             'nomor_dokumen_kerjasama' => 'required|string|max:255',
             'nomor_dokumen_mitra'     => 'nullable|string|max:255',
             'jenis_dokumen_id'        => 'required|exists:jenis_dokumens,id',
+            'bidang_implementasi'     => 'nullable|string|max:255',
             'mitra_id'                => 'required|exists:mitras,id',
             'unit_kerja_ids'          => 'required|array|min:1',
             'unit_kerja_ids.*'        => 'exists:unit_kerjas,id',

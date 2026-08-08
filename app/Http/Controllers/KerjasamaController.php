@@ -249,6 +249,41 @@ class KerjasamaController extends Controller
             ->with('success', 'Kerjasama berhasil dihapus.');
     }
 
+    public function bulkDelete(\Illuminate\Http\Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada data yang dipilih.'], 400);
+            }
+            return redirect()->route('kerjasama.index')->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
+        }
+
+        $count = count($ids);
+        DB::transaction(function () use ($ids) {
+            $kerjasamas = Kerjasama::whereIn('id', $ids)->get();
+            foreach ($kerjasamas as $kerjasama) {
+                $files = $kerjasama->url_file;
+                if (!empty($files)) {
+                    foreach ($files as $filePath) {
+                        Storage::disk('public')->delete($filePath);
+                    }
+                }
+                foreach ($kerjasama->kerjasamaPihaks as $p) {
+                    $p->penanggungJawabs()->delete();
+                }
+                $kerjasama->kerjasamaPihaks()->delete();
+                $kerjasama->delete();
+            }
+        });
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => $count . ' data kerjasama berhasil dihapus.']);
+        }
+
+        return redirect()->route('kerjasama.index')->with('success', $count . ' data kerjasama berhasil dihapus.');
+    }
+
     public function export()
     {
         return Excel::download(new KerjasamaExport(), 'data-kerjasama.xlsx');

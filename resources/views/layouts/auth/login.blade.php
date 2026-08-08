@@ -782,15 +782,7 @@
               </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <label class="checkbox-container-modern">
-                <input type="checkbox" name="remember" value="true" id="rememberMe">
-                <span class="checkmark-modern"></span>
-                <span class="checkbox-label-modern">Ingat login saya</span>
-              </label>
-            </div>
-            
-            <button class="btn-submit-modern" type="submit">
+            <button class="btn-submit-modern mt-4" type="submit">
               Masuk Aplikasi
               <i class="bi bi-arrow-right-short" style="font-size: 20px; line-height: 1;"></i>
             </button>

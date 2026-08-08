@@ -67,6 +67,16 @@
               </select>
             </div>
 
+            <div class="mb-4" id="container_bidang_implementasi" style="display: none;">
+              <label for="bidang_implementasi" class="form-label fw-semibold">Jenis Kerjasama Implementasi (Bidang) <span class="text-danger">*</span></label>
+              <select name="bidang_implementasi" id="bidang_implementasi" class="form-select form-control-m">
+                <option value="" disabled {{ !old('bidang_implementasi', $kerjasama->bidang_implementasi) ? 'selected' : '' }}>Pilih Jenis Kerjasama Implementasi</option>
+                <option value="Pendidikan" {{ old('bidang_implementasi', $kerjasama->bidang_implementasi) == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
+                <option value="Penelitian" {{ old('bidang_implementasi', $kerjasama->bidang_implementasi) == 'Penelitian' ? 'selected' : '' }}>Penelitian</option>
+                <option value="Pengabdian kepada Masyarakat" {{ old('bidang_implementasi', $kerjasama->bidang_implementasi) == 'Pengabdian kepada Masyarakat' ? 'selected' : '' }}>Pengabdian kepada Masyarakat</option>
+              </select>
+            </div>
+
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
                 <label class="form-label fw-semibold">Unit Kerja <span class="text-danger">*</span></label>
@@ -388,17 +398,7 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">Nama *</label>
-                    <select name="pihak[2][penanggung_jawab][{{ $i }}][nama]" class="form-select form-control-m select-pj-nama" required>
-                      <option value=""></option>
-                      @foreach($staffList as $st)
-                        <option value="{{ $st->nama_staff }}" data-nup="{{ $st->nup }}" data-jabatan="{{ $st->jabatan }}" data-email="{{ $st->email }}" data-hp="{{ $st->nomor_hp }}" data-alamat="{{ $st->alamat }}" {{ old('pihak.2.penanggung_jawab.'.$i.'.nama', $pj->nama) == $st->nama_staff ? 'selected' : '' }}>
-                          {{ $st->nama_staff }} @if($st->nup)({{ $st->nup }})@endif
-                        </option>
-                      @endforeach
-                      @if($pj->nama && !$staffList->pluck('nama_staff')->contains($pj->nama))
-                        <option value="{{ $pj->nama }}" selected>{{ $pj->nama }}</option>
-                      @endif
-                    </select>
+                    <input type="text" name="pihak[2][penanggung_jawab][{{ $i }}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama Penanggung Jawab" value="{{ old('pihak.2.penanggung_jawab.'.$i.'.nama', $pj->nama) }}" required>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">NUP</label>
@@ -429,14 +429,7 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">Nama *</label>
-                    <select name="pihak[2][penanggung_jawab][0][nama]" class="form-select form-control-m select-pj-nama" required>
-                      <option value=""></option>
-                      @foreach($staffList as $st)
-                        <option value="{{ $st->nama_staff }}" data-nup="{{ $st->nup }}" data-jabatan="{{ $st->jabatan }}" data-email="{{ $st->email }}" data-hp="{{ $st->nomor_hp }}">
-                          {{ $st->nama_staff }} @if($st->nup)({{ $st->nup }})@endif
-                        </option>
-                      @endforeach
-                    </select>
+                    <input type="text" name="pihak[2][penanggung_jawab][0][nama]" class="form-control form-control-m" placeholder="Masukkan Nama Penanggung Jawab" value="{{ old('pihak.2.penanggung_jawab.0.nama') }}" required>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="small text-muted mb-1 d-block">NUP</label>
@@ -751,6 +744,10 @@
   });
 
   function makePjBlock(pihak, index) {
+    const namaFieldHtml = (pihak == 2)
+      ? `<input type="text" name="pihak[2][penanggung_jawab][${index}][nama]" class="form-control form-control-m" placeholder="Masukkan Nama Penanggung Jawab" required>`
+      : `<select name="pihak[1][penanggung_jawab][${index}][nama]" class="form-select form-control-m select-pj-nama" required>${makeStaffOptionsHtml()}</select>`;
+
     return `
       <div class="pj-item border rounded-3 p-3 mb-3 position-relative" data-pihak="${pihak}" data-index="${index}">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -760,9 +757,7 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="small text-muted mb-1 d-block">Nama *</label>
-            <select name="pihak[${pihak}][penanggung_jawab][${index}][nama]" class="form-select form-control-m select-pj-nama" required>
-              ${makeStaffOptionsHtml()}
-            </select>
+            ${namaFieldHtml}
           </div>
           <div class="col-md-6 mb-3">
             <label class="small text-muted mb-1 d-block">NUP</label>
@@ -807,9 +802,13 @@
       if (namaJenis.includes('ia') || namaJenis.includes('implementation')) {
         $('#label_tanggal_awal').html('Tanggal Awal Pelaksanaan <span class="text-danger">*</span>');
         $('#label_tanggal_akhir').html('Tanggal Akhir Pelaksanaan <span class="text-danger">*</span>');
+        $('#container_bidang_implementasi').slideDown();
+        $('#bidang_implementasi').prop('required', true);
       } else {
         $('#label_tanggal_awal').html('Tanggal Awal Berlaku <span class="text-danger">*</span>');
         $('#label_tanggal_akhir').html('Tanggal Akhir Berlaku <span class="text-danger">*</span>');
+        $('#container_bidang_implementasi').slideUp();
+        $('#bidang_implementasi').prop('required', false);
       }
     }
 

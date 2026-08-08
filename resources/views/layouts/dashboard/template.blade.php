@@ -64,6 +64,7 @@
   <script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
   <script src="{{ asset('assets/vendor/datatables/dataTables.js') }}"></script>
   <script src="{{ asset('assets/vendor/datatables/dataTables.bootstrap5.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   @stack('scripts')
   @stack('styles')

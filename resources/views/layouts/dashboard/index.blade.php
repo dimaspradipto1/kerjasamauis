@@ -37,82 +37,82 @@
         {{-- SECTION 1: EXECUTIVE KPI SUMMARY CARDS (STATUS & SKALA) --}}
         {{-- ========================================================================= --}}
         <div class="row g-3 mb-4" style="margin-top: 5px !important; margin-bottom: 25px !important;">
-            {{-- Aktif Card --}}
+            {{-- MoU Card --}}
             <div class="col-xl-3 col-md-6">
                 <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #198754 !important;">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <span class="text-success fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
-                                    <i class="bi bi-check-square-fill"></i> Aktif
+                                    <i class="bi bi-file-earmark-check-fill"></i> MoU
                                 </span>
-                                <h3 class="fw-bold text-dark mb-0">{{ $aktifCount }}</h3>
+                                <h3 class="fw-bold text-dark mb-0">{{ $mouTotalCount }}</h3>
                             </div>
                             <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                                <i class="bi bi-shield-check fs-4"></i>
+                                <i class="bi bi-file-earmark-check fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama sedang berjalan dan masih berlaku.</p>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Memorandum of Understanding (Nota Kesepahaman)</p>
                     </div>
                 </div>
             </div>
 
-            {{-- Perpanjangan Card --}}
+            {{-- MoA Card --}}
             <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #0dcaf0 !important;">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #0d6efd !important;">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-info fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
-                                    <i class="bi bi-arrow-repeat"></i> Perpanjangan
+                                <span class="text-primary fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
+                                    <i class="bi bi-file-earmark-text-fill"></i> MoA
                                 </span>
-                                <h3 class="fw-bold text-dark mb-0">{{ $perpanjanganCount }}</h3>
+                                <h3 class="fw-bold text-dark mb-0">{{ $moaTotalCount }}</h3>
                             </div>
-                            <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                                <i class="bi bi-arrow-clockwise fs-4"></i>
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="bi bi-file-earmark-text fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama sedang dalam proses perpanjangan.</p>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Memorandum of Agreement (Perjanjian Kerjasama)</p>
                     </div>
                 </div>
             </div>
 
-            {{-- Kedaluwarsa Card --}}
+            {{-- IA Card --}}
             <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #ffc107 !important;">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #6f42c1 !important;">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-warning fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> Kedaluwarsa
+                                <span class="fw-bold d-flex align-items-center gap-1 mb-1" style="color: #6f42c1; font-size: 0.95rem;">
+                                    <i class="bi bi-journal-text"></i> IA
                                 </span>
-                                <h3 class="fw-bold text-dark mb-0">{{ $kedaluwarsaCount }}</h3>
+                                <h3 class="fw-bold text-dark mb-0">{{ $iaTotalCount }}</h3>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">
+                                <i class="bi bi-journal-check fs-4"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Implementation Arrangement (Pelaksanaan Kerjasama)</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total Kerjasama Card --}}
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #fd7e14 !important;">
+                    <div class="card-body" style="padding: 1.25rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="fw-bold d-flex align-items-center gap-1 mb-1" style="color: #fd7e14; font-size: 0.95rem;">
+                                    <i class="bi bi-folder-fill"></i> Total Kerjasama
+                                </span>
+                                <h3 class="fw-bold text-dark mb-0">{{ $totalKerjasamaCount }}</h3>
                             </div>
                             <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                                <i class="bi bi-clock-history fs-4"></i>
+                                <i class="bi bi-folder-check fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama melewati masa berlaku & belum diperpanjang.</p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Tidak Aktif Card --}}
-            <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #dc3545 !important;">
-                    <div class="card-body" style="padding: 1.25rem !important;">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <span class="text-danger fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
-                                    <i class="bi bi-x-circle-fill"></i> Tidak Aktif
-                                </span>
-                                <h3 class="fw-bold text-dark mb-0">{{ $tidakAktifCount }}</h3>
-                            </div>
-                            <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                                <i class="bi bi-slash-circle fs-4"></i>
-                            </div>
-                        </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama sudah tidak berlaku atau dihentikan.</p>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Total keseluruhan dokumen kerjasama.</p>
                     </div>
                 </div>
             </div>

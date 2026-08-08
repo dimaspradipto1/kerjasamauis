@@ -96,7 +96,7 @@ class KerjasamaDataTable extends DataTable
                 $btn .= '<a href="' . route('kerjasama.show', $item->id) . '" class="btn btn-sm btn-outline-primary rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Detail"><i class="bi bi-eye" style="font-size: 13px;"></i></a>';
                 
                 // Delete
-                $btn .= '<form action="' . route('kerjasama.destroy', $item->id) . '" method="POST" class="m-0">' . csrf_field() . method_field('DELETE') . '<button type="submit" class="btn btn-outline-danger btn-sm rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Hapus" onclick="return confirm(\'Yakin ingin menghapus kerjasama ini?\')"><i class="bi bi-trash" style="font-size: 13px;"></i></button></form>';
+                $btn .= '<form action="' . route('kerjasama.destroy', $item->id) . '" method="POST" class="m-0 form-delete-single">' . csrf_field() . method_field('DELETE') . '<button type="submit" class="btn btn-outline-danger btn-sm rounded shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" title="Hapus"><i class="bi bi-trash" style="font-size: 13px;"></i></button></form>';
                 
                 $btn .= '</div>';
                 return $btn;
