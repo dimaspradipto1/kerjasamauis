@@ -64,6 +64,7 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     });
 
     // Data Mitra
+    Route::post('mitra/ajax-store', [MitraController::class, 'ajaxStore'])->name('mitra.ajax-store');
     Route::middleware(['checkpermission:mitra'])->group(function () {
         Route::get('mitra/export', [MitraController::class, 'export'])->name('mitra.export');
         Route::resource('mitra', MitraController::class);

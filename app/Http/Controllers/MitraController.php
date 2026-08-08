@@ -106,4 +106,70 @@ class MitraController extends Controller
     {
         return Excel::download(new MitraExport(), 'data-mitra.xlsx');
     }
+
+    public function ajaxStore(\Illuminate\Http\Request $request)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'jenis_mitra'            => 'required|string|in:Perguruan Tinggi,Non Perguruan Tinggi',
+            'nama_mitra'             => 'required|string|max:500',
+            'kriteria_mitra_id'      => 'required|exists:kriteria_mitras,id',
+            'nomor_izin_usaha'       => 'nullable|string|max:255',
+            'npwp'                   => 'nullable|string|max:255',
+            'lingkup_mitra'          => 'required|string|in:Lokal,Regional,Nasional,Internasional',
+            'negara'                 => 'nullable|string|max:255',
+            'provinsi'               => 'nullable|string|max:255',
+            'kabupaten_kota'         => 'nullable|string|max:255',
+            'kecamatan'              => 'nullable|string|max:255',
+            'kodepos'                => 'nullable|string|max:20',
+            'alamat'                 => 'nullable|string',
+            'email'                  => 'nullable|email|max:255',
+            'no_telp'                => 'nullable|string|max:50',
+            'website'                => 'nullable|string|max:255',
+            
+            // Kontak Mitra
+            'kontak'                 => 'nullable|array',
+            'kontak.*.nama_kontak'   => 'nullable|string|max:255',
+            'kontak.*.jabatan'       => 'nullable|string|max:255',
+            'kontak.*.nomor_handphone' => 'nullable|string|max:50',
+            'kontak.*.email'         => 'nullable|email|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validatedData = $validator->validated();
+
+        $mitra = null;
+        DB::transaction(function () use ($validatedData, &$mitra) {
+            $mitraData = $validatedData;
+            unset($mitraData['kontak']);
+            $mitra = Mitra::create($mitraData);
+
+            if (!empty($validatedData['kontak'])) {
+                foreach ($validatedData['kontak'] as $k) {
+                    if (!empty($k['nama_kontak'])) {
+                        KontakMitra::create([
+                            'mitra_id'        => $mitra->id,
+                            'nama_kontak'     => $k['nama_kontak'],
+                            'jabatan'         => $k['jabatan'] ?? '',
+                            'nomor_handphone' => $k['nomor_handphone'] ?? '',
+                            'email'           => $k['email'] ?? '',
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'id'         => $mitra->id,
+                'nama_mitra' => $mitra->nama_mitra
+            ]
+        ]);
+    }
 }

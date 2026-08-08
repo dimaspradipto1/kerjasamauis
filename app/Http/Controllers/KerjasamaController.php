@@ -8,6 +8,7 @@ use App\Models\KerjasamaPenanggungJawab;
 use App\Models\JenisDokumen;
 use App\Models\Mitra;
 use App\Models\UnitKerja;
+use App\Models\KriteriaMitra;
 use App\Models\SumberDana;
 use App\Models\Staff;
 use App\DataTables\KerjasamaDataTable;
@@ -52,8 +53,9 @@ class KerjasamaController extends Controller
         $unitKerjas    = UnitKerja::orderBy('id', 'asc')->get();
         $sumberDanas   = SumberDana::orderBy('nama_sumber_dana', 'asc')->get();
         $staffList     = Staff::where('status', 'Aktif')->orderBy('nama_staff', 'asc')->get();
+        $kriteriaMitras = KriteriaMitra::orderBy('kriteria_mitra', 'asc')->get();
 
-        return view('pages.kerjasama.create', compact('jenisDokumens', 'mitras', 'unitKerjas', 'sumberDanas', 'staffList'));
+        return view('pages.kerjasama.create', compact('jenisDokumens', 'mitras', 'unitKerjas', 'sumberDanas', 'staffList', 'kriteriaMitras'));
     }
 
     public function store(KerjasamaRequest $request)
@@ -141,11 +143,12 @@ class KerjasamaController extends Controller
         $unitKerjas    = UnitKerja::orderBy('id', 'asc')->get();
         $sumberDanas   = SumberDana::orderBy('nama_sumber_dana', 'asc')->get();
         $staffList     = Staff::where('status', 'Aktif')->orderBy('nama_staff', 'asc')->get();
+        $kriteriaMitras = KriteriaMitra::orderBy('kriteria_mitra', 'asc')->get();
 
         $pihak1 = $kerjasama->kerjasamaPihaks->where('pihak_ke', '1')->first();
         $pihak2 = $kerjasama->kerjasamaPihaks->where('pihak_ke', '2')->first();
 
-        return view('pages.kerjasama.edit', compact('kerjasama', 'jenisDokumens', 'mitras', 'unitKerjas', 'sumberDanas', 'pihak1', 'pihak2', 'staffList'));
+        return view('pages.kerjasama.edit', compact('kerjasama', 'jenisDokumens', 'mitras', 'unitKerjas', 'sumberDanas', 'pihak1', 'pihak2', 'staffList', 'kriteriaMitras'));
     }
 
     public function update(KerjasamaRequest $request, Kerjasama $kerjasama)

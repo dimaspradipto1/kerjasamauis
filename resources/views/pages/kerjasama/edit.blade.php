@@ -107,7 +107,7 @@
               <div class="col-md-6">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <label for="mitra_id" class="form-label fw-semibold mb-0">Mitra <span class="text-danger">*</span></label>
-                  <a href="{{ route('mitra.create') }}" class="small text-success fw-semibold" style="text-decoration: none;"><i class="bi bi-plus-lg me-1"></i>Tambah Data Mitra</a>
+                  <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalTambahMitra" class="small text-success fw-semibold" style="text-decoration: none;"><i class="bi bi-plus-lg me-1"></i>Tambah Data Mitra</a>
                 </div>
                 <select name="mitra_id" id="mitra_id" class="form-select form-control-m" required>
                   <option value="" disabled>Pilih Mitra</option>
@@ -526,6 +526,196 @@
   }
 </style>
 
+{{-- ══ Modal Tambah Mitra ══ --}}
+<div class="modal fade" id="modalTambahMitra" tabindex="-1" aria-labelledby="modalTambahMitraLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="modalTambahMitraLabel" style="font-size: 1rem;"><i class="bi bi-building me-2"></i>Tambah Data Mitra Baru</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="formTambahMitra">
+        <div class="modal-body p-4" style="max-height: 75vh; overflow-y: auto;">
+
+          {{-- Section 1: Informasi Mitra --}}
+          <div class="card border mb-4">
+            <div class="card-header bg-light py-2 px-3 fw-bold text-dark" style="font-size: 0.9rem;">
+              <i class="bi bi-info-circle me-1 text-success"></i> Informasi Mitra
+            </div>
+            <div class="card-body p-3">
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold d-block">Jenis Mitra <span class="text-danger">*</span></label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="jenis_mitra" id="modal_jenis_pt" value="Perguruan Tinggi" checked required>
+                  <label class="form-check-label" for="modal_jenis_pt">Perguruan Tinggi</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="jenis_mitra" id="modal_jenis_non_pt" value="Non Perguruan Tinggi">
+                  <label class="form-check-label" for="modal_jenis_non_pt">Non Perguruan Tinggi</label>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="modal_nama_mitra" class="form-label fw-semibold">Nama Mitra <span class="text-danger">*</span></label>
+                <input type="text" name="nama_mitra" id="modal_nama_mitra" class="form-control form-control-m" placeholder="Masukkan Nama Mitra" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="modal_kriteria_mitra_id" class="form-label fw-semibold">Kriteria Mitra <span class="text-danger">*</span></label>
+                <select name="kriteria_mitra_id" id="modal_kriteria_mitra_id" class="form-select form-control-m" required>
+                  <option value="" disabled selected>Pilih Kriteria Mitra</option>
+                  @if(isset($kriteriaMitras))
+                    @foreach($kriteriaMitras as $km)
+                      <option value="{{ $km->id }}">{{ $km->kriteria_mitra }}</option>
+                    @endforeach
+                  @endif
+                </select>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label for="modal_nomor_izin_usaha" class="form-label fw-semibold">Nomor Surat Izin Usaha / Perguruan Tinggi</label>
+                  <input type="text" name="nomor_izin_usaha" id="modal_nomor_izin_usaha" class="form-control form-control-m" placeholder="(opsional)">
+                </div>
+                <div class="col-md-6">
+                  <label for="modal_npwp" class="form-label fw-semibold">NPWP Mitra</label>
+                  <input type="text" name="npwp" id="modal_npwp" class="form-control form-control-m" placeholder="(opsional)">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold d-block">Lingkup Mitra <span class="text-danger">*</span></label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="lingkup_mitra" id="modal_lingkup_lokal" value="Lokal" checked required>
+                  <label class="form-check-label" for="modal_lingkup_lokal">Lokal</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="lingkup_mitra" id="modal_lingkup_regional" value="Regional">
+                  <label class="form-check-label" for="modal_lingkup_regional">Regional</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="lingkup_mitra" id="modal_lingkup_nasional" value="Nasional">
+                  <label class="form-check-label" for="modal_lingkup_nasional">Nasional</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="lingkup_mitra" id="modal_lingkup_internasional" value="Internasional">
+                  <label class="form-check-label" for="modal_lingkup_internasional">Internasional</label>
+                </div>
+              </div>
+
+              <div id="modal_internasional_location_container" class="mb-3" style="display: none;">
+                <label for="modal_negara" class="form-label fw-semibold">Negara <span class="text-danger">*</span></label>
+                <input type="text" name="negara" id="modal_negara" class="form-control form-control-m" placeholder="Masukkan Nama Negara">
+              </div>
+
+              <div id="modal_lokal_location_container">
+                <div class="row mb-3">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <label for="modal_provinsi" class="form-label fw-semibold">Provinsi</label>
+                    <select name="provinsi" id="modal_provinsi" class="form-select form-control-m">
+                      <option value="" selected>Pilih Provinsi (opsional)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="modal_kabupaten_kota" class="form-label fw-semibold">Kota / Kabupaten</label>
+                    <select name="kabupaten_kota" id="modal_kabupaten_kota" class="form-select form-control-m" disabled>
+                      <option value="" selected>Pilih Kota / Kabupaten (opsional)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <label for="modal_kecamatan" class="form-label fw-semibold">Kecamatan</label>
+                    <select name="kecamatan" id="modal_kecamatan" class="form-select form-control-m" disabled>
+                      <option value="" selected>Pilih Kecamatan (opsional)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="modal_kodepos" class="form-label fw-semibold">Kode POS</label>
+                    <input type="text" name="kodepos" id="modal_kodepos" class="form-control form-control-m" placeholder="Masukkan Kode POS (opsional)">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="modal_alamat" class="form-label fw-semibold">Alamat</label>
+                <textarea name="alamat" id="modal_alamat" class="form-control form-control-m" rows="2" placeholder="Masukkan Alamat (opsional)"></textarea>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4 mb-3 mb-md-0">
+                  <label for="modal_email" class="form-label fw-semibold">Email</label>
+                  <input type="email" name="email" id="modal_email" class="form-control form-control-m" placeholder="Masukkan Email (opsional)">
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                  <label for="modal_no_telp" class="form-label fw-semibold">Nomor Telepon</label>
+                  <input type="text" name="no_telp" id="modal_no_telp" class="form-control form-control-m" placeholder="Masukkan Nomor Telepon (opsional)">
+                </div>
+                <div class="col-md-4">
+                  <label for="modal_website" class="form-label fw-semibold">Link Website</label>
+                  <input type="text" name="website" id="modal_website" class="form-control form-control-m" placeholder="Masukkan Link Website (opsional)">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {{-- Section 2: Informasi Kontak Mitra --}}
+          <div class="card border">
+            <div class="card-header bg-light py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center" style="font-size: 0.9rem;">
+              <span><i class="bi bi-person-lines-fill me-1 text-success"></i> Informasi Kontak Mitra</span>
+            </div>
+            <div class="card-body p-3">
+              <div id="modal-kontak-wrapper">
+                <div class="modal-kontak-item border rounded p-3 mb-3 bg-light position-relative" data-index="0">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 modal-kontak-title text-success small">Kontak 1</h6>
+                    <button type="button" class="btn btn-danger btn-xs btn-remove-modal-kontak d-none" title="Hapus kontak ini" style="font-size: 0.75rem; padding: 2px 8px;">
+                      <i class="bi bi-trash3-fill me-1"></i> Hapus
+                    </button>
+                  </div>
+                  <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                      <label class="form-label small mb-1 fw-medium">Nama Kontak <span class="text-danger">*</span></label>
+                      <input type="text" name="kontak[0][nama_kontak]" class="form-control form-control-m" placeholder="Masukkan Nama Kontak">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small mb-1 fw-medium">Jabatan <span class="text-danger">*</span></label>
+                      <input type="text" name="kontak[0][jabatan]" class="form-control form-control-m" placeholder="Masukkan Jabatan">
+                    </div>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label small mb-1 fw-medium">Nomor Handphone <span class="text-danger">*</span></label>
+                      <input type="text" name="kontak[0][nomor_handphone]" class="form-control form-control-m" placeholder="Masukkan Nomor Handphone">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small mb-1 fw-medium">Email <span class="text-danger">*</span></label>
+                      <input type="email" name="kontak[0][email]" class="form-control form-control-m" placeholder="Masukkan Email">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center mt-2">
+                <button type="button" id="btnTambahModalKontak" class="btn btn-outline-success btn-sm px-3">
+                  <i class="bi bi-plus-lg me-1"></i> Tambah Kontak
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer bg-light px-4 py-3">
+          <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-success btn-sm px-4 text-white" id="btnSimpanMitra"><i class="bi bi-check-lg me-1"></i>Simpan Mitra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {{-- ══ Modal Tambah Sumber Dana ══ --}}
 <div class="modal fade" id="modalTambahSumberDana" tabindex="-1" aria-labelledby="modalTambahSumberDanaLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -566,6 +756,159 @@
       tags: true
     });
     $('#status_kerjasama').select2({ placeholder: "Pilih Status" });
+
+    // Modal Wilayah & Lingkup Logic
+    const modalProvSelect = document.getElementById('modal_provinsi');
+    const modalRegSelect = document.getElementById('modal_kabupaten_kota');
+    const modalDistSelect = document.getElementById('modal_kecamatan');
+
+    if (modalProvSelect) {
+      fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
+        .then(res => res.json())
+        .then(provinces => {
+          provinces.forEach(prov => {
+            const opt = document.createElement('option');
+            opt.value = prov.name;
+            opt.textContent = prov.name;
+            opt.setAttribute('data-id', prov.id);
+            modalProvSelect.appendChild(opt);
+          });
+        })
+        .catch(err => console.error(err));
+
+      modalProvSelect.addEventListener('change', function() {
+        const sel = this.options[this.selectedIndex];
+        const provId = sel ? sel.getAttribute('data-id') : null;
+        modalRegSelect.innerHTML = '<option value="" disabled selected>Pilih Kota / Kabupaten (opsional)</option>';
+        modalDistSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan (opsional)</option>';
+        modalRegSelect.disabled = true;
+        modalDistSelect.disabled = true;
+
+        if (provId) {
+          fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provId}.json`)
+            .then(res => res.json())
+            .then(regencies => {
+              regencies.forEach(reg => {
+                const opt = document.createElement('option');
+                opt.value = reg.name;
+                opt.textContent = reg.name;
+                opt.setAttribute('data-id', reg.id);
+                modalRegSelect.appendChild(opt);
+              });
+              modalRegSelect.disabled = false;
+            });
+        }
+      });
+
+      modalRegSelect.addEventListener('change', function() {
+        const sel = this.options[this.selectedIndex];
+        const regId = sel ? sel.getAttribute('data-id') : null;
+        modalDistSelect.innerHTML = '<option value="" disabled selected>Pilih Kecamatan (opsional)</option>';
+        modalDistSelect.disabled = true;
+
+        if (regId) {
+          fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regId}.json`)
+            .then(res => res.json())
+            .then(districts => {
+              districts.forEach(dist => {
+                const opt = document.createElement('option');
+                opt.value = dist.name;
+                opt.textContent = dist.name;
+                opt.setAttribute('data-id', dist.id);
+                modalDistSelect.appendChild(opt);
+              });
+              modalDistSelect.disabled = false;
+            });
+        }
+      });
+    }
+
+    $('#formTambahMitra input[name="lingkup_mitra"]').on('change', function() {
+      const val = $('#formTambahMitra input[name="lingkup_mitra"]:checked').val();
+      if (val === 'Internasional') {
+        $('#modal_lokal_location_container').hide();
+        $('#modal_internasional_location_container').show();
+        $('#modal_negara').val('');
+      } else {
+        $('#modal_lokal_location_container').show();
+        $('#modal_internasional_location_container').hide();
+        $('#modal_negara').val('Indonesia');
+      }
+    });
+
+    // Modal Dynamic Contacts
+    let modalKontakIndex = 1;
+    $('#btnTambahModalKontak').on('click', function() {
+      const html = `
+        <div class="modal-kontak-item border rounded p-3 mb-3 bg-light position-relative" data-index="${modalKontakIndex}">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0 modal-kontak-title text-success small">Kontak ${modalKontakIndex + 1}</h6>
+            <button type="button" class="btn btn-danger btn-xs btn-remove-modal-kontak" title="Hapus kontak ini" style="font-size: 0.75rem; padding: 2px 8px;">
+              <i class="bi bi-trash3-fill me-1"></i> Hapus
+            </button>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-md-6">
+              <label class="form-label small mb-1 fw-medium">Nama Kontak <span class="text-danger">*</span></label>
+              <input type="text" name="kontak[${modalKontakIndex}][nama_kontak]" class="form-control form-control-m" placeholder="Masukkan Nama Kontak">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1 fw-medium">Jabatan <span class="text-danger">*</span></label>
+              <input type="text" name="kontak[${modalKontakIndex}][jabatan]" class="form-control form-control-m" placeholder="Masukkan Jabatan">
+            </div>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label small mb-1 fw-medium">Nomor Handphone <span class="text-danger">*</span></label>
+              <input type="text" name="kontak[${modalKontakIndex}][nomor_handphone]" class="form-control form-control-m" placeholder="Masukkan Nomor Handphone">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1 fw-medium">Email <span class="text-danger">*</span></label>
+              <input type="email" name="kontak[${modalKontakIndex}][email]" class="form-control form-control-m" placeholder="Masukkan Email">
+            </div>
+          </div>
+        </div>`;
+      $('#modal-kontak-wrapper').append(html);
+      modalKontakIndex++;
+      renumberModalKontaks();
+    });
+
+    $(document).on('click', '.btn-remove-modal-kontak', function() {
+      $(this).closest('.modal-kontak-item').remove();
+      renumberModalKontaks();
+    });
+
+    function renumberModalKontaks() {
+      $('#modal-kontak-wrapper .modal-kontak-item').each(function(i) {
+        $(this).find('.modal-kontak-title').text('Kontak ' + (i + 1));
+        $(this).find('.btn-remove-modal-kontak').toggleClass('d-none', $('#modal-kontak-wrapper .modal-kontak-item').length <= 1);
+      });
+    }
+
+    // Handle AJAX Tambah Mitra
+    $('#formTambahMitra').on('submit', function(e) {
+      e.preventDefault();
+      const formData = $(this).serialize();
+
+      $.ajax({
+        url: "{{ route('mitra.ajax-store') }}",
+        type: "POST",
+        data: formData + "&_token={{ csrf_token() }}",
+        success: function(res) {
+          if (res.status === 'success') {
+            const newOption = new Option(res.data.nama_mitra, res.data.id, true, true);
+            $('#mitra_id').append(newOption).trigger('change');
+            const modalEl = document.getElementById('modalTambahMitra');
+            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.hide();
+            $('#formTambahMitra')[0].reset();
+          }
+        },
+        error: function(err) {
+          alert('Gagal menambah data mitra.');
+        }
+      });
+    });
 
     // Handle AJAX Sumber Dana
     $('#formTambahSumberDana').on('submit', function(e) {
