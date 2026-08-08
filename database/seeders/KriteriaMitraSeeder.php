@@ -11,6 +11,7 @@ class KriteriaMitraSeeder extends Seeder
     {
         $data = [
             'Dunia Usaha',
+            'Dunia Industri',
             'Instansi pemerintah Pusat dan/atau Daerah BUMN dan/atau BUMD',
             'Institusi Pendidikan',
             'Institusi/ Organisasi multilateral',

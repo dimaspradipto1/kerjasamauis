@@ -302,6 +302,107 @@ class DashboardController extends Controller
             ];
         }
 
+        // 13. Build Hierarchical Grouping for Fakultas & Prodi Rekapitulasi
+        $facultiesDef = [
+            [
+                'key' => 'feb',
+                'name' => 'Fakultas Ekonomi dan Bisnis',
+                'short_name' => 'FEB',
+                'match' => 'ekonomi',
+                'prodi_matches' => ['manajemen', 'akuntansi'],
+            ],
+            [
+                'key' => 'fst',
+                'name' => 'Fakultas Sains dan Teknologi',
+                'short_name' => 'FST',
+                'match' => 'sains',
+                'prodi_matches' => ['informatika', 'sistem informasi', 'industri', 'perkapalan', 'logistik'],
+            ],
+            [
+                'key' => 'fikes',
+                'name' => 'Fakultas Ilmu Kesehatan',
+                'short_name' => 'FIKes',
+                'match' => 'kesehatan',
+                'prodi_matches' => ['keselamatan', 'lingkungan', 'masyarakat'],
+            ],
+        ];
+
+        $hierarchicalRekap = [];
+
+        $universitasUnit = $rekapUnitKerjaList->first(function($uk) {
+            return str_contains(strtolower($uk->nama_unit_kerja), 'universitas');
+        });
+
+        if ($universitasUnit) {
+            $hierarchicalRekap['uis'] = [
+                'type' => 'universitas',
+                'key' => 'uis',
+                'id' => 'group_uis',
+                'nama' => $universitasUnit->nama_unit_kerja,
+                'short_nama' => 'UIS',
+                'mou_count' => $universitasUnit->mou_count,
+                'moa_count' => $universitasUnit->moa_count,
+                'ia_count' => $universitasUnit->ia_count,
+                'nasional_count' => $universitasUnit->nasional_count,
+                'internasional_count' => $universitasUnit->internasional_count,
+                'aktif_count' => $universitasUnit->aktif_count,
+                'total_kerjasama' => $universitasUnit->total_kerjasama,
+                'prodis' => collect([])
+            ];
+        }
+
+        foreach ($facultiesDef as $fac) {
+            $facHeader = $rekapUnitKerjaList->first(function($uk) use ($fac) {
+                return str_contains(strtolower($uk->nama_unit_kerja), 'fakultas') && 
+                       str_contains(strtolower($uk->nama_unit_kerja), $fac['match']);
+            });
+
+            $childProdis = $rekapUnitKerjaList->filter(function($uk) use ($fac) {
+                $nameLower = strtolower($uk->nama_unit_kerja);
+                if (str_contains($nameLower, 'fakultas') || str_contains($nameLower, 'universitas')) {
+                    return false;
+                }
+                foreach ($fac['prodi_matches'] as $pm) {
+                    if (str_contains($nameLower, $pm)) {
+                        return true;
+                    }
+                }
+                return false;
+            })->values();
+
+            $directMou = $facHeader ? $facHeader->mou_count : 0;
+            $directMoa = $facHeader ? $facHeader->moa_count : 0;
+            $directIa = $facHeader ? $facHeader->ia_count : 0;
+            $directNasional = $facHeader ? $facHeader->nasional_count : 0;
+            $directInternasional = $facHeader ? $facHeader->internasional_count : 0;
+            $directAktif = $facHeader ? $facHeader->aktif_count : 0;
+            $directTotal = $facHeader ? $facHeader->total_kerjasama : 0;
+
+            $totalMou = $directMou + $childProdis->sum('mou_count');
+            $totalMoa = $directMoa + $childProdis->sum('moa_count');
+            $totalIa = $directIa + $childProdis->sum('ia_count');
+            $totalNasional = $directNasional + $childProdis->sum('nasional_count');
+            $totalInternasional = $directInternasional + $childProdis->sum('internasional_count');
+            $totalAktif = $directAktif + $childProdis->sum('aktif_count');
+            $totalKerjasama = $directTotal + $childProdis->sum('total_kerjasama');
+
+            $hierarchicalRekap[$fac['key']] = [
+                'type' => 'fakultas',
+                'key' => $fac['key'],
+                'id' => 'group_' . $fac['key'],
+                'nama' => $facHeader ? $facHeader->nama_unit_kerja : $fac['name'],
+                'short_nama' => $fac['short_name'],
+                'mou_count' => $totalMou,
+                'moa_count' => $totalMoa,
+                'ia_count' => $totalIa,
+                'nasional_count' => $totalNasional,
+                'internasional_count' => $totalInternasional,
+                'aktif_count' => $totalAktif,
+                'total_kerjasama' => $totalKerjasama,
+                'prodis' => $childProdis
+            ];
+        }
+
         return view('layouts.dashboard.index', compact(
             'aktifCount', 'perpanjanganCount', 'kedaluwarsaCount', 'tidakAktifCount',
             'mouTotalCount', 'moaTotalCount', 'iaTotalCount', 'totalKerjasamaCount',
@@ -312,7 +413,7 @@ class DashboardController extends Controller
             'rekapSkalaDetail', 'rekapUnitKerjaList', 'top5UnitKerjaList',
             'top5MoUList', 'top5MoAList', 'top5IAList',
             'tahunSelected', 'tahunList', 'kerjasamaPerTahunData', 'top5TahunanData',
-            'chartDokumenPerUnitKerja'
+            'chartDokumenPerUnitKerja', 'hierarchicalRekap'
         ));
     }
 }

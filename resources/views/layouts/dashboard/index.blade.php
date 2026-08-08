@@ -118,6 +118,89 @@
             </div>
         </div>
 
+        {{-- Status Kerjasama Cards --}}
+        <div class="row g-3 mb-4" style="margin-bottom: 25px !important;">
+            {{-- Aktif Card --}}
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #198754 !important;">
+                    <div class="card-body" style="padding: 1.25rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-success fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
+                                    <i class="bi bi-check-square-fill"></i> Aktif
+                                </span>
+                                <h3 class="fw-bold text-dark mb-0">{{ $aktifCount }}</h3>
+                            </div>
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="bi bi-shield-check fs-4"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama sedang berjalan dan masih berlaku.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Perpanjangan Card --}}
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #0dcaf0 !important;">
+                    <div class="card-body" style="padding: 1.25rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-info fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
+                                    <i class="bi bi-arrow-repeat"></i> Perpanjangan
+                                </span>
+                                <h3 class="fw-bold text-dark mb-0">{{ $perpanjanganCount }}</h3>
+                            </div>
+                            <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="bi bi-arrow-clockwise fs-4"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama sedang dalam proses perpanjangan.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Kedaluwarsa Card --}}
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #ffc107 !important;">
+                    <div class="card-body" style="padding: 1.25rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-warning fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Kedaluwarsa
+                                </span>
+                                <h3 class="fw-bold text-dark mb-0">{{ $kedaluwarsaCount }}</h3>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="bi bi-clock-history fs-4"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama melewati masa berlaku & belum diperpanjang.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tidak Aktif Card --}}
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #dc3545 !important;">
+                    <div class="card-body" style="padding: 1.25rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-danger fw-bold d-flex align-items-center gap-1 mb-1" style="font-size: 0.95rem;">
+                                    <i class="bi bi-x-circle-fill"></i> Tidak Aktif
+                                </span>
+                                <h3 class="fw-bold text-dark mb-0">{{ $tidakAktifCount }}</h3>
+                            </div>
+                            <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="bi bi-slash-circle fs-4"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Kerjasama sudah tidak berlaku atau dihentikan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Row Skala Kerjasama: Nasional & Internasional Cards --}}
         <div class="row g-3 mb-4" style="margin-bottom: 28px !important;">
             <div class="col-md-6">
@@ -454,12 +537,18 @@
         {{-- ========================================================================= --}}
         {{-- SECTION 5: TABEL REKAPITULASI DETAIL KERJASAMA PER UNIT KERJA / PRODI --}}
         {{-- ========================================================================= --}}
+        {{-- ========================================================================= --}}
+        {{-- SECTION 5: TABEL REKAPITULASI DETAIL KERJASAMA PER FAKULTAS & PRODI --}}
+        {{-- ========================================================================= --}}
         <div class="row g-3 mt-3" style="margin-bottom: 35px !important;">
             <div class="col-12">
                 <div class="card shadow-sm border-0 rounded-3">
-                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2 text-primary"></i> Tabel Rekapitulasi Per Unit Kerja / Fakultas / Prodi (MoU, MoA, IA & Skala)</h6>
-                        <span class="badge bg-success bg-opacity-10 text-success">Laporan Lengkap</span>
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-diagram-3-fill me-2 text-primary"></i> Rekapitulasi Dokumen (MoU, MoA, & IA) Per Universitas, Fakultas & Prodi</h6>
+                            <small class="text-muted">Klik pada baris Fakultas untuk melihat rincian jumlah kerjasama per-Prodi</small>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2" style="font-size: 0.8rem;"><i class="bi bi-hand-index-thumb me-1"></i> Interaktif (Klik Fakultas)</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -467,7 +556,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th class="ps-3 py-3" style="width: 50px;">No</th>
-                                        <th class="py-3">Unit Kerja / Fakultas / Prodi</th>
+                                        <th class="py-3">Fakultas / Program Studi</th>
                                         <th class="text-center py-3 text-info"><i class="bi bi-file-earmark-text me-1"></i> MoU</th>
                                         <th class="text-center py-3 text-warning"><i class="bi bi-file-earmark-check me-1"></i> MoA</th>
                                         <th class="text-center py-3 text-success"><i class="bi bi-file-earmark-code me-1"></i> IA</th>
@@ -478,27 +567,68 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($rekapUnitKerjaList as $index => $uk)
-                                    <tr>
-                                        <td class="ps-3 text-muted">{{ $index + 1 }}</td>
-                                        <td class="fw-semibold text-dark">{{ $uk->nama_unit_kerja }}</td>
-                                        <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info fw-bold px-2.5 py-1 rounded-2">{{ $uk->mou_count }}</span></td>
-                                        <td class="text-center"><span class="badge bg-warning bg-opacity-10 text-dark fw-bold px-2.5 py-1 rounded-2">{{ $uk->moa_count }}</span></td>
-                                        <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success fw-bold px-2.5 py-1 rounded-2">{{ $uk->ia_count }}</span></td>
-                                        <td class="text-center fw-bold text-primary">{{ $uk->nasional_count }}</td>
-                                        <td class="text-center fw-bold" style="color: #6f42c1;">{{ $uk->internasional_count }}</td>
-                                        <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">{{ $uk->aktif_count }}</span></td>
-                                        <td class="text-center pe-3 fw-bold text-primary" style="font-size: 0.95rem;">{{ $uk->total_kerjasama }}</td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="9" class="text-center py-3 text-muted">Belum ada data unit kerja.</td>
-                                    </tr>
-                                    @endforelse
+                                    @php $noIndex = 1; @endphp
+                                    @foreach($hierarchicalRekap as $groupKey => $group)
+                                        @if($group['type'] === 'universitas')
+                                            {{-- Universitas Row --}}
+                                            <tr class="bg-light fw-bold">
+                                                <td class="ps-3 text-muted">{{ $noIndex++ }}</td>
+                                                <td class="text-dark">
+                                                    <span class="badge bg-primary me-2">Universitas</span>
+                                                    {{ $group['nama'] }}
+                                                </td>
+                                                <td class="text-center"><span class="badge bg-info bg-opacity-20 text-info fw-bold px-2.5 py-1 rounded-2">{{ $group['mou_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge bg-warning bg-opacity-20 text-dark fw-bold px-2.5 py-1 rounded-2">{{ $group['moa_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge bg-success bg-opacity-20 text-success fw-bold px-2.5 py-1 rounded-2">{{ $group['ia_count'] }}</span></td>
+                                                <td class="text-center text-primary">{{ $group['nasional_count'] }}</td>
+                                                <td class="text-center" style="color: #6f42c1;">{{ $group['internasional_count'] }}</td>
+                                                <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">{{ $group['aktif_count'] }}</span></td>
+                                                <td class="text-center pe-3 text-primary fs-6">{{ $group['total_kerjasama'] }}</td>
+                                            </tr>
+                                        @else
+                                            {{-- Faculty Header Row (Clickable Accordion) --}}
+                                            <tr class="fw-bold align-middle cursor-pointer border-top" style="background-color: #f8f9fa; cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $groupKey }}" aria-expanded="false" aria-controls="collapse-{{ $groupKey }}">
+                                                <td class="ps-3 text-muted">{{ $noIndex++ }}</td>
+                                                <td class="text-dark py-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="bi bi-chevron-right toggle-icon text-primary me-1" id="icon-{{ $groupKey }}"></i>
+                                                        <span class="badge bg-success me-1">Fakultas</span>
+                                                        <span class="fw-bold text-dark">{{ $group['nama'] }}</span>
+                                                        <span class="badge bg-white text-muted border ms-1" style="font-size: 0.75rem;">{{ $group['prodis']->count() }} Prodi <i class="bi bi-caret-down-fill ms-0.5"></i></span>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center"><span class="badge bg-info bg-opacity-20 text-info fw-bold px-2.5 py-1.5 rounded-2" style="font-size: 0.88rem;">{{ $group['mou_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge bg-warning bg-opacity-20 text-dark fw-bold px-2.5 py-1.5 rounded-2" style="font-size: 0.88rem;">{{ $group['moa_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge bg-success bg-opacity-20 text-success fw-bold px-2.5 py-1.5 rounded-2" style="font-size: 0.88rem;">{{ $group['ia_count'] }}</span></td>
+                                                <td class="text-center text-primary fw-bold">{{ $group['nasional_count'] }}</td>
+                                                <td class="text-center fw-bold" style="color: #6f42c1;">{{ $group['internasional_count'] }}</td>
+                                                <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">{{ $group['aktif_count'] }}</span></td>
+                                                <td class="text-center pe-3 text-primary fw-bold" style="font-size: 0.95rem;">{{ $group['total_kerjasama'] }}</td>
+                                            </tr>
+
+                                            {{-- Child Prodi Rows (Collapsible) --}}
+                                            @foreach($group['prodis'] as $pIdx => $prodi)
+                                                <tr class="collapse collapse-row-{{ $groupKey }} bg-white align-middle" id="collapse-{{ $groupKey }}">
+                                                    <td class="ps-3 text-muted" style="font-size: 0.78rem;">{{ $noIndex - 1 }}.{{ $pIdx + 1 }}</td>
+                                                    <td class="ps-5 text-secondary">
+                                                        <i class="bi bi-arrow-return-right me-2 text-primary opacity-75"></i>
+                                                        <span class="fw-semibold text-dark">{{ $prodi->nama_unit_kerja }}</span>
+                                                    </td>
+                                                    <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info px-2 py-0.5 rounded-2">{{ $prodi->mou_count }}</span></td>
+                                                    <td class="text-center"><span class="badge bg-warning bg-opacity-10 text-dark px-2 py-0.5 rounded-2">{{ $prodi->moa_count }}</span></td>
+                                                    <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-2 py-0.5 rounded-2">{{ $prodi->ia_count }}</span></td>
+                                                    <td class="text-center small text-muted">{{ $prodi->nasional_count }}</td>
+                                                    <td class="text-center small text-muted">{{ $prodi->internasional_count }}</td>
+                                                    <td class="text-center small"><span class="badge bg-light text-success border px-2 py-0.5 rounded-pill">{{ $prodi->aktif_count }}</span></td>
+                                                    <td class="text-center pe-3 fw-bold text-dark" style="font-size: 0.88rem;">{{ $prodi->total_kerjasama }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    @endforeach
                                 </tbody>
                                 <tfoot class="table-light fw-bold">
                                     <tr>
-                                        <td colspan="2" class="ps-3 py-3 text-dark">TOTAL KESELURUHAN (FAKULTAS & PRODI)</td>
+                                        <td colspan="2" class="ps-3 py-3 text-dark">TOTAL KESELURUHAN (UNIVERSITAS, FAKULTAS & PRODI)</td>
                                         <td class="text-center py-3 text-info">{{ $rekapUnitKerjaList->sum('mou_count') }}</td>
                                         <td class="text-center py-3 text-warning">{{ $rekapUnitKerjaList->sum('moa_count') }}</td>
                                         <td class="text-center py-3 text-success">{{ $rekapUnitKerjaList->sum('ia_count') }}</td>
@@ -928,6 +1058,15 @@
                     color: ['#0d6efd', '#6c757d'],
                     label: { show: true, fontSize: 10, formatter: '{c}' }
                 }]
+            });
+
+            // Handle Chevron Toggle for Collapsible Table Rows
+            $('.collapse').on('show.bs.collapse', function() {
+                const id = $(this).attr('id').replace('collapse-', '');
+                $('#icon-' + id).removeClass('bi-chevron-right').addClass('bi-chevron-down');
+            }).on('hide.bs.collapse', function() {
+                const id = $(this).attr('id').replace('collapse-', '');
+                $('#icon-' + id).removeClass('bi-chevron-down').addClass('bi-chevron-right');
             });
 
             // Make all charts responsive to window resize
