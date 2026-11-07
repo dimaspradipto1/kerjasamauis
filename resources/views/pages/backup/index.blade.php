@@ -4,8 +4,9 @@
 
 @section('content')
 
-    <div class="pagetitle mb-4">
-        <h1 class="fw-bold" style="color: #012970; font-size: 24px;">Backup Database & Storage</h1>
+    {{-- Header Halaman --}}
+    <div class="pagetitle mb-4" style="margin-top: 6px; margin-bottom: 28px !important;">
+        <h1 class="fw-bold" style="color: #012970; font-size: 24px; margin-bottom: 6px;">Backup Database & Storage</h1>
         <nav>
             <ol class="breadcrumb mb-0" style="font-size: 14px;">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
@@ -18,7 +19,7 @@
     {{-- Flash Messages --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
-             style="border-left: 4px solid #198754 !important; background-color: #f0fdf4;">
+             style="border-left: 4px solid #198754 !important; background-color: #f0fdf4; border-radius: 8px;">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-check-circle-fill text-success fs-5"></i>
                 <span class="text-success fw-medium">{{ session('success') }}</span>
@@ -29,7 +30,7 @@
 
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
-             style="border-left: 4px solid #dc3545 !important; background-color: #fef2f2;">
+             style="border-left: 4px solid #dc3545 !important; background-color: #fef2f2; border-radius: 8px;">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
                 <span class="text-danger fw-medium">{{ session('error') }}</span>
@@ -40,7 +41,7 @@
 
     @if(isset($errors) && $errors->any())
         <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
-             style="border-left: 4px solid #dc3545 !important; background-color: #fef2f2;">
+             style="border-left: 4px solid #dc3545 !important; background-color: #fef2f2; border-radius: 8px;">
             <div class="d-flex align-items-center gap-2 mb-1">
                 <i class="bi bi-x-circle-fill text-danger fs-5"></i>
                 <span class="text-danger fw-bold">Terjadi kesalahan validasi:</span>
@@ -54,7 +55,7 @@
         </div>
     @endif
 
-    <section class="section">
+    <section class="section" style="margin-top: 10px; margin-bottom: 30px;">
         <div class="row g-4">
 
             {{-- ======================================================== --}}
@@ -62,45 +63,50 @@
             {{-- ======================================================== --}}
             <div class="col-xl-6 col-lg-12">
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: #ffffff;">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div class="card-body d-flex flex-column justify-content-between" style="padding: 32px 30px 28px 30px !important;">
                         <div>
                             {{-- Header Card --}}
-                            <div class="d-flex align-items-center gap-3 mb-4">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                     style="width: 52px; height: 52px; background-color: #27572d; color: #ffffff;">
-                                    <i class="bi bi-database" style="font-size: 24px;"></i>
+                            <div class="d-flex align-items-center gap-3 mb-4" style="margin-top: 2px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
+                                     style="width: 56px; height: 56px; background-color: #27572d; color: #ffffff;">
+                                    {{-- Database Icon (SVG inline agar pasti tampil) --}}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                    </svg>
                                 </div>
                                 <div>
-                                    <h5 class="fw-bold mb-1" style="color: #1f2937; font-size: 1.15rem;">Ekspor & Impor Database</h5>
-                                    <p class="text-muted small mb-0" style="font-size: 0.875rem;">
+                                    <h5 class="fw-bold mb-1" style="color: #1f2937; font-size: 1.18rem;">Ekspor & Impor Database</h5>
+                                    <p class="text-muted small mb-0" style="font-size: 0.875rem; line-height: 1.4;">
                                         Unduh atau pulihkan struktur tabel dan data database aplikasi sebagai berkas SQL.
                                     </p>
                                 </div>
                             </div>
 
                             {{-- Metadata Table --}}
-                            <div class="table-responsive mb-4">
+                            <div class="table-responsive mb-4" style="margin-top: 8px;">
                                 <table class="table table-borderless table-sm mb-0" style="font-size: 0.9rem;">
                                     <tbody>
                                         <tr>
-                                            <td class="text-muted fw-semibold ps-0" style="width: 140px; vertical-align: middle;">Koneksi</td>
-                                            <td>
-                                                <span class="badge border" style="background-color: #f8fafc; color: #334155; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">
+                                            <td class="text-muted fw-semibold ps-0 py-2" style="width: 140px; vertical-align: middle;">Koneksi</td>
+                                            <td class="py-2">
+                                                <span class="badge border" style="background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.5px; padding: 5px 9px;">
                                                     {{ strtoupper($connection ?? 'MYSQL') }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted fw-semibold ps-0" style="vertical-align: middle;">Database</td>
-                                            <td>
+                                            <td class="text-muted fw-semibold ps-0 py-2" style="vertical-align: middle;">Database</td>
+                                            <td class="py-2">
                                                 <span class="fw-bold" style="color: #e11d48; font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.95rem;">
                                                     {{ $databaseName }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted fw-semibold ps-0" style="vertical-align: middle;">Isi backup</td>
-                                            <td style="color: #4b5563;">Struktur dan data semua tabel MySQL</td>
+                                            <td class="text-muted fw-semibold ps-0 py-2" style="vertical-align: middle;">Isi backup</td>
+                                            <td class="py-2" style="color: #4b5563;">Struktur dan data semua tabel MySQL</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -108,7 +114,7 @@
 
                             {{-- Alert Info Administrator --}}
                             <div class="alert border-0 d-flex align-items-start gap-2 py-3 px-3 mb-4"
-                                 style="background-color: #e0f2fe; color: #0284c7; border-radius: 8px; font-size: 0.85rem; line-height: 1.45;">
+                                 style="background-color: #e0f2fe; color: #0284c7; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; margin-top: 10px;">
                                 <i class="bi bi-shield-shaded fs-5 flex-shrink-0" style="color: #0369a1;"></i>
                                 <div style="color: #0c4a6e;">
                                     Hanya administrator yang dapat mengunduh dan memulihkan database. Simpan berkas SQL di lokasi aman karena berisi seluruh data aplikasi.
@@ -139,53 +145,28 @@
             {{-- ======================================================== --}}
             <div class="col-xl-6 col-lg-12">
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: #ffffff;">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div class="card-body d-flex flex-column justify-content-between" style="padding: 32px 30px 28px 30px !important;">
                         <div>
                             {{-- Header Card --}}
-                            <div class="d-flex align-items-center gap-3 mb-4">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                     style="width: 52px; height: 52px; background-color: #eaf5ea; color: #27572d;">
-                                    <i class="bi bi-folder-symlink" style="font-size: 24px;"></i>
+                            <div class="d-flex align-items-center gap-3 mb-4" style="margin-top: 2px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
+                                     style="width: 56px; height: 56px; background-color: #eaf5ea; color: #27572d;">
+                                    <i class="bi bi-folder-symlink" style="font-size: 28px; line-height: 1;"></i>
                                 </div>
                                 <div>
-                                    <h5 class="fw-bold mb-1" style="color: #1f2937; font-size: 1.15rem;">Backup & Impor Storage Public</h5>
-                                    <p class="text-muted small mb-0" style="font-size: 0.875rem;">
-                                        Arsipkan atau pulihkan semua file pada folder <code style="color: #e11d48; background-color: #ffe4e6; padding: 1px 6px; border-radius: 4px; font-size: 0.85rem;">storage/app/public</code> ke dalam berkas ZIP.
+                                    <h5 class="fw-bold mb-1" style="color: #1f2937; font-size: 1.18rem;">Backup & Impor Storage Public</h5>
+                                    <p class="text-muted small mb-0" style="font-size: 0.875rem; line-height: 1.4;">
+                                        Arsipkan atau pulihkan semua file pada folder <code style="color: #e11d48; background-color: #ffe4e6; padding: 2px 7px; border-radius: 4px; font-size: 0.85rem;">storage/app/public</code> ke dalam berkas ZIP.
                                     </p>
                                 </div>
                             </div>
 
-                            {{-- Metadata Table (Agar sejajar dengan Card 1) --}}
-                            <div class="table-responsive mb-4">
-                                <table class="table table-borderless table-sm mb-0" style="font-size: 0.9rem;">
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-muted fw-semibold ps-0" style="width: 140px; vertical-align: middle;">Direktori</td>
-                                            <td>
-                                                <span class="badge border" style="background-color: #f8fafc; color: #334155; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">
-                                                    PUBLIC STORAGE
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted fw-semibold ps-0" style="vertical-align: middle;">Total Berkas</td>
-                                            <td>
-                                                <span class="fw-bold text-dark font-monospace" style="font-size: 0.95rem;">
-                                                    {{ $storageFileCount }} file <span class="text-muted fw-normal">({{ $storageTotalSize }})</span>
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted fw-semibold ps-0" style="vertical-align: middle;">Format arsip</td>
-                                            <td style="color: #4b5563;">Berkas ZIP kompresi (.zip)</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            {{-- Spacer yang menyamakan tinggi konten dengan Card 1 agar sejajar sempurna --}}
+                            <div class="d-none d-xl-block" style="height: 110px;"></div>
 
                             {{-- Alert Warning Storage --}}
                             <div class="alert border-0 d-flex align-items-start gap-2 py-3 px-3 mb-4"
-                                 style="background-color: #fef9c3; color: #854d0e; border-radius: 8px; font-size: 0.85rem; line-height: 1.45;">
+                                 style="background-color: #fef9c3; color: #854d0e; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; margin-top: 10px;">
                                 <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0" style="color: #ca8a04;"></i>
                                 <div style="color: #713f12;">
                                     Backup storage memuat seluruh berkas lampiran, SK, dan dokumen publik aplikasi.
@@ -225,8 +206,12 @@
                     <div class="modal-header border-0 pb-0 pt-4 px-4">
                         <div class="d-flex align-items-center gap-2">
                             <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
-                                 style="width: 36px; height: 36px; background-color: #27572d;">
-                                <i class="bi bi-database-up"></i>
+                                 style="width: 40px; height: 40px; background-color: #27572d;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
                             </div>
                             <h5 class="modal-title fw-bold" id="modalImportDatabaseLabel" style="color: #1f2937;">Import / Pulihkan Database</h5>
                         </div>
@@ -245,7 +230,7 @@
                         <div class="mb-3">
                             <label for="sql_file" class="form-label fw-semibold small text-muted">Pilih Berkas SQL Backup (.sql) <span class="text-danger">*</span></label>
                             <input type="file" name="sql_file" id="sql_file" class="form-control" accept=".sql" required style="border-radius: 8px;">
-                            <div class="form-text small">Maksimum ukuran berkas menyesuaikan konfigurasi PHP.</div>
+                            <div class="form-text small">Maksimum ukuran berkas menyesuaikan konfigurasi PHP server.</div>
                         </div>
 
                         <div class="form-check mt-3">
@@ -278,8 +263,8 @@
                     <div class="modal-header border-0 pb-0 pt-4 px-4">
                         <div class="d-flex align-items-center gap-2">
                             <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 36px; height: 36px; background-color: #eaf5ea; color: #27572d;">
-                                <i class="bi bi-folder-symlink"></i>
+                                 style="width: 40px; height: 40px; background-color: #eaf5ea; color: #27572d;">
+                                <i class="bi bi-folder-symlink fs-5"></i>
                             </div>
                             <h5 class="modal-title fw-bold" id="modalImportStorageLabel" style="color: #1f2937;">Import / Pulihkan Storage Public</h5>
                         </div>
