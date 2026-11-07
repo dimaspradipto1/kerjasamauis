@@ -22,6 +22,7 @@ class RolePermission extends Model
         'sumber_dana'      => 'Sumber Dana',
         'jenis_dokumen'    => 'Jenis Dokumen',
         'laporan'          => 'Laporan',
+        'backup'           => 'Backup Database & Storage',
     ];
 
     /**
@@ -74,6 +75,22 @@ class RolePermission extends Model
                 'can_read'   => true,
                 'can_update' => true,
                 'can_delete' => true,
+            ],
+        ],
+        'pimpinan' => [
+            'backup' => [
+                'can_create' => false,
+                'can_read'   => false,
+                'can_update' => false,
+                'can_delete' => false,
+            ],
+        ],
+        'user' => [
+            'backup' => [
+                'can_create' => false,
+                'can_read'   => false,
+                'can_update' => false,
+                'can_delete' => false,
             ],
         ],
     ];

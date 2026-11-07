@@ -137,7 +137,7 @@
       @endif
 
       {{-- Separator Pages --}}
-      @if($authUser->hasPermission('user', 'can_read') || $authUser->roles === 'superadmin')
+      @if($authUser->hasPermission('user', 'can_read') || $authUser->roles === 'superadmin' || $authUser->hasPermission('backup', 'can_read'))
       <li class="nav-heading">Pages</li>
       @endif
 
@@ -147,6 +147,16 @@
         <a class="nav-link {{ request()->routeIs('user.*') ? '' : 'collapsed' }}" href="{{ route('user.index') }}">
           <i class="bi bi-people"></i>
           <span>Pengguna</span>
+        </a>
+      </li>
+      @endif
+
+      {{-- Backup --}}
+      @if($authUser->hasPermission('backup', 'can_read') || in_array($authUser->roles, ['superadmin', 'admin']))
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('backup.*') ? '' : 'collapsed' }}" href="{{ route('backup.index') }}">
+          <i class="bi bi-hdd-network"></i>
+          <span>Backup</span>
         </a>
       </li>
       @endif

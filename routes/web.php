@@ -16,6 +16,7 @@ use App\Http\Controllers\KerjasamaController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\LaporanKerjasamaController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\BackupController;
 
 Route::redirect('/', '/login');
 
@@ -108,5 +109,14 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::middleware(['checkpermission:laporan'])->group(function () {
         Route::get('laporan-kerjasama', [LaporanKerjasamaController::class, 'index'])->name('laporan.index');
         Route::get('laporan-kerjasama/cetak', [LaporanKerjasamaController::class, 'cetak'])->name('laporan.cetak');
+    });
+
+    // Backup Database & Storage
+    Route::middleware(['checkpermission:backup'])->group(function () {
+        Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::get('backup/database/download', [BackupController::class, 'downloadDatabase'])->name('backup.database.download');
+        Route::post('backup/database/import', [BackupController::class, 'importDatabase'])->name('backup.database.import');
+        Route::get('backup/storage/download', [BackupController::class, 'downloadStorage'])->name('backup.storage.download');
+        Route::post('backup/storage/import', [BackupController::class, 'importStorage'])->name('backup.storage.import');
     });
 });

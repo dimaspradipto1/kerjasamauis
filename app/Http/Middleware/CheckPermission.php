@@ -27,6 +27,7 @@ class CheckPermission
         'sumber-dana'       => 'sumber_dana',
         'jenis-dokumen'     => 'jenis_dokumen',
         'laporan-kerjasama' => 'laporan',
+        'backup'            => 'backup',
     ];
 
     /**
