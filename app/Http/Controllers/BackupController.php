@@ -46,40 +46,26 @@ class BackupController extends Controller
 
     /**
      * Unduh backup database dalam format SQL.
+     * Menggunakan PDO PHP murni agar kompatibel di shared hosting tanpa memerlukan fungsi exec().
      */
     public function downloadDatabase()
     {
+        @ini_set('max_execution_time', '300');
+        @ini_set('memory_limit', '512M');
+
         $connection = config('database.default', 'mysql');
         $database = config("database.connections.{$connection}.database", env('DB_DATABASE', 'kerjasamauis'));
-        $username = config("database.connections.{$connection}.username", env('DB_USERNAME', 'root'));
-        $password = config("database.connections.{$connection}.password", env('DB_PASSWORD', ''));
-        $host     = config("database.connections.{$connection}.host", env('DB_HOST', '127.0.0.1'));
-        $port     = config("database.connections.{$connection}.port", env('DB_PORT', '3306'));
 
         $timestamp = date('Y-m-d_H-i-s');
         $fileName = "backup_db_{$database}_{$timestamp}.sql";
         $tempPath = storage_path("app/backup_temp_{$timestamp}_" . uniqid() . ".sql");
 
         try {
-            // Coba ekspor menggunakan mysqldump jika tersedia
-            $mysqldumpSuccess = false;
-            $passwordPart = $password !== '' && $password !== null ? " --password=" . escapeshellarg($password) : "";
-            $cmd = "mysqldump --host=" . escapeshellarg($host) . 
-                   " --port=" . escapeshellarg($port) . 
-                   " --user=" . escapeshellarg($username) . 
-                   $passwordPart . 
-                   " --routines --triggers --single-transaction --quick " . 
-                   escapeshellarg($database) . " > " . escapeshellarg($tempPath);
+            // Ekspor menggunakan PDO PHP murni (tanpa exec / CLI)
+            $this->dumpDatabaseWithPdo($tempPath, $database);
 
-            @exec($cmd, $output, $returnVar);
-
-            if ($returnVar === 0 && file_exists($tempPath) && filesize($tempPath) > 0) {
-                $mysqldumpSuccess = true;
-            }
-
-            // Fallback ke generator PHP PDO murni jika mysqldump gagal
-            if (!$mysqldumpSuccess) {
-                $this->dumpDatabaseWithPdo($tempPath, $database);
+            if (!file_exists($tempPath) || filesize($tempPath) === 0) {
+                throw new Exception("Berkas backup SQL kosong atau gagal dibuat.");
             }
 
             return response()->download($tempPath, $fileName, [
@@ -96,9 +82,13 @@ class BackupController extends Controller
 
     /**
      * Pulihkan database dari berkas SQL yang diunggah.
+     * Menggunakan DB::unprepared() agar dapat berjalan di lingkungan hosting mana pun tanpa fungsi exec().
      */
     public function importDatabase(Request $request)
     {
+        @ini_set('max_execution_time', '300');
+        @ini_set('memory_limit', '512M');
+
         $request->validate([
             'sql_file' => 'required|file',
         ], [
@@ -113,39 +103,27 @@ class BackupController extends Controller
             return redirect()->route('backup.index')->with('error', 'Format berkas harus berekstensi .sql');
         }
 
-        $connection = config('database.default', 'mysql');
-        $database = config("database.connections.{$connection}.database", env('DB_DATABASE', 'kerjasamauis'));
-        $username = config("database.connections.{$connection}.username", env('DB_USERNAME', 'root'));
-        $password = config("database.connections.{$connection}.password", env('DB_PASSWORD', ''));
-        $host     = config("database.connections.{$connection}.host", env('DB_HOST', '127.0.0.1'));
-        $port     = config("database.connections.{$connection}.port", env('DB_PORT', '3306'));
-
         $realPath = $file->getRealPath();
 
         try {
-            $mysqlSuccess = false;
-            $passwordPart = $password !== '' && $password !== null ? " --password=" . escapeshellarg($password) : "";
-            $cmd = "mysql --host=" . escapeshellarg($host) . 
-                   " --port=" . escapeshellarg($port) . 
-                   " --user=" . escapeshellarg($username) . 
-                   $passwordPart . " " . 
-                   escapeshellarg($database) . " < " . escapeshellarg($realPath);
-
-            @exec($cmd, $output, $returnVar);
-
-            if ($returnVar === 0) {
-                $mysqlSuccess = true;
+            $sqlContent = file_get_contents($realPath);
+            if (empty($sqlContent)) {
+                throw new Exception("Berkas SQL yang diunggah kosong.");
             }
 
-            // Fallback: DB::unprepared jika mysql command line gagal
-            if (!$mysqlSuccess) {
-                $sqlContent = file_get_contents($realPath);
-                DB::unprepared($sqlContent);
-            }
+            // Nonaktifkan pemeriksaan foreign key sementara saat restore
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::unprepared($sqlContent);
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             return redirect()->route('backup.index')->with('success', 'Database berhasil dipulihkan secara menyeluruh dari berkas SQL.');
 
         } catch (Exception $e) {
+            // Pastikan foreign key checks diaktifkan kembali jika terjadi kegagalan
+            try {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            } catch (Exception $ignored) {}
+
             return redirect()->route('backup.index')->with('error', 'Gagal memulihkan database: ' . $e->getMessage());
         }
     }
@@ -155,6 +133,9 @@ class BackupController extends Controller
      */
     public function downloadStorage()
     {
+        @ini_set('max_execution_time', '300');
+        @ini_set('memory_limit', '512M');
+
         $timestamp = date('Y-m-d_H-i-s');
         $fileName = "backup_storage_public_{$timestamp}.zip";
         $tempPath = storage_path("app/backup_storage_{$timestamp}_" . uniqid() . ".zip");
@@ -211,6 +192,9 @@ class BackupController extends Controller
      */
     public function importStorage(Request $request)
     {
+        @ini_set('max_execution_time', '300');
+        @ini_set('memory_limit', '512M');
+
         $request->validate([
             'zip_file' => 'required|file',
         ], [
@@ -252,7 +236,7 @@ class BackupController extends Controller
     }
 
     /**
-     * Fallback ekspor database berbasis PDO murni (jika mysqldump tidak ada).
+     * Ekspor database berbasis PDO murni (tanpa exec / shell / mysqldump).
      */
     protected function dumpDatabaseWithPdo(string $filePath, string $database): void
     {
@@ -261,9 +245,11 @@ class BackupController extends Controller
             throw new Exception("Tidak dapat menulis berkas SQL sementara.");
         }
 
+        fwrite($handle, "-- ========================================================\n");
         fwrite($handle, "-- Backup Database: `{$database}`\n");
         fwrite($handle, "-- Tanggal Pembuatan: " . date('Y-m-d H:i:s') . "\n");
-        fwrite($handle, "-- --------------------------------------------------------\n\n");
+        fwrite($handle, "-- Dibuat oleh Sistem SIM Kerjasama\n");
+        fwrite($handle, "-- ========================================================\n\n");
         fwrite($handle, "SET FOREIGN_KEY_CHECKS=0;\n");
         fwrite($handle, "SET SQL_MODE=\"NO_AUTO_VALUE_ON_ZERO\";\n");
         fwrite($handle, "SET NAMES utf8mb4;\n\n");
@@ -280,9 +266,11 @@ class BackupController extends Controller
             fwrite($handle, "DROP TABLE IF EXISTS `{$tableName}`;\n");
 
             $createTableStmt = $pdo->query("SHOW CREATE TABLE `{$tableName}`")->fetch(\PDO::FETCH_ASSOC);
-            fwrite($handle, $createTableStmt['Create Table'] . ";\n\n");
+            if (!empty($createTableStmt['Create Table'])) {
+                fwrite($handle, $createTableStmt['Create Table'] . ";\n\n");
+            }
 
-            // Dump data
+            // Dump data baris per baris / chunk
             $rows = $pdo->query("SELECT * FROM `{$tableName}`")->fetchAll(\PDO::FETCH_ASSOC);
             if (!empty($rows)) {
                 fwrite($handle, "-- Data untuk tabel `{$tableName}`\n");
@@ -326,4 +314,3 @@ class BackupController extends Controller
         return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
-
