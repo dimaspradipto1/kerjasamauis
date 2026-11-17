@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KerjasamaExport;
+use App\Exports\KerjasamaTemplateExport;
 use App\Imports\KerjasamaImport;
 
 class KerjasamaController extends Controller
@@ -289,42 +290,33 @@ class KerjasamaController extends Controller
 
     public function export()
     {
-        return Excel::download(new KerjasamaExport(), 'data-kerjasama.xlsx');
+        $timestamp = date('Y-m-d_H-i-s');
+        return Excel::download(new KerjasamaExport(), "data-kerjasama-{$timestamp}.xlsx");
     }
 
     public function import(\Illuminate\Http\Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ], [
+            'file.required' => 'Silakan pilih berkas Excel atau CSV untuk di-import.',
+            'file.file'     => 'Berkas yang diunggah tidak valid.',
+            'file.mimes'    => 'Format berkas harus berupa .xlsx, .xls, atau .csv.',
+            'file.max'      => 'Ukuran berkas maksimal adalah 10 MB.',
         ]);
 
-        Excel::import(new KerjasamaImport(), $request->file('file'));
+        $import = new KerjasamaImport();
+        Excel::import($import, $request->file('file'));
+
+        $count = $import->getImportedCount();
 
         return redirect()->route('kerjasama.index')
-            ->with('success', 'Data Kerjasama berhasil di-import!');
+            ->with('success', "Berhasil mengimpor {$count} data kerjasama.");
     }
 
     public function downloadTemplate()
     {
-        return Excel::download(new class () implements \Maatwebsite\Excel\Concerns\WithHeadings {
-            public function headings(): array
-            {
-                return [
-                    'Nomor Dokumen Kerjasama',
-                    'Nomor Dokumen Mitra',
-                    'Jenis Dokumen',
-                    'Unit Kerja',
-                    'Mitra',
-                    'Judul Kerjasama',
-                    'Deskripsi Kerjasama',
-                    'Sumber Dana',
-                    'Anggaran',
-                    'Tanggal Awal Berlaku',
-                    'Tanggal Akhir Berlaku',
-                    'Status Kerjasama',
-                ];
-            }
-        }, 'format-import-kerjasama.xlsx');
+        return Excel::download(new KerjasamaTemplateExport(), 'template-import-kerjasama.xlsx');
     }
 
     private function storeUploadedFile($file, $folder)

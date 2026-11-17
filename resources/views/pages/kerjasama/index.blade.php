@@ -13,18 +13,21 @@
                 </ol>
             </nav>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <button type="button" id="btn-bulk-delete" class="btn btn-danger rounded-3 px-3 py-2 align-items-center gap-1 text-white" style="height: 36px; display: none !important;">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" id="btn-bulk-delete" class="btn btn-danger rounded-3 px-3 py-2 align-items-center gap-1 text-white shadow-sm" style="height: 38px; display: none !important;">
                 <i class="bi bi-trash"></i> Hapus Terpilih (<span id="selected-count">0</span>)
             </button>
-            <a href="{{ route('kerjasama.export') }}" class="btn btn-outline-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #ced4da; background: #fff;" title="Export Excel">
-                <i class="bi bi-printer text-dark fs-5"></i>
+            <a href="{{ route('kerjasama.export') }}" class="btn btn-outline-success rounded-3 px-3 py-2 d-flex align-items-center gap-2 shadow-sm fw-semibold" style="height: 38px; border: 1.5px solid #198754; font-size: 0.875rem;" title="Export Excel Data Kerjasama">
+                <i class="bi bi-file-earmark-excel-fill text-success fs-6"></i>
+                <span>Export Excel</span>
             </a>
-            <button type="button" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-success d-flex align-items-center justify-content-center text-white" style="width: 36px; height: 36px; border-radius: 8px; background-color: #0b7a61; border: none;" title="Import Excel">
-                <i class="bi bi-upload fs-5"></i>
+            <button type="button" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-success rounded-3 px-3 py-2 d-flex align-items-center gap-2 text-white shadow-sm fw-semibold" style="height: 38px; background-color: #0b7a61; border-color: #0b7a61; font-size: 0.875rem;" title="Import Data Kerjasama dari Excel">
+                <i class="bi bi-file-earmark-arrow-up-fill fs-6"></i>
+                <span>Import Excel</span>
             </button>
-            <a href="{{ route('kerjasama.create') }}" class="btn btn-primary rounded-3 px-3 py-2 d-flex align-items-center gap-1 text-white" style="height: 36px;">
-                <i class="bi bi-plus-lg"></i> Tambah Data
+            <a href="{{ route('kerjasama.create') }}" class="btn btn-primary rounded-3 px-3 py-2 d-flex align-items-center gap-2 text-white shadow-sm fw-semibold" style="height: 38px; font-size: 0.875rem;">
+                <i class="bi bi-plus-lg"></i>
+                <span>Tambah Data</span>
             </a>
         </div>
     </div>
@@ -191,27 +194,71 @@
         </div>
     </div>
 
-    <!-- Modal Import -->
+    <!-- Modal Import Data Kerjasama -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                <div class="modal-header border-bottom py-3 px-4" style="background-color: #fff;">
-                    <h6 class="modal-title fw-bold text-dark" id="importModalLabel">Import Data Data-kerjasama</h6>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header border-bottom py-3 px-4 bg-light">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
+                             style="width: 36px; height: 36px; background-color: #0b7a61;">
+                            <i class="bi bi-file-earmark-arrow-up-fill fs-5"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="importModalLabel">Import Data Kerjasama</h5>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('kerjasama.import') }}" method="POST" enctype="multipart/form-data">
+                <form id="form-import-kerjasama" action="{{ route('kerjasama.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body p-4">
-                        <p class="text-dark mb-2" style="font-size: 0.9rem;">Silahkan Unduh Terlebih dahulu format file import data</p>
-                        <a href="{{ route('kerjasama.download-template') }}" class="text-primary fw-semibold d-inline-block mb-4" style="font-size: 0.9rem; text-decoration: underline;">Download</a>
-                        
+                        {{-- Petunjuk & Download Template Card --}}
+                        <div class="card border-0 shadow-sm mb-4 rounded-3" style="background-color: #f8fafc; border: 1px solid #e2e8f0 !important;">
+                            <div class="card-body p-3">
+                                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                                            <i class="bi bi-file-earmark-excel text-success fs-5"></i>
+                                            Format Berkas Import Kerjasama
+                                        </h6>
+                                        <p class="text-muted small mb-0">
+                                            Unduh format template resmi untuk memastikan struktur data dan kolom sesuai standar sistem.
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('kerjasama.download-template') }}" class="btn btn-outline-success btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2 text-nowrap" style="border-radius: 8px;">
+                                        <i class="bi bi-download"></i> Unduh Template Excel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Panduan Pengisian Data --}}
+                        <div class="alert alert-info border-0 py-3 px-3 mb-4 rounded-3" style="background-color: #f0fdf4; color: #166534; font-size: 0.85rem; line-height: 1.5; border-left: 4px solid #16a34a !important;">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-info-circle-fill fs-5 flex-shrink-0 text-success mt-n1"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Ketentuan Pengisian Data Kerjasama:</strong>
+                                    <ul class="mb-1 ps-3">
+                                        <li><strong>Unit Kerja:</strong> Dapat diisi lebih dari 1 unit kerja dengan memisahkannya menggunakan tanda koma (contoh: <code>S1 - Teknik Industri, S1 - Teknik Informatika</code>).</li>
+                                        <li><strong>Jenis Dokumen:</strong> MoU, MoA, atau IA (Implementation of Arrangement).</li>
+                                        <li><strong>Tanggal:</strong> Format tanggal adalah <code>YYYY-MM-DD</code> (contoh: <code>2025-07-24</code>).</li>
+                                        <li><strong>Upload Dokumen Fisik:</strong> <span class="badge bg-success bg-opacity-25 text-success fw-bold">Boleh Dikosongkan</span> Berkas lampiran / scan PDF dokumen kerjasama bersifat opsional saat import dan dapat diunggah kemudian melalui menu detail / edit kerjasama.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Input Berkas --}}
                         <div class="mb-3">
-                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required style="border-radius: 8px; padding: 10px;">
+                            <label for="import_file" class="form-label fw-semibold text-dark small">Pilih Berkas Excel / CSV <span class="text-danger">*</span></label>
+                            <input type="file" name="file" id="import_file" class="form-control" accept=".xlsx,.xls,.csv" required style="border-radius: 8px; padding: 10px;">
+                            <div class="form-text small text-muted">Format yang didukung: <strong>.xlsx, .xls, .csv</strong> (Maksimal 10 MB).</div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top py-3 px-4 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal" style="border-radius: 8px; background-color: #6c757d; border: none; font-size: 0.875rem;">Tutup</button>
-                        <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px; background-color: #0d6efd; border: none; font-size: 0.875rem;">Import</button>
+                    <div class="modal-footer border-top py-3 px-4 d-flex justify-content-end gap-2 bg-light">
+                        <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal" style="border-radius: 8px; font-size: 0.875rem;">Batal</button>
+                        <button type="submit" id="btn-submit-import" class="btn btn-primary px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2" style="border-radius: 8px; background-color: #0b7a61; border-color: #0b7a61; font-size: 0.875rem;">
+                            <i class="bi bi-upload"></i> Mulai Import Data
+                        </button>
                     </div>
                 </form>
             </div>
