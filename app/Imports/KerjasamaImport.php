@@ -70,8 +70,11 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
             $sumberDanaId = $this->resolveSumberDana($sumberDanaText);
 
             // 5. Parse Dates
-            $tanggalAwal = $this->parseExcelDate($tanggalAwalRaw) ?: Carbon::now();
-            $tanggalAkhir = $this->parseExcelDate($tanggalAkhirRaw) ?: (clone $tanggalAwal)->addYears(5);
+            $parsedAwal  = $this->parseExcelDate($tanggalAwalRaw);
+            $tanggalAwal = $parsedAwal ? Carbon::instance($parsedAwal) : Carbon::now();
+
+            $parsedAkhir  = $this->parseExcelDate($tanggalAkhirRaw);
+            $tanggalAkhir = $parsedAkhir ? Carbon::instance($parsedAkhir) : (clone $tanggalAwal)->addYears(5);
 
             // 6. Parse Anggaran
             $anggaran = 0;
@@ -99,12 +102,27 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
             $statusKerjasama = !empty($statusKerjasamaText) ? $statusKerjasamaText : 'Aktif';
 
             // 9. Simpan / Perbarui Kerjasama
+            // Tentukan nomor dokumen & kondisi pencarian agar tidak duplikat saat import ulang
+            if (!empty($nomorDokumenKerjasama)) {
+                $nomorFinal = $nomorDokumenKerjasama;
+                $matchConditions = ['nomor_dokumen_kerjasama' => $nomorFinal];
+            } elseif (!empty($nomorDokumenMitra)) {
+                $nomorFinal = $nomorDokumenMitra;
+                $matchConditions = ['nomor_dokumen_kerjasama' => $nomorFinal];
+            } else {
+                // Jika nomor dokumen kosong di Excel, buat nomor teratur dan cocokkan judul + mitra
+                $nomorFinal = 'DOK-' . $tanggalAwal->format('Y') . '-' . strtoupper(substr(md5($judulKerjasama . $mitraId), 0, 8));
+                $matchConditions = [
+                    'judul_kerjasama' => $judulKerjasama,
+                    'mitra_id'        => $mitraId,
+                ];
+            }
+
             // File upload fisik (url_file) sengaja dibiarkan null / kosong sesuai kebutuhan pengguna
             $kerjasama = Kerjasama::updateOrCreate(
+                $matchConditions,
                 [
-                    'nomor_dokumen_kerjasama' => !empty($nomorDokumenKerjasama) ? $nomorDokumenKerjasama : 'DOK-' . uniqid(),
-                ],
-                [
+                    'nomor_dokumen_kerjasama' => $nomorFinal,
                     'nomor_dokumen_mitra'     => !empty($nomorDokumenMitra) ? $nomorDokumenMitra : null,
                     'jenis_dokumen_id'        => $jenisDokumenId,
                     'bidang_implementasi'     => !empty($bidangImplementasi) ? $bidangImplementasi : null,
@@ -313,7 +331,7 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
     /**
      * Parse format tanggal dari Excel.
      */
-    protected function parseExcelDate($value)
+    protected function parseExcelDate($value): ?Carbon
     {
         if (empty($value)) {
             return null;
@@ -321,7 +339,8 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
 
         if (is_numeric($value)) {
             try {
-                return Date::excelToDateTimeObject($value);
+                $dt = Date::excelToDateTimeObject($value);
+                return Carbon::instance($dt);
             } catch (\Exception $e) {
                 // fall through
             }
