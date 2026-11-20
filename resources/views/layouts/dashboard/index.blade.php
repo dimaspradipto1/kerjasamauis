@@ -664,6 +664,153 @@
         </div>
     </section>
 
+    {{-- ========================================================================= --}}
+    {{-- MODAL DRILLDOWN REKAPITULASI DOKUMEN & BERKAS PER-PRODI / FAKULTAS        --}}
+    {{-- ========================================================================= --}}
+    <div class="modal fade" id="modalDrilldownDashboard" tabindex="-1" aria-labelledby="modalDrilldownTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 95%;">
+            <div class="modal-content shadow-lg border-0" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-1 d-flex align-items-center gap-2" id="modalDrilldownTitle">
+                            <i class="bi bi-folder2-open"></i> Detail & Berkas Dokumen Kerjasama
+                        </h5>
+                        <p class="mb-0 text-white-50 small" id="modalDrilldownDescription">
+                            Rincian dokumen per Unit Kerja, Fakultas, Program Studi, dan akses langsung berkas fisik yang diunggah.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-3 p-md-4 bg-light">
+                    {{-- Loading State --}}
+                    <div id="drilldownLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 fw-semibold text-muted">Memuat rincian data dokumen & berkas...</p>
+                    </div>
+
+                    {{-- Content State --}}
+                    <div id="drilldownContent" style="display: none;">
+                        {{-- 1. Rekapitulasi per Universitas, Fakultas & Prodi --}}
+                        <div class="card shadow-sm border-0 rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-diagram-3-fill text-primary fs-5"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark">Rincian Sebaran Dokumen per Unit Kerja & Program Studi</h6>
+                                        <small class="text-muted">Klik pada kartu Fakultas atau tombol Program Studi untuk memfilter daftar dokumen di bawah ini secara langsung.</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-primary px-3 py-2 rounded-pill fs-7 fw-bold" id="badgeModalTotalDocs">Total: 0 Dokumen</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetUnitFilter()" id="btnResetFilter" style="display: none;">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Tampilkan Semua Unit
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3" id="containerFacultiesCards">
+                                    {{-- Dynamically populated by renderSummaryCards(data) --}}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 2. Filter & Pencarian Bar --}}
+                        <div class="card shadow-sm border-0 rounded-3 mb-3">
+                            <div class="card-body p-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-5">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-search"></i></span>
+                                            <input type="text" id="inputModalSearch" class="form-control border-start-0" placeholder="Cari judul kerjasama, mitra, atau nomor dokumen..." onkeyup="filterModalTable()">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white text-muted"><i class="bi bi-building"></i></span>
+                                            <select id="selectModalUnitFilter" class="form-select" onchange="onSelectUnitChange(this.value)">
+                                                <option value="">-- Semua Unit Kerja / Prodi --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-md-end text-muted small">
+                                        <span id="labelFilteredCount" class="fw-bold text-primary">Menampilkan 0 dokumen</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 3. Tabel Dokumen & Berkas Fisik --}}
+                        <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-files me-2 text-primary"></i> Daftar Dokumen & Berkas Laporan</h6>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill" id="badgeActiveFilterName">Semua Unit</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: 480px;">
+                                    <table class="table table-hover align-middle mb-0 text-nowrap" id="tableModalDocs">
+                                        <thead class="table-light sticky-top" style="z-index: 1;">
+                                            <tr class="small text-muted text-uppercase fw-semibold">
+                                                <th class="ps-3" style="width: 50px;">No</th>
+                                                <th>No. Dokumen</th>
+                                                <th>Unit Kerja</th>
+                                                <th>Mitra</th>
+                                                <th>Judul Kerjasama</th>
+                                                <th>Durasi</th>
+                                                <th class="text-center">Status</th>
+                                                <th class="text-center">Dokumen / Berkas Fisik</th>
+                                                <th class="text-center pe-3" style="width: 80px;">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyModalDocs" class="small">
+                                            {{-- Rows dynamically generated --}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="emptyModalDocs" class="text-center py-5 text-muted" style="display: none;">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                                    <p class="mb-0 fw-semibold">Tidak ditemukan dokumen kerjasama yang sesuai dengan filter.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-white py-2 px-4 justify-content-between">
+                    <span class="small text-muted"><i class="bi bi-info-circle me-1"></i> Data dan berkas tersinkronisasi langsung dari database & storage aplikasi.</span>
+                    <button type="button" class="btn btn-secondary rounded-2 px-4" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Custom Styles for Clickable Cards & Badges --}}
+    <style>
+        .card-kpi-clickable:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.12) !important;
+        }
+        .item-rank-clickable:hover {
+            background-color: #e2e8f0 !important;
+            transform: translateX(4px);
+        }
+        .prodi-pill-btn {
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+        }
+        .prodi-pill-btn:hover {
+            filter: brightness(0.92);
+            transform: translateY(-1px);
+        }
+        .prodi-pill-btn.active-filter {
+            box-shadow: 0 0 0 2px #0d6efd !important;
+            font-weight: 700 !important;
+            filter: brightness(0.90);
+        }
+    </style>
+
 @endsection
 
 @push('scripts')
@@ -1103,5 +1250,486 @@
                 chartICS.resize();
             });
         });
+    </script>
+
+    {{-- SCRIPT INTERAKTIF MODAL DRILLDOWN DOKUMEN & BERKAS PER-PRODI --}}
+    <script>
+        let currentDrilldownData = null;
+        let activeUnitFilterId = null;
+        let activeUnitFilterName = null;
+        let activeFacultyKey = null;
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeJs(str) {
+            if (!str) return '';
+            return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        function openDrilldownModal(type = 'all', unitKerjaId = null, unitKerjaName = null) {
+            const modalEl = document.getElementById('modalDrilldownDashboard');
+            if (!modalEl) return;
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            bsModal.show();
+
+            // Set state to loading
+            document.getElementById('drilldownLoading').style.display = 'block';
+            document.getElementById('drilldownContent').style.display = 'none';
+
+            // Reset search input
+            const searchInput = document.getElementById('inputModalSearch');
+            if (searchInput) searchInput.value = '';
+
+            // Fetch data from /dashboard/drilldown
+            const filterTahunSelect = document.getElementById('filter-tahun-header');
+            const filterTahun = filterTahunSelect ? filterTahunSelect.value : '';
+            let url = '{{ route("dashboard.drilldown") }}?type=' + encodeURIComponent(type);
+            if (filterTahun) {
+                url += '&tahun=' + encodeURIComponent(filterTahun);
+            }
+            if (unitKerjaId) {
+                url += '&unit_kerja_id=' + encodeURIComponent(unitKerjaId);
+            }
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        currentDrilldownData = data;
+                        activeUnitFilterId = unitKerjaId ? parseInt(unitKerjaId) : (data.selected_unit_id ? parseInt(data.selected_unit_id) : null);
+                        activeUnitFilterName = unitKerjaName || data.selected_unit_name || null;
+                        activeFacultyKey = null;
+
+                        // Check if activeUnitFilterId matches a faculty
+                        if (activeUnitFilterId && data.faculties) {
+                            const matchedFac = data.faculties.find(f => f.id === activeUnitFilterId);
+                            if (matchedFac) activeFacultyKey = matchedFac.key;
+                        }
+
+                        // Update header info
+                        const modalTitle = document.getElementById('modalDrilldownTitle');
+                        const modalDesc = document.getElementById('modalDrilldownDescription');
+                        const badgeTotal = document.getElementById('badgeModalTotalDocs');
+
+                        let iconClass = 'bi-folder2-open';
+                        if (data.type === 'mou') iconClass = 'bi-file-earmark-check-fill text-success';
+                        else if (data.type === 'moa') iconClass = 'bi-file-earmark-text-fill text-primary';
+                        else if (data.type === 'ia') iconClass = 'bi-journal-check text-purple';
+
+                        modalTitle.innerHTML = `<i class="bi ${iconClass}"></i> Rincian & Berkas Dokumen: <span class="text-warning">${data.type_title}</span>`;
+                        modalDesc.innerHTML = `Data sebaran dokumen per Fakultas, Program Studi, dan berkas fisik laporan yang diunggah.` + (filterTahun ? ` (Filter Tahun: <b>${filterTahun}</b>)` : '');
+                        badgeTotal.textContent = `Total Dokumen: ${data.total_count}`;
+
+                        // Render Summary Cards (UIS, FEB, FST, FIKes & child prodis)
+                        renderSummaryCards(data);
+
+                        // Populate unit select options
+                        populateUnitSelectOptions(data.unit_kerjas_options, activeUnitFilterId);
+
+                        // Filter and render table
+                        filterModalTable();
+
+                        // Show content
+                        document.getElementById('drilldownLoading').style.display = 'none';
+                        document.getElementById('drilldownContent').style.display = 'block';
+                    } else {
+                        alert('Gagal memuat data: ' + (data.message || 'Terjadi kesalahan sistem'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching drilldown data:', err);
+                    document.getElementById('drilldownLoading').innerHTML = `
+                        <div class="text-danger py-4">
+                            <i class="bi bi-exclamation-triangle fs-1"></i>
+                            <p class="mt-2 fw-semibold">Gagal memuat data dari server. Silakan coba kembali.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function renderSummaryCards(data) {
+            const container = document.getElementById('containerFacultiesCards');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // 1. UIS Card
+            if (data.uis) {
+                const uis = data.uis;
+                const isUisActive = (activeUnitFilterId === uis.id);
+                const colUis = document.createElement('div');
+                colUis.className = 'col-lg-3 col-md-6';
+                colUis.innerHTML = `
+                    <div class="card h-100 border-0 shadow-sm prodi-pill-btn ${isUisActive ? 'active-filter' : ''}" 
+                         id="card-unit-${uis.id}"
+                         style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 4px solid #0d6efd !important; cursor: pointer; border-radius: 10px;"
+                         onclick="applyUnitFilter(${uis.id}, '${escapeJs(uis.name)}')">
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-primary px-2.5 py-1 rounded-2 fw-bold" style="font-size: 0.75rem;">Universitas</span>
+                                    <span class="badge bg-white text-primary border border-primary-subtle fw-bold fs-6 shadow-sm px-2.5 py-1">${uis.count} Dokumen</span>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.95rem; line-height: 1.3;">${escapeHtml(uis.name)}</h6>
+                                <p class="text-muted small mb-0" style="font-size: 0.78rem;">Dokumen level pimpinan universitas UIS.</p>
+                            </div>
+                            <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                <small class="text-primary fw-bold" style="font-size: 0.75rem;"><i class="bi bi-filter me-1"></i> Klik untuk filter</small>
+                                <i class="bi bi-chevron-right text-primary small"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(colUis);
+            }
+
+            // 2. Faculty Cards (FEB, FST, FIKes)
+            const facConf = {
+                'feb': { 
+                    border: '#fd7e14', 
+                    bgHeader: 'linear-gradient(135deg, #ffffff 0%, #fff7ed 100%)', 
+                    badgeClass: 'bg-warning text-dark', 
+                    pillBg: '#fff7ed', 
+                    pillBorder: '#fed7aa', 
+                    pillColor: '#9a3412',
+                    totalBadgeStyle: 'background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa;'
+                },
+                'fst': { 
+                    border: '#0284c7', 
+                    bgHeader: 'linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)', 
+                    badgeClass: 'bg-info text-dark', 
+                    pillBg: '#f0f9ff', 
+                    pillBorder: '#bae6fd', 
+                    pillColor: '#0369a1',
+                    totalBadgeStyle: 'background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;'
+                },
+                'fikes': { 
+                    border: '#15803d', 
+                    bgHeader: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)', 
+                    badgeClass: 'bg-success text-white', 
+                    pillBg: '#f0fdf4', 
+                    pillBorder: '#bbf7d0', 
+                    pillColor: '#166534',
+                    totalBadgeStyle: 'background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;'
+                }
+            };
+
+            if (data.faculties && data.faculties.length > 0) {
+                data.faculties.forEach(fac => {
+                    const conf = facConf[fac.key] || { 
+                        border: '#6c757d', 
+                        bgHeader: '#ffffff', 
+                        badgeClass: 'bg-secondary text-white', 
+                        pillBg: '#f8f9fa', 
+                        pillBorder: '#e2e8f0', 
+                        pillColor: '#334155',
+                        totalBadgeStyle: 'background-color: #f1f5f9; color: #334155;'
+                    };
+
+                    const isFacActive = (activeFacultyKey === fac.key || (fac.id && activeUnitFilterId === fac.id));
+
+                    let prodisHtml = '';
+                    if (fac.prodis && fac.prodis.length > 0) {
+                        fac.prodis.forEach(p => {
+                            const isPActive = (activeUnitFilterId === p.id);
+                            prodisHtml += `
+                                <div class="prodi-pill-btn p-1.5 px-2 rounded-2 d-flex align-items-center justify-content-between ${isPActive ? 'active-filter' : ''}"
+                                     id="pill-unit-${p.id}"
+                                     style="background-color: ${conf.pillBg}; border: 1px solid ${conf.pillBorder}; cursor: pointer;"
+                                     onclick="applyUnitFilter(${p.id}, '${escapeJs(p.name)}')">
+                                    <span class="text-truncate fw-semibold me-1" style="color: ${conf.pillColor}; font-size: 0.77rem;" title="${escapeHtml(p.name)}">
+                                        ${escapeHtml(p.name)}
+                                    </span>
+                                    <span class="badge bg-white text-dark border px-1.5 py-0.5 fw-bold shadow-sm" style="font-size: 0.74rem;">
+                                        ${p.count}
+                                    </span>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        prodisHtml = '<span class="text-muted small fst-italic">Belum ada prodi</span>';
+                    }
+
+                    const colFac = document.createElement('div');
+                    colFac.className = 'col-lg-3 col-md-6';
+                    colFac.innerHTML = `
+                        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid ${conf.border} !important; border-radius: 10px; background-color: #ffffff;">
+                            <div class="card-body p-3">
+                                {{-- Faculty Header (Clickable for whole faculty) --}}
+                                <div class="p-2 rounded-2 mb-2.5 prodi-pill-btn ${isFacActive ? 'active-filter' : ''}" 
+                                     id="card-fac-${fac.key}"
+                                     style="background: ${conf.bgHeader}; border: 1px solid ${conf.pillBorder}; cursor: pointer;"
+                                     onclick="applyFacultyFilter('${fac.key}', '${escapeJs(fac.name)}', ${fac.id ? fac.id : 'null'})">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <span class="badge ${conf.badgeClass} px-2 py-0.5 fw-bold rounded-2" style="font-size: 0.72rem;">${escapeHtml(fac.short_name)}</span>
+                                        <span class="badge px-2.5 py-0.5 rounded-pill fw-bold shadow-sm" style="${conf.totalBadgeStyle}; font-size: 0.75rem;">
+                                            Total: ${fac.total_count}
+                                        </span>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-0 text-truncate" style="font-size: 0.88rem;" title="${escapeHtml(fac.name)}">${escapeHtml(fac.name)}</h6>
+                                    <div class="d-flex align-items-center justify-content-between mt-1 pt-1 border-top" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <small class="fw-bold" style="color: ${conf.pillColor}; font-size: 0.7rem;"><i class="bi bi-funnel me-0.5"></i> Semua prodi ${fac.short_name}</small>
+                                        <i class="bi bi-chevron-right small" style="color: ${conf.pillColor};"></i>
+                                    </div>
+                                </div>
+
+                                {{-- Prodi Pills List --}}
+                                <div class="d-flex flex-column gap-1.5">
+                                    ${prodisHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(colFac);
+                });
+            }
+        }
+
+        function populateUnitSelectOptions(options, selectedId) {
+            const selectEl = document.getElementById('selectModalUnitFilter');
+            if (!selectEl) return;
+            selectEl.innerHTML = '<option value="">-- Semua Unit Kerja / Program Studi --</option>';
+            if (options && options.length > 0) {
+                options.forEach(opt => {
+                    const isSelected = (selectedId && parseInt(selectedId) === parseInt(opt.id)) ? 'selected' : '';
+                    selectEl.innerHTML += `<option value="${opt.id}" ${isSelected}>${escapeHtml(opt.name)}</option>`;
+                });
+            }
+        }
+
+        function applyUnitFilter(unitId, unitName) {
+            activeUnitFilterId = parseInt(unitId);
+            activeUnitFilterName = unitName;
+            activeFacultyKey = null;
+
+            // Sync with select dropdown
+            const selectEl = document.getElementById('selectModalUnitFilter');
+            if (selectEl) selectEl.value = unitId;
+
+            updateFilterVisuals();
+            filterModalTable();
+        }
+
+        function applyFacultyFilter(facKey, facName, facId = null) {
+            activeFacultyKey = facKey;
+            activeUnitFilterName = facName;
+            activeUnitFilterId = facId ? parseInt(facId) : null;
+
+            // Sync select dropdown
+            const selectEl = document.getElementById('selectModalUnitFilter');
+            if (selectEl) {
+                selectEl.value = facId ? facId : '';
+            }
+
+            updateFilterVisuals();
+            filterModalTable();
+        }
+
+        function resetUnitFilter() {
+            activeUnitFilterId = null;
+            activeUnitFilterName = null;
+            activeFacultyKey = null;
+
+            const selectEl = document.getElementById('selectModalUnitFilter');
+            if (selectEl) selectEl.value = '';
+
+            const searchInput = document.getElementById('inputModalSearch');
+            if (searchInput) searchInput.value = '';
+
+            updateFilterVisuals();
+            filterModalTable();
+        }
+
+        function onSelectUnitChange(val) {
+            if (!val) {
+                resetUnitFilter();
+            } else {
+                const selectEl = document.getElementById('selectModalUnitFilter');
+                const selectedText = selectEl.options[selectEl.selectedIndex].text;
+                applyUnitFilter(parseInt(val), selectedText);
+            }
+        }
+
+        function updateFilterVisuals() {
+            // Update Reset button visibility
+            const btnReset = document.getElementById('btnResetFilter');
+            if (btnReset) {
+                btnReset.style.display = (activeUnitFilterId || activeFacultyKey) ? 'inline-block' : 'none';
+            }
+
+            // Update badge active filter name
+            const badgeFilter = document.getElementById('badgeActiveFilterName');
+            if (badgeFilter) {
+                if (activeUnitFilterName) {
+                    badgeFilter.textContent = 'Filter: ' + activeUnitFilterName;
+                    badgeFilter.className = 'badge bg-primary text-white px-3 py-1.5 rounded-pill shadow-sm';
+                } else {
+                    badgeFilter.textContent = 'Semua Unit Kerja';
+                    badgeFilter.className = 'badge bg-light text-muted border px-3 py-1.5 rounded-pill';
+                }
+            }
+
+            // Update active pill classes
+            document.querySelectorAll('.prodi-pill-btn').forEach(el => el.classList.remove('active-filter'));
+
+            if (activeUnitFilterId) {
+                const unitCard = document.getElementById('card-unit-' + activeUnitFilterId);
+                if (unitCard) unitCard.classList.add('active-filter');
+
+                const unitPill = document.getElementById('pill-unit-' + activeUnitFilterId);
+                if (unitPill) unitPill.classList.add('active-filter');
+            }
+
+            if (activeFacultyKey) {
+                const facCard = document.getElementById('card-fac-' + activeFacultyKey);
+                if (facCard) facCard.classList.add('active-filter');
+            }
+        }
+
+        function filterModalTable() {
+            if (!currentDrilldownData || !currentDrilldownData.documents) return;
+
+            const searchQuery = (document.getElementById('inputModalSearch')?.value || '').trim().toLowerCase();
+            const docs = currentDrilldownData.documents;
+
+            // Find faculty definition if faculty filter is active
+            let facultyUnitIds = null;
+            if (activeFacultyKey && currentDrilldownData.faculties) {
+                const facObj = currentDrilldownData.faculties.find(f => f.key === activeFacultyKey);
+                if (facObj && facObj.unit_ids) {
+                    facultyUnitIds = facObj.unit_ids;
+                }
+            }
+
+            const filtered = docs.filter(doc => {
+                // 1. Unit filter
+                if (activeFacultyKey && facultyUnitIds) {
+                    const hasIntersection = (doc.unit_ids || []).some(id => facultyUnitIds.includes(parseInt(id)));
+                    const matchesName = activeUnitFilterName && doc.unit_kerja.toLowerCase().includes(activeUnitFilterName.toLowerCase());
+                    if (!hasIntersection && !matchesName) return false;
+                } else if (activeUnitFilterId) {
+                    const hasId = (doc.unit_ids || []).includes(activeUnitFilterId);
+                    const matchesName = activeUnitFilterName && doc.unit_kerja.toLowerCase().includes(activeUnitFilterName.toLowerCase());
+                    if (!hasId && !matchesName) return false;
+                }
+
+                // 2. Search query filter
+                if (searchQuery) {
+                    const combined = (
+                        (doc.nomor_dokumen_kerjasama || '') + ' ' +
+                        (doc.nomor_dokumen_mitra || '') + ' ' +
+                        (doc.judul_kerjasama || '') + ' ' +
+                        (doc.mitra || '') + ' ' +
+                        (doc.unit_kerja || '') + ' ' +
+                        (doc.jenis_dokumen || '')
+                    ).toLowerCase();
+                    if (!combined.includes(searchQuery)) return false;
+                }
+
+                return true;
+            });
+
+            // Update counter
+            const labelCount = document.getElementById('labelFilteredCount');
+            if (labelCount) {
+                labelCount.textContent = `Menampilkan ${filtered.length} dari ${docs.length} dokumen`;
+            }
+
+            // Render table
+            renderDocumentsTable(filtered);
+        }
+
+        function renderDocumentsTable(docs) {
+            const tbody = document.getElementById('tbodyModalDocs');
+            const emptyEl = document.getElementById('emptyModalDocs');
+            const table = document.getElementById('tableModalDocs');
+            if (!tbody) return;
+
+            if (docs.length === 0) {
+                tbody.innerHTML = '';
+                if (emptyEl) emptyEl.style.display = 'block';
+                if (table) table.style.display = 'none';
+                return;
+            }
+
+            if (emptyEl) emptyEl.style.display = 'none';
+            if (table) table.style.display = 'table';
+
+            let html = '';
+            docs.forEach((doc, idx) => {
+                // Status badge
+                let statusBadge = '<span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-1 rounded-pill">Aktif</span>';
+                if (doc.status_kerjasama && doc.status_kerjasama.toLowerCase().includes('berakhir')) {
+                    statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-2 py-1 rounded-pill">Berakhir</span>';
+                } else if (doc.status_kerjasama && (doc.status_kerjasama.toLowerCase().includes('perpanjang') || doc.status_kerjasama.toLowerCase().includes('proses'))) {
+                    statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle px-2 py-1 rounded-pill">Perpanjangan</span>';
+                } else if (doc.status_kerjasama && doc.status_kerjasama.toLowerCase().includes('tidak')) {
+                    statusBadge = '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">Tidak Aktif</span>';
+                }
+
+                // Files button
+                let filesHtml = '';
+                if (doc.files && doc.files.length > 0) {
+                    filesHtml = '<div class="d-flex flex-column gap-1">';
+                    doc.files.forEach(f => {
+                        const icon = f.is_pdf ? 'bi-file-earmark-pdf-fill text-danger' : 'bi-file-earmark-text-fill text-primary';
+                        const btnClass = f.is_pdf ? 'btn-outline-danger' : 'btn-outline-primary';
+                        filesHtml += `
+                            <a href="${f.url}" target="_blank" class="btn btn-sm ${btnClass} d-inline-flex align-items-center gap-1.5 py-1 px-2.5 rounded-2 shadow-sm text-decoration-none" title="Buka berkas ${escapeHtml(f.name)}" style="font-size: 0.76rem;">
+                                <i class="bi ${icon}"></i>
+                                <span class="text-truncate" style="max-width: 160px;">${escapeHtml(f.name)}</span>
+                                <i class="bi bi-box-arrow-up-right small ms-1 opacity-75"></i>
+                            </a>
+                        `;
+                    });
+                    filesHtml += '</div>';
+                } else {
+                    filesHtml = '<span class="badge bg-white text-muted border px-2 py-1 rounded-2 fw-normal" style="font-size: 0.74rem;"><i class="bi bi-file-earmark-x me-1"></i> Belum ada berkas</span>';
+                }
+
+                html += `
+                    <tr>
+                        <td class="ps-3 text-muted fw-semibold">${idx + 1}</td>
+                        <td>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.85rem;">${escapeHtml(doc.nomor_dokumen_kerjasama)}</span>
+                            ${doc.nomor_dokumen_mitra && doc.nomor_dokumen_mitra !== '-' ? `<small class="text-muted">Mitra: ${escapeHtml(doc.nomor_dokumen_mitra)}</small>` : ''}
+                            <span class="badge bg-light text-primary border mt-0.5" style="font-size: 0.72rem;">${escapeHtml(doc.jenis_dokumen)}</span>
+                        </td>
+                        <td style="max-width: 200px;">
+                            <span class="badge bg-light text-dark border text-wrap text-start px-2 py-1" style="font-size: 0.78rem; line-height: 1.3;">
+                                <i class="bi bi-building me-1 text-primary"></i> ${escapeHtml(doc.unit_kerja)}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark" style="font-size: 0.85rem;">${escapeHtml(doc.mitra)}</span>
+                        </td>
+                        <td style="max-width: 260px;">
+                            <a href="${doc.detail_url}" class="fw-semibold text-primary text-decoration-none text-wrap d-inline-block" style="font-size: 0.84rem; line-height: 1.35;" title="Lihat rincian kerjasama">
+                                ${escapeHtml(doc.judul_kerjasama)}
+                            </a>
+                        </td>
+                        <td class="text-muted" style="font-size: 0.78rem;">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> ${escapeHtml(doc.durasi)}
+                        </td>
+                        <td class="text-center">${statusBadge}</td>
+                        <td class="text-center">${filesHtml}</td>
+                        <td class="text-center pe-3">
+                            <a href="${doc.detail_url}" class="btn btn-sm btn-primary rounded-2 px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.78rem;">
+                                <i class="bi bi-eye"></i> Detail
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
     </script>
 @endpush

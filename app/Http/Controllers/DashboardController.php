@@ -664,6 +664,7 @@ class DashboardController extends Controller
                 'short_name' => $fac['short_name'],
                 'id' => $facHeader ? $facHeader->id : null,
                 'total_count' => $facTotalCount,
+                'unit_ids' => $unitIds,
                 'prodis' => $prodisList
             ];
         }
@@ -702,19 +703,12 @@ class DashboardController extends Controller
         if ($typeClosure) {
             $docQuery->where($typeClosure);
         }
-        if (!empty($targetUnitIds)) {
-            $docQuery->where(function ($q) use ($targetUnitIds) {
-                $q->whereIn('unit_kerja_id', $targetUnitIds)
-                  ->orWhereExists(function ($sub) use ($targetUnitIds) {
-                      $sub->select(DB::raw(1))
-                          ->from('kerjasama_unit_kerja')
-                          ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
-                          ->whereIn('kerjasama_unit_kerja.unit_kerja_id', $targetUnitIds);
-                  });
-            });
-        }
 
         $documents = $docQuery->get()->map(function ($k) {
+            $docUnitIds = $k->unitKerjas->isNotEmpty()
+                ? $k->unitKerjas->pluck('id')->toArray()
+                : ($k->unitKerja ? [$k->unitKerja->id] : []);
+
             $rawUnits = $k->unitKerjas->isNotEmpty()
                 ? $k->unitKerjas->pluck('nama_unit_kerja')->toArray()
                 : ($k->unitKerja ? [$k->unitKerja->nama_unit_kerja] : []);
@@ -753,6 +747,7 @@ class DashboardController extends Controller
                 'mitra' => $k->mitra ? $k->mitra->nama_mitra : '-',
                 'unit_kerja' => !empty($units) ? implode(', ', $units) : '-',
                 'unit_kerja_list' => $units,
+                'unit_ids' => $docUnitIds,
                 'judul_kerjasama' => $k->judul_kerjasama ?: '-',
                 'durasi' => "{$tglAwal} s.d. {$tglAkhir}",
                 'status_kerjasama' => $k->status_kerjasama ?: 'Aktif',
