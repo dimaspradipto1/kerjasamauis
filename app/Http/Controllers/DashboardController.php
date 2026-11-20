@@ -487,4 +487,298 @@ class DashboardController extends Controller
             'chartDokumenPerUnitKerja', 'hierarchicalRekap'
         ));
     }
+
+    /**
+     * AJAX endpoint drilldown detail dokumen MoU, MoA, IA, atau per Unit Kerja / Prodi.
+     */
+    public function drilldown(Request $request)
+    {
+        $type = strtolower($request->get('type', 'all'));
+        $unitKerjaId = $request->get('unit_kerja_id');
+        $tahunSelected = $request->get('tahun');
+
+        $applyMou = function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('jenis_dokumen_id', 3)
+                    ->orWhereHas('jenisDokumen', function ($jd) {
+                        $jd->where('nama_jenis_dokumen', 'like', '%MoU%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Understanding%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Kesepahaman%');
+                    });
+            });
+        };
+
+        $applyMoa = function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('jenis_dokumen_id', 2)
+                    ->orWhereHas('jenisDokumen', function ($jd) {
+                        $jd->where('nama_jenis_dokumen', 'like', '%MoA%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Agreement%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Perjanjian%');
+                    });
+            });
+        };
+
+        $applyIa = function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('jenis_dokumen_id', 1)
+                    ->orWhereHas('jenisDokumen', function ($jd) {
+                        $jd->where('nama_jenis_dokumen', 'like', '%IA%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Arrangement%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Implementation%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Pelaksanaan%');
+                    });
+            });
+        };
+
+        // Judul & Badge berdasarkan tipe
+        $typeTitle = 'Seluruh Dokumen Kerjasama';
+        $typeBadge = 'Semua Dokumen';
+        $typeClosure = null;
+
+        if ($type === 'mou') {
+            $typeTitle = 'Memorandum of Understanding (MoU)';
+            $typeBadge = 'MoU';
+            $typeClosure = $applyMou;
+        } elseif ($type === 'moa') {
+            $typeTitle = 'Memorandum of Agreement (MoA)';
+            $typeBadge = 'MoA';
+            $typeClosure = $applyMoa;
+        } elseif ($type === 'ia') {
+            $typeTitle = 'Implementation Arrangement (IA)';
+            $typeBadge = 'IA';
+            $typeClosure = $applyIa;
+        }
+
+        $allUnitKerjas = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
+
+        // 1. Hitung Ringkasan per Fakultas & Prodi untuk tipe ini
+        $baseTypeQuery = Kerjasama::query();
+        if ($tahunSelected) {
+            $baseTypeQuery->whereYear('tanggal_waktu_berlaku', $tahunSelected);
+        }
+        if ($typeClosure) {
+            $baseTypeQuery->where($typeClosure);
+        }
+
+        $totalMatchingDocs = (clone $baseTypeQuery)->count();
+
+        // Hitungan UIS Universitas
+        $uisUnit = $allUnitKerjas->first(fn($u) => str_contains(strtolower($u->nama_unit_kerja), 'universitas'));
+        $uisData = null;
+        if ($uisUnit) {
+            $uisCount = (clone $baseTypeQuery)->where(function ($q) use ($uisUnit) {
+                $q->where('unit_kerja_id', $uisUnit->id)
+                  ->orWhereExists(function ($sub) use ($uisUnit) {
+                      $sub->select(DB::raw(1))
+                          ->from('kerjasama_unit_kerja')
+                          ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                          ->where('kerjasama_unit_kerja.unit_kerja_id', $uisUnit->id);
+                  });
+            })->count();
+
+            $uisData = [
+                'id' => $uisUnit->id,
+                'name' => $uisUnit->nama_unit_kerja,
+                'count' => $uisCount
+            ];
+        }
+
+        $facultiesDef = [
+            [
+                'key' => 'feb',
+                'name' => 'Fakultas Ekonomi dan Bisnis',
+                'short_name' => 'FEB',
+                'match' => 'ekonomi',
+                'prodi_matches' => ['manajemen', 'akuntansi'],
+            ],
+            [
+                'key' => 'fst',
+                'name' => 'Fakultas Sains dan Teknologi',
+                'short_name' => 'FST',
+                'match' => 'sains',
+                'prodi_matches' => ['informatika', 'sistem informasi', 'industri', 'perkapalan', 'logistik'],
+            ],
+            [
+                'key' => 'fikes',
+                'name' => 'Fakultas Ilmu Kesehatan',
+                'short_name' => 'FIKes',
+                'match' => 'kesehatan',
+                'prodi_matches' => ['keselamatan', 'lingkungan', 'masyarakat'],
+            ],
+        ];
+
+        $facultiesData = [];
+        foreach ($facultiesDef as $fac) {
+            $facHeader = $allUnitKerjas->first(function ($uk) use ($fac) {
+                return str_contains(strtolower($uk->nama_unit_kerja), 'fakultas') && 
+                       str_contains(strtolower($uk->nama_unit_kerja), $fac['match']);
+            });
+
+            $childProdis = $allUnitKerjas->filter(function ($uk) use ($fac) {
+                $nameLower = strtolower($uk->nama_unit_kerja);
+                if (str_contains($nameLower, 'fakultas') || str_contains($nameLower, 'universitas')) {
+                    return false;
+                }
+                foreach ($fac['prodi_matches'] as $pm) {
+                    if (str_contains($nameLower, $pm)) return true;
+                }
+                return false;
+            })->values();
+
+            $unitIds = $childProdis->pluck('id')->toArray();
+            if ($facHeader) $unitIds[] = $facHeader->id;
+
+            $facTotalCount = (clone $baseTypeQuery)->where(function ($q) use ($unitIds) {
+                $q->whereIn('unit_kerja_id', $unitIds)
+                  ->orWhereExists(function ($sub) use ($unitIds) {
+                      $sub->select(DB::raw(1))
+                          ->from('kerjasama_unit_kerja')
+                          ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                          ->whereIn('kerjasama_unit_kerja.unit_kerja_id', $unitIds);
+                  });
+            })->count();
+
+            $prodisList = [];
+            foreach ($childProdis as $p) {
+                $pCount = (clone $baseTypeQuery)->where(function ($q) use ($p) {
+                    $q->where('unit_kerja_id', $p->id)
+                      ->orWhereExists(function ($sub) use ($p) {
+                          $sub->select(DB::raw(1))
+                              ->from('kerjasama_unit_kerja')
+                              ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                              ->where('kerjasama_unit_kerja.unit_kerja_id', $p->id);
+                      });
+                })->count();
+
+                $prodisList[] = [
+                    'id' => $p->id,
+                    'name' => $p->nama_unit_kerja,
+                    'count' => $pCount,
+                ];
+            }
+
+            $facultiesData[] = [
+                'key' => $fac['key'],
+                'name' => $facHeader ? $facHeader->nama_unit_kerja : $fac['name'],
+                'short_name' => $fac['short_name'],
+                'id' => $facHeader ? $facHeader->id : null,
+                'total_count' => $facTotalCount,
+                'prodis' => $prodisList
+            ];
+        }
+
+        // 2. Query Daftar Dokumen Kerjasama
+        $targetUnitIds = [];
+        if ($unitKerjaId) {
+            $targetUnitIds[] = (int)$unitKerjaId;
+            $targetUk = $allUnitKerjas->firstWhere('id', $unitKerjaId);
+            if ($targetUk && str_contains(strtolower($targetUk->nama_unit_kerja), 'fakultas')) {
+                foreach ($facultiesDef as $fac) {
+                    if (str_contains(strtolower($targetUk->nama_unit_kerja), $fac['match'])) {
+                        $cProdis = $allUnitKerjas->filter(function ($uk) use ($fac) {
+                            $nl = strtolower($uk->nama_unit_kerja);
+                            if (str_contains($nl, 'fakultas') || str_contains($nl, 'universitas')) return false;
+                            foreach ($fac['prodi_matches'] as $pm) {
+                                if (str_contains($nl, $pm)) return true;
+                            }
+                            return false;
+                        });
+                        foreach ($cProdis as $cp) {
+                            $targetUnitIds[] = $cp->id;
+                        }
+                    }
+                }
+            }
+        }
+
+        $docQuery = Kerjasama::with(['jenisDokumen', 'mitra', 'unitKerja', 'unitKerjas'])
+            ->orderBy('tanggal_waktu_berlaku', 'desc')
+            ->orderBy('id', 'desc');
+
+        if ($tahunSelected) {
+            $docQuery->whereYear('tanggal_waktu_berlaku', $tahunSelected);
+        }
+        if ($typeClosure) {
+            $docQuery->where($typeClosure);
+        }
+        if (!empty($targetUnitIds)) {
+            $docQuery->where(function ($q) use ($targetUnitIds) {
+                $q->whereIn('unit_kerja_id', $targetUnitIds)
+                  ->orWhereExists(function ($sub) use ($targetUnitIds) {
+                      $sub->select(DB::raw(1))
+                          ->from('kerjasama_unit_kerja')
+                          ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                          ->whereIn('kerjasama_unit_kerja.unit_kerja_id', $targetUnitIds);
+                  });
+            });
+        }
+
+        $documents = $docQuery->get()->map(function ($k) {
+            $rawUnits = $k->unitKerjas->isNotEmpty()
+                ? $k->unitKerjas->pluck('nama_unit_kerja')->toArray()
+                : ($k->unitKerja ? [$k->unitKerja->nama_unit_kerja] : []);
+            
+            $units = [];
+            foreach ($rawUnits as $u) {
+                if (str_contains($u, ',')) {
+                    foreach (array_map('trim', explode(',', $u)) as $p) {
+                        if ($p !== '') $units[] = $p;
+                    }
+                } else {
+                    if (trim($u) !== '') $units[] = trim($u);
+                }
+            }
+
+            $files = is_array($k->url_file) ? $k->url_file : (empty($k->url_file) ? [] : (json_decode($k->url_file, true) ?: [$k->url_file]));
+            $filesData = [];
+            foreach ($files as $f) {
+                if (!empty($f)) {
+                    $filesData[] = [
+                        'name' => basename($f),
+                        'url' => asset('storage/' . $f),
+                        'is_pdf' => str_ends_with(strtolower($f), '.pdf')
+                    ];
+                }
+            }
+
+            $tglAwal = $k->tanggal_waktu_berlaku ? $k->tanggal_waktu_berlaku->translatedFormat('d M Y') : '-';
+            $tglAkhir = $k->tanggal_akhir_berlaku ? $k->tanggal_akhir_berlaku->translatedFormat('d M Y') : '-';
+
+            return [
+                'id' => $k->id,
+                'nomor_dokumen_kerjasama' => $k->nomor_dokumen_kerjasama ?: '-',
+                'nomor_dokumen_mitra' => $k->nomor_dokumen_mitra ?: '-',
+                'jenis_dokumen' => $k->jenisDokumen ? $k->jenisDokumen->nama_jenis_dokumen : '-',
+                'mitra' => $k->mitra ? $k->mitra->nama_mitra : '-',
+                'unit_kerja' => !empty($units) ? implode(', ', $units) : '-',
+                'unit_kerja_list' => $units,
+                'judul_kerjasama' => $k->judul_kerjasama ?: '-',
+                'durasi' => "{$tglAwal} s.d. {$tglAkhir}",
+                'status_kerjasama' => $k->status_kerjasama ?: 'Aktif',
+                'files' => $filesData,
+                'detail_url' => route('kerjasama.show', $k->id),
+            ];
+        });
+
+        $selectedUnitName = null;
+        if ($unitKerjaId) {
+            $u = $allUnitKerjas->firstWhere('id', $unitKerjaId);
+            $selectedUnitName = $u ? $u->nama_unit_kerja : null;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'type' => $type,
+            'type_title' => $typeTitle,
+            'type_badge' => $typeBadge,
+            'total_count' => $totalMatchingDocs,
+            'selected_unit_id' => $unitKerjaId ? (int)$unitKerjaId : null,
+            'selected_unit_name' => $selectedUnitName,
+            'uis' => $uisData,
+            'faculties' => $facultiesData,
+            'documents' => $documents,
+            'unit_kerjas_options' => $allUnitKerjas->map(fn($uk) => ['id' => $uk->id, 'name' => $uk->nama_unit_kerja])
+        ]);
+    }
 }

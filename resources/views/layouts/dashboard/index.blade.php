@@ -39,7 +39,7 @@
         <div class="row g-3 mb-4" style="margin-top: 5px !important; margin-bottom: 25px !important;">
             {{-- MoU Card --}}
             <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #198754 !important;">
+                <div class="card shadow-sm border-0 rounded-3 h-100 card-kpi-clickable" style="border-left: 4px solid #198754 !important; cursor: pointer; transition: all 0.2s ease-in-out;" onclick="openDrilldownModal('mou')" title="Klik untuk melihat rincian per-Prodi & berkas MoU">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -52,14 +52,18 @@
                                 <i class="bi bi-file-earmark-check fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Memorandum of Understanding (Nota Kesepahaman)</p>
+                        <p class="text-muted small mt-2 mb-2" style="font-size: 0.75rem; line-height: 1.3;">Memorandum of Understanding (Nota Kesepahaman)</p>
+                        <div class="d-flex align-items-center justify-content-between pt-1 border-top" style="border-color: #f1f5f9 !important;">
+                            <span class="text-success fw-semibold" style="font-size: 0.72rem;"><i class="bi bi-cursor-fill me-1"></i> Klik rincian per-Prodi</span>
+                            <i class="bi bi-arrow-right-circle text-success" style="font-size: 0.85rem;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- MoA Card --}}
             <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #0d6efd !important;">
+                <div class="card shadow-sm border-0 rounded-3 h-100 card-kpi-clickable" style="border-left: 4px solid #0d6efd !important; cursor: pointer; transition: all 0.2s ease-in-out;" onclick="openDrilldownModal('moa')" title="Klik untuk melihat rincian per-Prodi & berkas MoA">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -72,14 +76,18 @@
                                 <i class="bi bi-file-earmark-text fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Memorandum of Agreement (Perjanjian Kerjasama)</p>
+                        <p class="text-muted small mt-2 mb-2" style="font-size: 0.75rem; line-height: 1.3;">Memorandum of Agreement (Perjanjian Kerjasama)</p>
+                        <div class="d-flex align-items-center justify-content-between pt-1 border-top" style="border-color: #f1f5f9 !important;">
+                            <span class="text-primary fw-semibold" style="font-size: 0.72rem;"><i class="bi bi-cursor-fill me-1"></i> Klik rincian per-Prodi</span>
+                            <i class="bi bi-arrow-right-circle text-primary" style="font-size: 0.85rem;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- IA Card --}}
             <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #6f42c1 !important;">
+                <div class="card shadow-sm border-0 rounded-3 h-100 card-kpi-clickable" style="border-left: 4px solid #6f42c1 !important; cursor: pointer; transition: all 0.2s ease-in-out;" onclick="openDrilldownModal('ia')" title="Klik untuk melihat rincian per-Prodi & berkas IA">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -92,14 +100,18 @@
                                 <i class="bi bi-journal-check fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Implementation Arrangement (Pelaksanaan Kerjasama)</p>
+                        <p class="text-muted small mt-2 mb-2" style="font-size: 0.75rem; line-height: 1.3;">Implementation Arrangement (Pelaksanaan Kerjasama)</p>
+                        <div class="d-flex align-items-center justify-content-between pt-1 border-top" style="border-color: #f1f5f9 !important;">
+                            <span class="fw-semibold" style="color: #6f42c1; font-size: 0.72rem;"><i class="bi bi-cursor-fill me-1"></i> Klik rincian per-Prodi & berkas</span>
+                            <i class="bi bi-arrow-right-circle" style="color: #6f42c1; font-size: 0.85rem;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Total Kerjasama Card --}}
             <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm border-0 rounded-3 h-100" style="border-left: 4px solid #fd7e14 !important;">
+                <div class="card shadow-sm border-0 rounded-3 h-100 card-kpi-clickable" style="border-left: 4px solid #fd7e14 !important; cursor: pointer; transition: all 0.2s ease-in-out;" onclick="openDrilldownModal('all')" title="Klik untuk melihat semua rincian per-Prodi & berkas">
                     <div class="card-body" style="padding: 1.25rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -112,7 +124,11 @@
                                 <i class="bi bi-folder-check fs-4"></i>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem; line-height: 1.3;">Total keseluruhan dokumen kerjasama.</p>
+                        <p class="text-muted small mt-2 mb-2" style="font-size: 0.75rem; line-height: 1.3;">Total keseluruhan dokumen kerjasama.</p>
+                        <div class="d-flex align-items-center justify-content-between pt-1 border-top" style="border-color: #f1f5f9 !important;">
+                            <span class="fw-semibold" style="color: #fd7e14; font-size: 0.72rem;"><i class="bi bi-cursor-fill me-1"></i> Klik semua berkas & prodi</span>
+                            <i class="bi bi-arrow-right-circle" style="color: #fd7e14; font-size: 0.85rem;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,7 +310,7 @@
                                             $pct = round(($topUk->total_kerjasama / $maxKerjasama) * 100); 
                                             $barColor = $idx == 0 ? '#fd7e14' : ($idx == 1 ? '#6c757d' : ($idx == 2 ? '#cd7f32' : '#0d6efd'));
                                         @endphp
-                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0">
+                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0 item-rank-clickable" style="cursor: pointer; transition: all 0.15s ease-in-out;" onclick="openDrilldownModal('all', {{ $topUk->id }}, '{{ addslashes($topUk->nama_unit_kerja) }}')" title="Klik untuk melihat berkas & dokumen {{ $topUk->nama_unit_kerja }}">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5 flex-wrap gap-2">
                                                 <div class="d-flex align-items-center gap-2">
                                                     @if($idx == 0)
@@ -312,7 +328,7 @@
                                                     <span class="badge px-2 py-0.5 rounded-2 small fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.72rem;">MoU: {{ $topUk->mou_count }}</span>
                                                     <span class="badge px-2 py-0.5 rounded-2 small fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.72rem;">MoA: {{ $topUk->moa_count }}</span>
                                                     <span class="badge px-2 py-0.5 rounded-2 small fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.72rem;">IA: {{ $topUk->ia_count }}</span>
-                                                    <span class="badge px-2.5 py-1 rounded-pill fw-bold ms-1" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.8rem;">{{ $topUk->total_kerjasama }} Dokumen</span>
+                                                    <span class="badge px-2.5 py-1 rounded-pill fw-bold ms-1" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.8rem;">{{ $topUk->total_kerjasama }} Dokumen <i class="bi bi-chevron-right ms-0.5"></i></span>
                                                 </div>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
@@ -335,13 +351,13 @@
                                 <div class="d-flex flex-column gap-2">
                                     @forelse($top5MoUList as $idx => $mouUk)
                                         @php $pct = round(($mouUk->mou_count / $maxMou) * 100); @endphp
-                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0">
+                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0 item-rank-clickable" style="cursor: pointer; transition: all 0.15s ease-in-out;" onclick="openDrilldownModal('mou', {{ $mouUk->id }}, '{{ addslashes($mouUk->nama_unit_kerja) }}')" title="Klik untuk melihat berkas & dokumen MoU {{ $mouUk->nama_unit_kerja }}">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <span class="badge fw-bold rounded-circle" style="background-color: #0284c7; color: #ffffff; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $mouUk->nama_unit_kerja }}</span>
                                                 </div>
-                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.8rem;">{{ $mouUk->mou_count }} MoU</span>
+                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.8rem;">{{ $mouUk->mou_count }} MoU <i class="bi bi-chevron-right ms-0.5"></i></span>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
                                                 <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $pct }}%; background-color: #0284c7;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -363,13 +379,13 @@
                                 <div class="d-flex flex-column gap-2">
                                     @forelse($top5MoAList as $idx => $moaUk)
                                         @php $pct = round(($moaUk->moa_count / $maxMoa) * 100); @endphp
-                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0">
+                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0 item-rank-clickable" style="cursor: pointer; transition: all 0.15s ease-in-out;" onclick="openDrilldownModal('moa', {{ $moaUk->id }}, '{{ addslashes($moaUk->nama_unit_kerja) }}')" title="Klik untuk melihat berkas & dokumen MoA {{ $moaUk->nama_unit_kerja }}">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <span class="badge fw-bold rounded-circle" style="background-color: #d97706; color: #ffffff; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $moaUk->nama_unit_kerja }}</span>
                                                 </div>
-                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem;">{{ $moaUk->moa_count }} MoA</span>
+                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem;">{{ $moaUk->moa_count }} MoA <i class="bi bi-chevron-right ms-0.5"></i></span>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
                                                 <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $pct }}%; background-color: #d97706;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -391,13 +407,13 @@
                                 <div class="d-flex flex-column gap-2">
                                     @forelse($top5IAList as $idx => $iaUk)
                                         @php $pct = round(($iaUk->ia_count / $maxIa) * 100); @endphp
-                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0">
+                                        <div class="p-2.5 px-3 rounded-3 bg-light border-0 item-rank-clickable" style="cursor: pointer; transition: all 0.15s ease-in-out;" onclick="openDrilldownModal('ia', {{ $iaUk->id }}, '{{ addslashes($iaUk->nama_unit_kerja) }}')" title="Klik untuk melihat berkas & dokumen IA {{ $iaUk->nama_unit_kerja }}">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <span class="badge fw-bold rounded-circle" style="background-color: #16a34a; color: #ffffff; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $iaUk->nama_unit_kerja }}</span>
                                                 </div>
-                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.8rem;">{{ $iaUk->ia_count }} IA</span>
+                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.8rem;">{{ $iaUk->ia_count }} IA <i class="bi bi-chevron-right ms-0.5"></i></span>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
                                                 <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $pct }}%; background-color: #16a34a;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>

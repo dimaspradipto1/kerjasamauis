@@ -331,7 +331,24 @@
               @endif
             </td>
             <td class="mitra-col fw-bold">{{ $row->mitra ? $row->mitra->nama_mitra : '-' }}</td>
-            <td>{{ $row->judul_kerjasama }}</td>
+            <td>
+              <a href="{{ route('kerjasama.show', $row->id) }}" target="_blank" style="color: inherit; text-decoration: none;" title="Buka Detail Kerjasama">
+                {{ $row->judul_kerjasama }}
+              </a>
+              @php
+                $cFiles = is_array($row->url_file) ? $row->url_file : (empty($row->url_file) ? [] : (json_decode($row->url_file, true) ?: [$row->url_file]));
+                $validCFiles = array_filter((array)$cFiles);
+              @endphp
+              @if(!empty($validCFiles))
+                <div class="mt-1 no-print">
+                  @foreach($validCFiles as $cf)
+                    <a href="{{ asset('storage/' . $cf) }}" target="_blank" class="badge bg-light text-primary border text-decoration-none me-1" style="font-size: 7.5pt; font-weight: normal;">
+                      <i class="bi bi-file-earmark-pdf text-danger"></i> {{ basename($cf) }}
+                    </a>
+                  @endforeach
+                </div>
+              @endif
+            </td>
             <td>
               <span class="fw-bold">
                 {{ $row->tanggal_waktu_berlaku ? tgl_indo($row->tanggal_waktu_berlaku->toDateString()) : '-' }} 

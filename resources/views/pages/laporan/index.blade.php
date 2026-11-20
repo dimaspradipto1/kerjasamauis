@@ -170,14 +170,16 @@
                 <table class="table table-bordered align-middle" style="font-size: 0.8rem;">
                   <thead class="table-light">
                     <tr>
-                      <th class="text-center" style="width: 50px;">No</th>
+                      <th class="text-center" style="width: 45px;">No</th>
                       <th>Unit Kerja</th>
                       <th>Mitra</th>
                       <th>Judul Kerjasama</th>
                       <th>Durasi Kerjasama</th>
                       <th>Sumber Dana</th>
                       <th style="text-align: right;">Anggaran (Rp)</th>
-                      <th class="text-center">Status Kerjasama</th>
+                      <th class="text-center">Status</th>
+                      <th class="text-center" style="width: 140px;">Dokumen / Berkas</th>
+                      <th class="text-center" style="width: 80px;">Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -211,7 +213,11 @@
                           @endif
                         </td>
                         <td class="fw-bold text-primary">{{ $row->mitra ? $row->mitra->nama_mitra : '-' }}</td>
-                        <td>{{ $row->judul_kerjasama }}</td>
+                        <td>
+                          <a href="{{ route('kerjasama.show', $row->id) }}" class="fw-semibold text-dark text-decoration-none" title="Klik untuk melihat detail kerjasama">
+                            {{ $row->judul_kerjasama }}
+                          </a>
+                        </td>
                         <td>
                           <span class="fw-bold">
                             {{ $row->tanggal_waktu_berlaku ? tgl_indo_preview($row->tanggal_waktu_berlaku->toDateString()) : '-' }} 
@@ -221,7 +227,35 @@
                         </td>
                         <td>{{ $row->sumberDana ? $row->sumberDana->nama_sumber_dana : '-' }}</td>
                         <td class="text-end">{{ number_format($row->anggaran, 0, ',', '.') }}</td>
-                        <td class="text-center">{{ $row->status_kerjasama }}</td>
+                        <td class="text-center">
+                          <span class="badge {{ $row->status_kerjasama === 'Aktif' ? 'bg-success' : 'bg-secondary' }} px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                            {{ $row->status_kerjasama }}
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          @php
+                            $files = is_array($row->url_file) ? $row->url_file : (empty($row->url_file) ? [] : (json_decode($row->url_file, true) ?: [$row->url_file]));
+                            $validFiles = array_filter((array)$files);
+                          @endphp
+                          @if(!empty($validFiles))
+                            <div class="d-flex flex-column gap-1 align-items-center">
+                              @foreach($validFiles as $filePath)
+                                <a href="{{ asset('storage/' . $filePath) }}" target="_blank" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2 shadow-sm text-decoration-none" style="font-size: 0.75rem;" title="Lihat/Buka Berkas: {{ basename($filePath) }}">
+                                  <i class="bi {{ Str::endsWith(strtolower($filePath), '.pdf') ? 'bi-file-earmark-pdf-fill text-danger' : 'bi-file-earmark-text-fill text-primary' }}"></i>
+                                  <span class="text-truncate" style="max-width: 100px;">{{ basename($filePath) }}</span>
+                                  <i class="bi bi-box-arrow-up-right ms-0.5 text-muted" style="font-size: 0.65rem;"></i>
+                                </a>
+                              @endforeach
+                            </div>
+                          @else
+                            <span class="badge bg-light text-muted border px-2 py-0.5" style="font-size: 0.72rem;">Belum ada berkas</span>
+                          @endif
+                        </td>
+                        <td class="text-center">
+                          <a href="{{ route('kerjasama.show', $row->id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2" style="font-size: 0.75rem;" title="Lihat Rincian">
+                            <i class="bi bi-eye"></i> Detail
+                          </a>
+                        </td>
                       </tr>
                     @endforeach
                   </tbody>

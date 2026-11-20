@@ -28,6 +28,7 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/drilldown', [DashboardController::class, 'drilldown'])->name('dashboard.drilldown');
 
     // Manajemen Pengguna
     Route::middleware(['checkpermission:user'])->group(function () {
