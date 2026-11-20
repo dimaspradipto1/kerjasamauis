@@ -8,9 +8,14 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class KerjasamaExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class KerjasamaExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithEvents
 {
     /**
      * Ambil data kerjasama beserta relasinya.
@@ -98,10 +103,47 @@ class KerjasamaExport implements FromCollection, WithHeadings, WithMapping, Shou
                     'size' => 11,
                 ],
                 'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['rgb' => '0B7A61'],
                 ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true,
+                ],
             ],
+        ];
+    }
+
+    /**
+     * AutoFilter dan styling border.
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                
+                // Aktifkan panah dropdown AutoFilter pada baris 1
+                $sheet->setAutoFilter('A1:L1');
+
+                // Atur tinggi baris header
+                $sheet->getRowDimension(1)->setRowHeight(32);
+
+                // Format border untuk seluruh sel tabel
+                $highestRow = $sheet->getHighestRow();
+                $cellRange = 'A1:L' . $highestRow;
+                $sheet->getStyle($cellRange)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['rgb' => 'D0D7DE'],
+                        ],
+                    ],
+                ]);
+
+                // Format teks wrap pada kolom Judul (F) dan Deskripsi (G)
+                $sheet->getStyle('F2:G' . $highestRow)->getAlignment()->setWrapText(true);
+            },
         ];
     }
 }
