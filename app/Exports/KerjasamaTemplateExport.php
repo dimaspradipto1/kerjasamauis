@@ -11,7 +11,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class KerjasamaTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, WithStyles
 {
     /**
-     * Judul kolom header Excel template import.
+     * 12 Kolom Header Template Excel.
      */
     public function headings(): array
     {
@@ -19,23 +19,20 @@ class KerjasamaTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
             'Nomor Dokumen Kerjasama',
             'Nomor Dokumen Mitra',
             'Jenis Dokumen',
-            'Bidang Implementasi (IA)',
             'Unit Kerja',
             'Mitra',
             'Judul Kerjasama',
             'Deskripsi Kerjasama',
-            'Skala Kerjasama',
             'Sumber Dana',
             'Anggaran',
             'Tanggal Awal Berlaku',
             'Tanggal Akhir Berlaku',
             'Status Kerjasama',
-            'Hasil Pelaksanaan',
         ];
     }
 
     /**
-     * Contoh data pada template untuk memandu pengisian user.
+     * Contoh data pada template (sebagian kolom dikosongkan untuk menunjukkan sifat nullable).
      */
     public function array(): array
     {
@@ -44,41 +41,35 @@ class KerjasamaTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 '002/UIS.KUI/VII/2025',
                 'UTHM/IA/2025/01',
                 'Implementation of Arrangement (IA)',
-                'Pendidikan',
                 'S1 - Teknik Industri, S1 - Teknik Informatika',
                 'Universitas Tun Hussein Onn Malaysia (UTHM)',
                 'Guest Lecture with theme : Introduction to Additive Manufacturing (Opportunity and Challenge)',
                 'Pelaksanaan kuliah umum internasional bersama dosen tamu UTHM',
-                'Internasional',
                 'Internal UIS',
                 '5000000',
                 '2025-07-24',
                 '2025-07-24',
                 'Aktif',
-                'Terlaksana kuliah umum dengan dihadiri 120 mahasiswa.',
             ],
             [
-                '001/UIS.KUI/IV/2022',
-                '',
-                'Memorandum of Understanding (MoU)',
-                '',
-                'S1 - Manajemen, S1 - Akuntansi, Fakultas Ekonomi dan Bisnis',
-                'Bank Muamalat',
-                'Tridharma Perguruan tinggi',
-                'Kerjasama tridharma perguruan tinggi dan program magang mahasiswa',
-                'Nasional',
-                'Mandiri',
-                '0',
-                '2022-04-24',
-                '2027-04-24',
-                'Aktif',
-                '',
+                '', // Nomor Dokumen Kerjasama (boleh kosong / nullable)
+                '', // Nomor Dokumen Mitra (boleh kosong / nullable)
+                'MoU',
+                'Universitas Ibnu Sina',
+                'Universitas Darussalam Gontor',
+                'Nota Kesepahaman antara Universitas Ibnu Sina dan Universitas Darussalam Gontor tentang Kerja Sama Tri Dharma Perguruan Tinggi',
+                '', // Deskripsi Kerjasama (boleh kosong / nullable)
+                '', // Sumber Dana (boleh kosong / nullable)
+                '', // Anggaran (boleh kosong / nullable)
+                '2019-10-12',
+                '2024-05-12',
+                'Berakhir',
             ],
         ];
     }
 
     /**
-     * Styling baris header template.
+     * Styling baris header hijau gelap UIS.
      */
     public function styles(Worksheet $sheet)
     {

@@ -31,78 +31,63 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            // Konversi row collection ke array untuk fleksibilitas akses
+            // Konversi row collection ke array
             $data = is_array($row) ? $row : (method_exists($row, 'toArray') ? $row->toArray() : (array)$row);
 
-            // Ekstrak nilai berdasarkan slug heading atau fallback index
+            // Ekstrak nilai berdasarkan slug heading atau fallback index (Format 12 Kolom)
             $nomorDokumenKerjasama = trim($this->getValue($data, ['nomor_dokumen_kerjasama', 'nomor_dokumen', 'no_dokumen', 0]) ?? '');
-            $judulKerjasama        = trim($this->getValue($data, ['judul_kerjasama', 'judul', 6, 5]) ?? '');
+            $nomorDokumenMitra    = trim($this->getValue($data, ['nomor_dokumen_mitra', 'no_dokumen_mitra', 1]) ?? '');
+            $jenisDokumenText     = trim($this->getValue($data, ['jenis_dokumen', 2]) ?? '');
+            $unitKerjaText        = trim($this->getValue($data, ['unit_kerja', 3, 4]) ?? '');
+            $mitraText            = trim($this->getValue($data, ['mitra', 'nama_mitra', 4, 5]) ?? '');
+            $judulKerjasama        = trim($this->getValue($data, ['judul_kerjasama', 'judul', 5, 6]) ?? '');
+            $deskripsiKerjasama   = trim($this->getValue($data, ['deskripsi_kerjasama', 'deskripsi', 6, 7]) ?? '');
+            $sumberDanaText       = trim($this->getValue($data, ['sumber_dana', 7, 9]) ?? '');
+            $anggaranRaw          = $this->getValue($data, ['anggaran', 8, 10]);
+            $tanggalAwalRaw       = $this->getValue($data, ['tanggal_awal_berlaku', 'tanggal_awal', 'tgl_awal', 9, 11]);
+            $tanggalAkhirRaw      = $this->getValue($data, ['tanggal_akhir_berlaku', 'tanggal_akhir', 'tgl_akhir', 10, 12]);
+            $statusKerjasamaText  = trim($this->getValue($data, ['status_kerjasama', 'status', 11, 13]) ?? '');
 
-            // Lewati baris kosong atau baris contoh jika identik
-            if (empty($nomorDokumenKerjasama) && empty($judulKerjasama)) {
+            // Lewati jika seluruh kolom utama kosong
+            if (empty($nomorDokumenKerjasama) && empty($judulKerjasama) && empty($mitraText)) {
                 continue;
             }
 
-            $nomorDokumenMitra    = trim($this->getValue($data, ['nomor_dokumen_mitra', 'no_dokumen_mitra', 1]) ?? '');
-            $jenisDokumenText     = trim($this->getValue($data, ['jenis_dokumen', 2]) ?? '');
-            $bidangImplementasi   = trim($this->getValue($data, ['bidang_implementasi_ia', 'bidang_implementasi', 3]) ?? '');
-            $unitKerjaText        = trim($this->getValue($data, ['unit_kerja', 4, 3]) ?? '');
-            $mitraText            = trim($this->getValue($data, ['mitra', 'nama_mitra', 5, 4]) ?? '');
-            $deskripsiKerjasama   = trim($this->getValue($data, ['deskripsi_kerjasama', 'deskripsi', 7, 6]) ?? '');
-            $skalaKerjasamaText   = trim($this->getValue($data, ['skala_kerjasama', 'skala', 8]) ?? '');
-            $sumberDanaText       = trim($this->getValue($data, ['sumber_dana', 9, 7]) ?? '');
-            $anggaranRaw          = $this->getValue($data, ['anggaran', 10, 8]);
-            $tanggalAwalRaw       = $this->getValue($data, ['tanggal_awal_berlaku', 'tanggal_awal', 'tgl_awal', 11, 9]);
-            $tanggalAkhirRaw      = $this->getValue($data, ['tanggal_akhir_berlaku', 'tanggal_akhir', 'tgl_akhir', 12, 10]);
-            $statusKerjasamaText  = trim($this->getValue($data, ['status_kerjasama', 'status', 13, 11]) ?? '');
-            $hasilPelaksanaan     = trim($this->getValue($data, ['hasil_pelaksanaan', 14]) ?? '');
+            // Jika judul kosong, berikan judul default
+            if (empty($judulKerjasama)) {
+                $judulKerjasama = 'Kerjasama dengan ' . (!empty($mitraText) ? $mitraText : 'Mitra');
+            }
 
-            // 1. Resolve Jenis Dokumen
+            // 1. Resolve Jenis Dokumen (Nullable -> default MoU/first)
             $jenisDokumenId = $this->resolveJenisDokumen($jenisDokumenText);
 
-            // 2. Resolve Mitra
+            // 2. Resolve Mitra (Nullable -> default Mitra Kerjasama)
             $mitraId = $this->resolveMitra($mitraText);
 
-            // 3. Resolve Multi Unit Kerja
+            // 3. Resolve Multi Unit Kerja (Nullable -> default first unit kerja)
             $unitKerjaIds = $this->resolveUnitKerjas($unitKerjaText);
 
-            // 4. Resolve Sumber Dana
+            // 4. Resolve Sumber Dana (Nullable -> default Mandiri/first sumber dana)
             $sumberDanaId = $this->resolveSumberDana($sumberDanaText);
 
-            // 5. Parse Dates
+            // 5. Parse Dates (Nullable -> fallback aman dengan objek Carbon)
             $parsedAwal  = $this->parseExcelDate($tanggalAwalRaw);
             $tanggalAwal = $parsedAwal ? Carbon::instance($parsedAwal) : Carbon::now();
 
             $parsedAkhir  = $this->parseExcelDate($tanggalAkhirRaw);
             $tanggalAkhir = $parsedAkhir ? Carbon::instance($parsedAkhir) : (clone $tanggalAwal)->addYears(5);
 
-            // 6. Parse Anggaran
+            // 6. Parse Anggaran (Nullable -> default 0)
             $anggaran = 0;
             if (!empty($anggaranRaw)) {
                 $cleanAnggaran = preg_replace('/[^0-9]/', '', (string)$anggaranRaw);
                 $anggaran = is_numeric($cleanAnggaran) ? (int)$cleanAnggaran : 0;
             }
 
-            // 7. Parse Skala Kerjasama
-            $skalaKerjasama = null;
-            if (!empty($skalaKerjasamaText)) {
-                $parts = array_map('trim', explode(',', $skalaKerjasamaText));
-                $normalized = [];
-                foreach ($parts as $p) {
-                    if (strcasecmp($p, 'Internasional') === 0) {
-                        $normalized[] = 'Internasional';
-                    } elseif (strcasecmp($p, 'Nasional') === 0) {
-                        $normalized[] = 'Nasional';
-                    }
-                }
-                $skalaKerjasama = !empty($normalized) ? $normalized : ['Nasional'];
-            }
-
-            // 8. Tentukan Status Kerjasama
+            // 7. Status Kerjasama (Nullable -> default Aktif)
             $statusKerjasama = !empty($statusKerjasamaText) ? $statusKerjasamaText : 'Aktif';
 
-            // 9. Simpan / Perbarui Kerjasama
-            // Tentukan nomor dokumen & kondisi pencarian agar tidak duplikat saat import ulang
+            // 8. Tentukan Nomor Dokumen & Kondisi Pencarian (agar nullable tidak duplikat saat import berulang)
             if (!empty($nomorDokumenKerjasama)) {
                 $nomorFinal = $nomorDokumenKerjasama;
                 $matchConditions = ['nomor_dokumen_kerjasama' => $nomorFinal];
@@ -110,7 +95,7 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
                 $nomorFinal = $nomorDokumenMitra;
                 $matchConditions = ['nomor_dokumen_kerjasama' => $nomorFinal];
             } else {
-                // Jika nomor dokumen kosong di Excel, buat nomor teratur dan cocokkan judul + mitra
+                // Generate nomor unik berdasarkan tahun & judul agar data tetap teridentifikasi rapi
                 $nomorFinal = 'DOK-' . $tanggalAwal->format('Y') . '-' . strtoupper(substr(md5($judulKerjasama . $mitraId), 0, 8));
                 $matchConditions = [
                     'judul_kerjasama' => $judulKerjasama,
@@ -118,31 +103,29 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
                 ];
             }
 
-            // File upload fisik (url_file) sengaja dibiarkan null / kosong sesuai kebutuhan pengguna
+            // 9. Simpan / Update Kerjasama
+            // File upload fisik (url_file) sengaja dibiarkan null / kosong
             $kerjasama = Kerjasama::updateOrCreate(
                 $matchConditions,
                 [
                     'nomor_dokumen_kerjasama' => $nomorFinal,
                     'nomor_dokumen_mitra'     => !empty($nomorDokumenMitra) ? $nomorDokumenMitra : null,
                     'jenis_dokumen_id'        => $jenisDokumenId,
-                    'bidang_implementasi'     => !empty($bidangImplementasi) ? $bidangImplementasi : null,
                     'mitra_id'                => $mitraId,
                     'unit_kerja_id'           => $unitKerjaIds[0] ?? null,
-                    'judul_kerjasama'         => !empty($judulKerjasama) ? $judulKerjasama : '-',
+                    'judul_kerjasama'         => $judulKerjasama,
                     'deskripsi_kerjasama'     => !empty($deskripsiKerjasama) ? $deskripsiKerjasama : '-',
-                    'skala_kerjasama'         => $skalaKerjasama,
                     'sumber_dana_id'          => $sumberDanaId,
                     'anggaran'                => $anggaran,
                     'tanggal_waktu_berlaku'   => $tanggalAwal,
                     'tanggal_akhir_berlaku'   => $tanggalAkhir,
                     'status_kerjasama'        => $statusKerjasama,
-                    'hasil_pelaksanaan'       => !empty($hasilPelaksanaan) ? $hasilPelaksanaan : null,
-                    'url_file'                => null, // Boleh dikosongkan (upload file fisik dilakukan menyusul)
+                    'url_file'                => null, // Nullable: upload file fisik dapat dilakukan menyusul
                     'status'                  => 'active',
                 ]
             );
 
-            // Sync multi unit kerja ke pivot table kerjasama_unit_kerja
+            // Sync multi unit kerja ke pivot table
             if (!empty($unitKerjaIds)) {
                 $kerjasama->unitKerjas()->sync($unitKerjaIds);
             }
@@ -209,7 +192,9 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
     protected function resolveMitra(string $text): int
     {
         if (empty($text)) {
-            return Mitra::first()?->id ?? 1;
+            $default = Mitra::first();
+            if ($default) return $default->id;
+            $text = 'Mitra Kerjasama';
         }
 
         $mitra = Mitra::whereRaw('LOWER(nama_mitra) = ?', [strtolower($text)])->first();
@@ -275,7 +260,9 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
     protected function resolveSumberDana(string $text): int
     {
         if (empty($text)) {
-            return SumberDana::first()?->id ?? 1;
+            $default = SumberDana::first();
+            if ($default) return $default->id;
+            $text = 'Mandiri';
         }
 
         $sd = SumberDana::whereRaw('LOWER(nama_sumber_dana) = ?', [strtolower($text)])->first();
@@ -329,7 +316,7 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
     }
 
     /**
-     * Parse format tanggal dari Excel.
+     * Parse format tanggal dari Excel ke Carbon instance.
      */
     protected function parseExcelDate($value): ?Carbon
     {

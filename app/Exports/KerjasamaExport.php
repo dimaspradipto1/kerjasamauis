@@ -23,7 +23,7 @@ class KerjasamaExport implements FromCollection, WithHeadings, WithMapping, Shou
     }
 
     /**
-     * Petakan kolom database ke baris Excel.
+     * Petakan data ke 12 kolom resmi Excel.
      */
     public function map($row): array
     {
@@ -48,35 +48,24 @@ class KerjasamaExport implements FromCollection, WithHeadings, WithMapping, Shou
         }
         $unitKerjaStr = implode(', ', $units);
 
-        // Skala Kerjasama
-        $skala = '';
-        if (is_array($row->skala_kerjasama)) {
-            $skala = implode(', ', $row->skala_kerjasama);
-        } elseif (!empty($row->skala_kerjasama)) {
-            $skala = (string) $row->skala_kerjasama;
-        }
-
         return [
             $row->nomor_dokumen_kerjasama ?? '',
             $row->nomor_dokumen_mitra ?? '',
             $row->jenisDokumen ? $row->jenisDokumen->nama_jenis_dokumen : '',
-            $row->bidang_implementasi ?? '',
             $unitKerjaStr,
             $row->mitra ? $row->mitra->nama_mitra : '',
             $row->judul_kerjasama ?? '',
             $row->deskripsi_kerjasama ?? '',
-            $skala,
             $row->sumberDana ? $row->sumberDana->nama_sumber_dana : '',
             $row->anggaran ?? 0,
             $row->tanggal_waktu_berlaku ? $row->tanggal_waktu_berlaku->format('Y-m-d') : '',
             $row->tanggal_akhir_berlaku ? $row->tanggal_akhir_berlaku->format('Y-m-d') : '',
             $row->status_kerjasama ?? 'Aktif',
-            $row->hasil_pelaksanaan ?? '',
         ];
     }
 
     /**
-     * Judul kolom header Excel.
+     * Judul 12 kolom header Excel (sesuai format resmi).
      */
     public function headings(): array
     {
@@ -84,23 +73,20 @@ class KerjasamaExport implements FromCollection, WithHeadings, WithMapping, Shou
             'Nomor Dokumen Kerjasama',
             'Nomor Dokumen Mitra',
             'Jenis Dokumen',
-            'Bidang Implementasi (IA)',
             'Unit Kerja',
             'Mitra',
             'Judul Kerjasama',
             'Deskripsi Kerjasama',
-            'Skala Kerjasama',
             'Sumber Dana',
             'Anggaran',
             'Tanggal Awal Berlaku',
             'Tanggal Akhir Berlaku',
             'Status Kerjasama',
-            'Hasil Pelaksanaan',
         ];
     }
 
     /**
-     * Styling baris header.
+     * Styling baris header hijau gelap UIS.
      */
     public function styles(Worksheet $sheet)
     {
