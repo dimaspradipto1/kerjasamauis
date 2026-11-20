@@ -17,6 +17,7 @@ class DashboardController extends Controller
     public function index()
     {
         $tahunSelected = request('tahun');
+        $today = now()->toDateString();
 
         $tahunList = Kerjasama::whereNotNull('tanggal_waktu_berlaku')
             ->selectRaw('YEAR(tanggal_waktu_berlaku) as tahun')
@@ -41,28 +42,126 @@ class DashboardController extends Controller
             $baseKerjasama->whereYear('tanggal_waktu_berlaku', $tahunSelected);
         }
 
-        // 1. Status & Document metrics
-        $aktifCount = (clone $baseKerjasama)->where('status_kerjasama', 'Aktif')->count();
-        $perpanjanganCount = (clone $baseKerjasama)->where('status_kerjasama', 'Perpanjangan')->count();
-        $kedaluwarsaCount = (clone $baseKerjasama)->where('status_kerjasama', 'Kedaluwarsa')->count();
-        $tidakAktifCount = (clone $baseKerjasama)->where('status_kerjasama', 'Tidak Aktif')->count();
+        // Helper closures for synchronized conditional counting
+        $applyMou = function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('jenis_dokumen_id', 3)
+                    ->orWhereHas('jenisDokumen', function ($jd) {
+                        $jd->where('nama_jenis_dokumen', 'like', '%MoU%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Understanding%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Kesepahaman%');
+                    });
+            });
+        };
 
-        $mouTotalCount = (clone $baseKerjasama)->whereHas('jenisDokumen', function ($jd) {
-            $jd->where('nama_jenis_dokumen', 'like', '%MoU%')
-               ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Understanding%');
-        })->count();
+        $applyMoa = function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('jenis_dokumen_id', 2)
+                    ->orWhereHas('jenisDokumen', function ($jd) {
+                        $jd->where('nama_jenis_dokumen', 'like', '%MoA%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Agreement%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Perjanjian%');
+                    });
+            });
+        };
 
-        $moaTotalCount = (clone $baseKerjasama)->whereHas('jenisDokumen', function ($jd) {
-            $jd->where('nama_jenis_dokumen', 'like', '%MoA%')
-               ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Agreement%');
-        })->count();
+        $applyIa = function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('jenis_dokumen_id', 1)
+                    ->orWhereHas('jenisDokumen', function ($jd) {
+                        $jd->where('nama_jenis_dokumen', 'like', '%IA%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Arrangement%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Implementation%')
+                           ->orWhere('nama_jenis_dokumen', 'like', '%Pelaksanaan%');
+                    });
+            });
+        };
 
-        $iaTotalCount = (clone $baseKerjasama)->whereHas('jenisDokumen', function ($jd) {
-            $jd->where('nama_jenis_dokumen', 'like', '%IA%')
-               ->orWhere('nama_jenis_dokumen', 'like', '%Implementation Arrangement%');
-        })->count();
+        $applyNasional = function ($q) {
+            $q->where(function ($sub) {
+                $sub->whereJsonContains('skala_kerjasama', 'Nasional')
+                    ->orWhere('skala_kerjasama', 'like', '%Nasional%')
+                    ->orWhere(function ($fallback) {
+                        $fallback->where(function ($s) {
+                            $s->whereNull('skala_kerjasama')->orWhere('skala_kerjasama', '')->orWhere('skala_kerjasama', '[]');
+                        })->whereHas('mitra', function ($m) {
+                            $m->where('lingkup_mitra', 'like', '%Nasional%');
+                        });
+                    });
+            });
+        };
 
+        $applyInternasional = function ($q) {
+            $q->where(function ($sub) {
+                $sub->whereJsonContains('skala_kerjasama', 'Internasional')
+                    ->orWhere('skala_kerjasama', 'like', '%Internasional%')
+                    ->orWhere(function ($fallback) {
+                        $fallback->where(function ($s) {
+                            $s->whereNull('skala_kerjasama')->orWhere('skala_kerjasama', '')->orWhere('skala_kerjasama', '[]');
+                        })->whereHas('mitra', function ($m) {
+                            $m->where('lingkup_mitra', 'like', '%Internasional%');
+                        });
+                    });
+            });
+        };
+
+        $applyAktif = function ($q) use ($today) {
+            $q->where(function ($sub) use ($today) {
+                $sub->whereIn('status_kerjasama', ['Aktif', 'Active'])
+                    ->orWhere(function ($d) use ($today) {
+                        $d->whereNull('status_kerjasama')
+                          ->where(function ($subDate) use ($today) {
+                              $subDate->whereNull('tanggal_akhir_berlaku')
+                                      ->orWhere('tanggal_akhir_berlaku', '>=', $today);
+                          });
+                    });
+            });
+        };
+
+        $applyPerpanjangan = function ($q) {
+            $q->whereIn('status_kerjasama', ['Perpanjangan', 'perpanjangan']);
+        };
+
+        $applyKedaluwarsa = function ($q) use ($today) {
+            $q->where(function ($sub) use ($today) {
+                $sub->whereIn('status_kerjasama', ['Kedaluwarsa', 'Kadaluarsa', 'Berakhir', 'Expired', 'Selesai'])
+                    ->orWhere(function ($d) use ($today) {
+                        $d->whereNotIn('status_kerjasama', ['Aktif', 'Active', 'Perpanjangan', 'Tidak Aktif', 'Nonaktif', 'Inactive'])
+                          ->whereNotNull('tanggal_akhir_berlaku')
+                          ->where('tanggal_akhir_berlaku', '<', $today);
+                    });
+            });
+        };
+
+        $applyTidakAktif = function ($q) {
+            $q->whereIn('status_kerjasama', ['Tidak Aktif', 'Nonaktif', 'Inactive']);
+        };
+
+        // 1. Status & Document metrics (Top KPI Cards)
         $totalKerjasamaCount = (clone $baseKerjasama)->count();
+
+        $mouTotalCount = (clone $baseKerjasama)->where($applyMou)->count();
+        $moaTotalCount = (clone $baseKerjasama)->where($applyMoa)->count();
+        $iaTotalCount  = (clone $baseKerjasama)->where($applyIa)->count();
+
+        $aktifCount        = (clone $baseKerjasama)->where($applyAktif)->count();
+        $perpanjanganCount = (clone $baseKerjasama)->where($applyPerpanjangan)->count();
+        $kedaluwarsaCount  = (clone $baseKerjasama)->where($applyKedaluwarsa)->count();
+        $tidakAktifCount   = (clone $baseKerjasama)->where($applyTidakAktif)->count();
+
+        // Ensure status breakdown accounts for all documents accurately
+        $unclassified = $totalKerjasamaCount - ($aktifCount + $perpanjanganCount + $kedaluwarsaCount + $tidakAktifCount);
+        if ($unclassified > 0) {
+            $kedaluwarsaCount += $unclassified;
+        }
+
+        // Skala counts
+        $nasionalCount      = (clone $baseKerjasama)->where($applyNasional)->count();
+        $internasionalCount = (clone $baseKerjasama)->where($applyInternasional)->count();
+        $lokalCount         = (clone $baseKerjasama)->where(function ($q) {
+            $q->whereJsonContains('skala_kerjasama', 'Lokal')
+              ->orWhere('skala_kerjasama', 'like', '%Lokal%');
+        })->count();
 
         // 2. Jenis Dokumen Chart data
         $jenisDokumenData = (clone $baseKerjasama)
@@ -91,55 +190,34 @@ class DashboardController extends Controller
 
         // 6. Rekapitulasi per Unit Kerja / Fakultas (Accurate counting with pivot table & optional Year filter)
         $unitKerjasAll = UnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
-        $rekapUnitKerjaList = $unitKerjasAll->map(function ($uk) use ($tahunSelected) {
-            $kerjasamaIds = DB::table('kerjasama_unit_kerja')
-                ->where('unit_kerja_id', $uk->id)
-                ->pluck('kerjasama_id')
-                ->toArray();
-
-            $query = Kerjasama::where(function ($q) use ($uk, $kerjasamaIds) {
-                $q->where('unit_kerja_id', $uk->id);
-                if (!empty($kerjasamaIds)) {
-                    $q->orWhereIn('id', $kerjasamaIds);
-                }
+        $rekapUnitKerjaList = $unitKerjasAll->map(function ($uk) use ($tahunSelected, $applyMou, $applyMoa, $applyIa, $applyNasional, $applyInternasional, $applyAktif) {
+            $query = Kerjasama::where(function ($q) use ($uk) {
+                $q->where('unit_kerja_id', $uk->id)
+                  ->orWhereExists(function ($sub) use ($uk) {
+                      $sub->select(DB::raw(1))
+                          ->from('kerjasama_unit_kerja')
+                          ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                          ->where('kerjasama_unit_kerja.unit_kerja_id', $uk->id);
+                  });
             });
 
             if ($tahunSelected) {
                 $query->whereYear('tanggal_waktu_berlaku', $tahunSelected);
             }
 
-            $uk->total_kerjasama = (clone $query)->count();
-
-            $uk->nasional_count = (clone $query)->where(function ($sub) {
-                $sub->whereJsonContains('skala_kerjasama', 'Nasional')
-                    ->orWhere('skala_kerjasama', 'like', '%Nasional%');
-            })->count();
-
-            $uk->internasional_count = (clone $query)->where(function ($sub) {
-                $sub->whereJsonContains('skala_kerjasama', 'Internasional')
-                    ->orWhere('skala_kerjasama', 'like', '%Internasional%');
-            })->count();
-
-            $uk->mou_count = (clone $query)->whereHas('jenisDokumen', function ($jd) {
-                $jd->where('nama_jenis_dokumen', 'like', '%MoU%')
-                   ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Understanding%');
-            })->count();
-
-            $uk->moa_count = (clone $query)->whereHas('jenisDokumen', function ($jd) {
-                $jd->where('nama_jenis_dokumen', 'like', '%MoA%')
-                   ->orWhere('nama_jenis_dokumen', 'like', '%Memorandum of Agreement%');
-            })->count();
-
-            $uk->ia_count = (clone $query)->whereHas('jenisDokumen', function ($jd) {
-                $jd->where('nama_jenis_dokumen', 'like', '%IA%')
-                   ->orWhere('nama_jenis_dokumen', 'like', '%Implementation Arrangement%');
-            })->count();
+            $uk->total_kerjasama     = (clone $query)->count();
+            $uk->nasional_count      = (clone $query)->where($applyNasional)->count();
+            $uk->internasional_count = (clone $query)->where($applyInternasional)->count();
+            $uk->mou_count           = (clone $query)->where($applyMou)->count();
+            $uk->moa_count           = (clone $query)->where($applyMoa)->count();
+            $uk->ia_count            = (clone $query)->where($applyIa)->count();
+            $uk->aktif_count         = (clone $query)->where($applyAktif)->count();
 
             return $uk;
         });
 
         // Top 5 Unit Kerja berdasarkan Total Kerjasama (Filtered by Year if selected)
-        $top5UnitKerjaList = $rekapUnitKerjaList->filter(function($uk) {
+        $top5UnitKerjaList = $rekapUnitKerjaList->filter(function ($uk) {
             return $uk->total_kerjasama > 0;
         })->sortByDesc('total_kerjasama')->take(5)->values();
 
@@ -152,7 +230,7 @@ class DashboardController extends Controller
         $top5MoAList = $rekapUnitKerjaList->sortByDesc('moa_count')->take(5)->values();
         $top5IAList  = $rekapUnitKerjaList->sortByDesc('ia_count')->take(5)->values();
 
-        $unitKerjaData = $top5UnitKerjaList->map(function($uk) {
+        $unitKerjaData = $top5UnitKerjaList->map(function ($uk) {
             return [
                 'label' => $uk->nama_unit_kerja,
                 'value' => $uk->total_kerjasama,
@@ -163,7 +241,7 @@ class DashboardController extends Controller
         });
 
         // Data Grafik Rekapitulasi Vertical Column (MoU, MoA, IA per Unit Kerja)
-        $activeUnitKerjas = $rekapUnitKerjaList->filter(function($uk) {
+        $activeUnitKerjas = $rekapUnitKerjaList->filter(function ($uk) {
             return $uk->total_kerjasama > 0;
         })->values();
 
@@ -172,8 +250,7 @@ class DashboardController extends Controller
         }
 
         $chartDokumenPerUnitKerja = [
-            'labels' => $activeUnitKerjas->map(function($uk) {
-                // Clean display label
+            'labels' => $activeUnitKerjas->map(function ($uk) {
                 return preg_replace('/^(S1|S2|S3|D3)\s*-\s*/i', '', $uk->nama_unit_kerja);
             })->toArray(),
             'full_labels' => $activeUnitKerjas->pluck('nama_unit_kerja')->toArray(),
@@ -196,18 +273,16 @@ class DashboardController extends Controller
 
         $top5TahunanSeries = [];
         foreach ($top5UnitKerjaList as $uk) {
-            $kerjasamaIds = DB::table('kerjasama_unit_kerja')
-                ->where('unit_kerja_id', $uk->id)
-                ->pluck('kerjasama_id')
-                ->toArray();
-
             $countsPerYear = [];
             foreach ($recentYears as $yr) {
-                $c = Kerjasama::where(function ($q) use ($uk, $kerjasamaIds) {
-                    $q->where('unit_kerja_id', $uk->id);
-                    if (!empty($kerjasamaIds)) {
-                        $q->orWhereIn('id', $kerjasamaIds);
-                    }
+                $c = Kerjasama::where(function ($q) use ($uk) {
+                    $q->where('unit_kerja_id', $uk->id)
+                      ->orWhereExists(function ($sub) use ($uk) {
+                          $sub->select(DB::raw(1))
+                              ->from('kerjasama_unit_kerja')
+                              ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                              ->where('kerjasama_unit_kerja.unit_kerja_id', $uk->id);
+                      });
                 })->whereYear('tanggal_waktu_berlaku', $yr)->count();
 
                 $countsPerYear[] = $c;
@@ -246,7 +321,7 @@ class DashboardController extends Controller
         $denganHasilKegiatan = Kegiatan::whereNotNull('hasil_pelakasanaan')
             ->where('hasil_pelakasanaan', '!=', '')
             ->count();
-        $tanpaHasilKegiatan = Kegiatan::where(function($q) {
+        $tanpaHasilKegiatan = Kegiatan::where(function ($q) {
             $q->whereNull('hasil_pelakasanaan')->orWhere('hasil_pelakasanaan', '');
         })->count();
 
@@ -254,51 +329,34 @@ class DashboardController extends Controller
         $denganHasilKerjasama = (clone $baseKerjasama)->whereNotNull('hasil_pelaksanaan')
             ->where('hasil_pelaksanaan', '!=', '')
             ->count();
-        $tanpaHasilKerjasama = (clone $baseKerjasama)->where(function($q) {
+        $tanpaHasilKerjasama = (clone $baseKerjasama)->where(function ($q) {
             $q->whereNull('hasil_pelaksanaan')->orWhere('hasil_pelaksanaan', '');
-        })->count();
-
-        // 11. Skala Kerjasama Data (Nasional & Internasional)
-        $nasionalCount = (clone $baseKerjasama)->where(function($q) {
-            $q->whereJsonContains('skala_kerjasama', 'Nasional')
-              ->orWhere('skala_kerjasama', 'like', '%Nasional%');
-        })->count();
-
-        $internasionalCount = (clone $baseKerjasama)->where(function($q) {
-            $q->whereJsonContains('skala_kerjasama', 'Internasional')
-              ->orWhere('skala_kerjasama', 'like', '%Internasional%');
-        })->count();
-
-        $lokalCount = (clone $baseKerjasama)->where(function($q) {
-            $q->whereJsonContains('skala_kerjasama', 'Lokal')
-              ->orWhere('skala_kerjasama', 'like', '%Lokal%');
         })->count();
 
         // 12. Rekapitulasi Detail Skala Kerjasama
         $skalaTypes = ['Nasional', 'Internasional', 'Lokal'];
         $rekapSkalaDetail = [];
         foreach ($skalaTypes as $stype) {
+            $skalaFilter = function ($q) use ($stype) {
+                $q->where(function ($sub) use ($stype) {
+                    $sub->whereJsonContains('skala_kerjasama', $stype)
+                        ->orWhere('skala_kerjasama', 'like', "%{$stype}%")
+                        ->orWhere(function ($fb) use ($stype) {
+                            $fb->where(function ($s) {
+                                $s->whereNull('skala_kerjasama')->orWhere('skala_kerjasama', '')->orWhere('skala_kerjasama', '[]');
+                            })->whereHas('mitra', function ($m) use ($stype) {
+                                $m->where('lingkup_mitra', 'like', "%{$stype}%");
+                            });
+                        });
+                });
+            };
+
             $rekapSkalaDetail[$stype] = [
-                'total' => (clone $baseKerjasama)->where(function($q) use ($stype) {
-                    $q->whereJsonContains('skala_kerjasama', $stype)
-                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
-                })->count(),
-                'aktif' => (clone $baseKerjasama)->where('status_kerjasama', 'Aktif')->where(function($q) use ($stype) {
-                    $q->whereJsonContains('skala_kerjasama', $stype)
-                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
-                })->count(),
-                'perpanjangan' => (clone $baseKerjasama)->where('status_kerjasama', 'Perpanjangan')->where(function($q) use ($stype) {
-                    $q->whereJsonContains('skala_kerjasama', $stype)
-                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
-                })->count(),
-                'kedaluwarsa' => (clone $baseKerjasama)->where('status_kerjasama', 'Kedaluwarsa')->where(function($q) use ($stype) {
-                    $q->whereJsonContains('skala_kerjasama', $stype)
-                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
-                })->count(),
-                'tidak_aktif' => (clone $baseKerjasama)->where('status_kerjasama', 'Tidak Aktif')->where(function($q) use ($stype) {
-                    $q->whereJsonContains('skala_kerjasama', $stype)
-                      ->orWhere('skala_kerjasama', 'like', "%{$stype}%");
-                })->count(),
+                'total'        => (clone $baseKerjasama)->where($skalaFilter)->count(),
+                'aktif'        => (clone $baseKerjasama)->where($skalaFilter)->where($applyAktif)->count(),
+                'perpanjangan' => (clone $baseKerjasama)->where($skalaFilter)->where($applyPerpanjangan)->count(),
+                'kedaluwarsa'  => (clone $baseKerjasama)->where($skalaFilter)->where($applyKedaluwarsa)->count(),
+                'tidak_aktif'  => (clone $baseKerjasama)->where($skalaFilter)->where($applyTidakAktif)->count(),
             ];
         }
 
@@ -329,7 +387,7 @@ class DashboardController extends Controller
 
         $hierarchicalRekap = [];
 
-        $universitasUnit = $rekapUnitKerjaList->first(function($uk) {
+        $universitasUnit = $rekapUnitKerjaList->first(function ($uk) {
             return str_contains(strtolower($uk->nama_unit_kerja), 'universitas');
         });
 
@@ -352,12 +410,12 @@ class DashboardController extends Controller
         }
 
         foreach ($facultiesDef as $fac) {
-            $facHeader = $rekapUnitKerjaList->first(function($uk) use ($fac) {
+            $facHeader = $rekapUnitKerjaList->first(function ($uk) use ($fac) {
                 return str_contains(strtolower($uk->nama_unit_kerja), 'fakultas') && 
                        str_contains(strtolower($uk->nama_unit_kerja), $fac['match']);
             });
 
-            $childProdis = $rekapUnitKerjaList->filter(function($uk) use ($fac) {
+            $childProdis = $rekapUnitKerjaList->filter(function ($uk) use ($fac) {
                 $nameLower = strtolower($uk->nama_unit_kerja);
                 if (str_contains($nameLower, 'fakultas') || str_contains($nameLower, 'universitas')) {
                     return false;
@@ -370,21 +428,34 @@ class DashboardController extends Controller
                 return false;
             })->values();
 
-            $directMou = $facHeader ? $facHeader->mou_count : 0;
-            $directMoa = $facHeader ? $facHeader->moa_count : 0;
-            $directIa = $facHeader ? $facHeader->ia_count : 0;
-            $directNasional = $facHeader ? $facHeader->nasional_count : 0;
-            $directInternasional = $facHeader ? $facHeader->internasional_count : 0;
-            $directAktif = $facHeader ? $facHeader->aktif_count : 0;
-            $directTotal = $facHeader ? $facHeader->total_kerjasama : 0;
+            // Collect all unit IDs belonging to this faculty (Dean's office + child prodis)
+            $facultyUnitIds = $childProdis->pluck('id')->toArray();
+            if ($facHeader) {
+                $facultyUnitIds[] = $facHeader->id;
+            }
 
-            $totalMou = $directMou + $childProdis->sum('mou_count');
-            $totalMoa = $directMoa + $childProdis->sum('moa_count');
-            $totalIa = $directIa + $childProdis->sum('ia_count');
-            $totalNasional = $directNasional + $childProdis->sum('nasional_count');
-            $totalInternasional = $directInternasional + $childProdis->sum('internasional_count');
-            $totalAktif = $directAktif + $childProdis->sum('aktif_count');
-            $totalKerjasama = $directTotal + $childProdis->sum('total_kerjasama');
+            // Calculate DISTINCT kerjasama documents for this faculty
+            $facDistinctQuery = Kerjasama::where(function ($q) use ($facultyUnitIds) {
+                $q->whereIn('unit_kerja_id', $facultyUnitIds)
+                  ->orWhereExists(function ($sub) use ($facultyUnitIds) {
+                      $sub->select(DB::raw(1))
+                          ->from('kerjasama_unit_kerja')
+                          ->whereColumn('kerjasama_unit_kerja.kerjasama_id', 'kerjasamas.id')
+                          ->whereIn('kerjasama_unit_kerja.unit_kerja_id', $facultyUnitIds);
+                  });
+            });
+
+            if ($tahunSelected) {
+                $facDistinctQuery->whereYear('tanggal_waktu_berlaku', $tahunSelected);
+            }
+
+            $totalMou           = (clone $facDistinctQuery)->where($applyMou)->count();
+            $totalMoa           = (clone $facDistinctQuery)->where($applyMoa)->count();
+            $totalIa            = (clone $facDistinctQuery)->where($applyIa)->count();
+            $totalNasional      = (clone $facDistinctQuery)->where($applyNasional)->count();
+            $totalInternasional = (clone $facDistinctQuery)->where($applyInternasional)->count();
+            $totalAktif         = (clone $facDistinctQuery)->where($applyAktif)->count();
+            $totalKerjasama     = (clone $facDistinctQuery)->count();
 
             $hierarchicalRekap[$fac['key']] = [
                 'type' => 'fakultas',

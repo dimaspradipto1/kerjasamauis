@@ -309,10 +309,10 @@
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $topUk->nama_unit_kerja }}</span>
                                                 </div>
                                                 <div class="d-flex align-items-center gap-1 flex-wrap">
-                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle px-2 py-0.5 rounded-2 small" style="font-size: 0.72rem;">MoU: {{ $topUk->mou_count }}</span>
-                                                    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning-subtle px-2 py-0.5 rounded-2 small" style="font-size: 0.72rem;">MoA: {{ $topUk->moa_count }}</span>
-                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-0.5 rounded-2 small" style="font-size: 0.72rem;">IA: {{ $topUk->ia_count }}</span>
-                                                    <span class="badge bg-primary px-2.5 py-1 rounded-pill fw-bold ms-1" style="font-size: 0.8rem;">{{ $topUk->total_kerjasama }} Dokumen</span>
+                                                    <span class="badge px-2 py-0.5 rounded-2 small fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.72rem;">MoU: {{ $topUk->mou_count }}</span>
+                                                    <span class="badge px-2 py-0.5 rounded-2 small fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.72rem;">MoA: {{ $topUk->moa_count }}</span>
+                                                    <span class="badge px-2 py-0.5 rounded-2 small fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.72rem;">IA: {{ $topUk->ia_count }}</span>
+                                                    <span class="badge px-2.5 py-1 rounded-pill fw-bold ms-1" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.8rem;">{{ $topUk->total_kerjasama }} Dokumen</span>
                                                 </div>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
@@ -328,8 +328,8 @@
                             {{-- 2. MOU RANKING LIST --}}
                             <div id="rankListMou" style="display: none;">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 class="fw-bold text-info small mb-0"><i class="bi bi-file-earmark-text me-1"></i> TOP 5 TERBANYAK MoU</h6>
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info">MoU</span>
+                                    <h6 class="fw-bold small mb-0" style="color: #0284c7;"><i class="bi bi-file-earmark-text me-1"></i> TOP 5 TERBANYAK MoU</h6>
+                                    <span class="badge px-2 py-0.5 rounded-2 fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">MoU</span>
                                 </div>
                                 @php $maxMou = $top5MoUList->max('mou_count') ?: 1; @endphp
                                 <div class="d-flex flex-column gap-2">
@@ -338,13 +338,13 @@
                                         <div class="p-2.5 px-3 rounded-3 bg-light border-0">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge bg-info text-white fw-bold rounded-circle" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
+                                                    <span class="badge fw-bold rounded-circle" style="background-color: #0284c7; color: #ffffff; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $mouUk->nama_unit_kerja }}</span>
                                                 </div>
-                                                <span class="badge bg-info px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.8rem;">{{ $mouUk->mou_count }} MoU</span>
+                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.8rem;">{{ $mouUk->mou_count }} MoU</span>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
-                                                <div class="progress-bar bg-info rounded-pill" role="progressbar" style="width: {{ $pct }}%;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $pct }}%; background-color: #0284c7;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
                                     @empty
@@ -356,8 +356,8 @@
                             {{-- 3. MOA RANKING LIST --}}
                             <div id="rankListMoa" style="display: none;">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 class="fw-bold text-warning small mb-0"><i class="bi bi-file-earmark-check me-1"></i> TOP 5 TERBANYAK MoA</h6>
-                                    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning">MoA</span>
+                                    <h6 class="fw-bold small mb-0" style="color: #b45309;"><i class="bi bi-file-earmark-check me-1"></i> TOP 5 TERBANYAK MoA</h6>
+                                    <span class="badge px-2 py-0.5 rounded-2 fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;">MoA</span>
                                 </div>
                                 @php $maxMoa = $top5MoAList->max('moa_count') ?: 1; @endphp
                                 <div class="d-flex flex-column gap-2">
@@ -366,13 +366,13 @@
                                         <div class="p-2.5 px-3 rounded-3 bg-light border-0">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge bg-warning text-dark fw-bold rounded-circle" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
+                                                    <span class="badge fw-bold rounded-circle" style="background-color: #d97706; color: #ffffff; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $moaUk->nama_unit_kerja }}</span>
                                                 </div>
-                                                <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.8rem;">{{ $moaUk->moa_count }} MoA</span>
+                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem;">{{ $moaUk->moa_count }} MoA</span>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
-                                                <div class="progress-bar bg-warning rounded-pill" role="progressbar" style="width: {{ $pct }}%;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $pct }}%; background-color: #d97706;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
                                     @empty
@@ -384,8 +384,8 @@
                             {{-- 4. IA RANKING LIST --}}
                             <div id="rankListIa" style="display: none;">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 class="fw-bold text-success small mb-0"><i class="bi bi-file-earmark-code me-1"></i> TOP 5 TERBANYAK IA</h6>
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">IA</span>
+                                    <h6 class="fw-bold small mb-0" style="color: #15803d;"><i class="bi bi-file-earmark-code me-1"></i> TOP 5 TERBANYAK IA</h6>
+                                    <span class="badge px-2 py-0.5 rounded-2 fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">IA</span>
                                 </div>
                                 @php $maxIa = $top5IAList->max('ia_count') ?: 1; @endphp
                                 <div class="d-flex flex-column gap-2">
@@ -394,13 +394,13 @@
                                         <div class="p-2.5 px-3 rounded-3 bg-light border-0">
                                             <div class="d-flex align-items-center justify-content-between mb-1.5">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge bg-success text-white fw-bold rounded-circle" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
+                                                    <span class="badge fw-bold rounded-circle" style="background-color: #16a34a; color: #ffffff; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">{{ $idx + 1 }}</span>
                                                     <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $iaUk->nama_unit_kerja }}</span>
                                                 </div>
-                                                <span class="badge bg-success px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.8rem;">{{ $iaUk->ia_count }} IA</span>
+                                                <span class="badge px-2.5 py-1 rounded-pill fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.8rem;">{{ $iaUk->ia_count }} IA</span>
                                             </div>
                                             <div class="progress mt-1.5" style="height: 7px; border-radius: 4px; background-color: #e9ecef;">
-                                                <div class="progress-bar bg-success rounded-pill" role="progressbar" style="width: {{ $pct }}%;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $pct }}%; background-color: #16a34a;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
                                     @empty
@@ -556,14 +556,14 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th class="ps-3 py-3" style="width: 50px;">No</th>
-                                        <th class="py-3">Fakultas / Program Studi</th>
-                                        <th class="text-center py-3 text-info"><i class="bi bi-file-earmark-text me-1"></i> MoU</th>
-                                        <th class="text-center py-3 text-warning"><i class="bi bi-file-earmark-check me-1"></i> MoA</th>
-                                        <th class="text-center py-3 text-success"><i class="bi bi-file-earmark-code me-1"></i> IA</th>
-                                        <th class="text-center py-3 text-primary"><i class="bi bi-flag me-1"></i> Nasional</th>
-                                        <th class="text-center py-3" style="color: #6f42c1;"><i class="bi bi-globe me-1"></i> Internasional</th>
-                                        <th class="text-center py-3 text-success"><i class="bi bi-check-circle me-1"></i> Aktif</th>
-                                        <th class="text-center py-3 pe-3 fw-bold">Total Dokumen</th>
+                                        <th class="py-3 text-dark fw-bold">Fakultas / Program Studi</th>
+                                        <th class="text-center py-3" style="color: #0284c7; font-weight: 700;"><i class="bi bi-file-earmark-text me-1"></i> MoU</th>
+                                        <th class="text-center py-3" style="color: #b45309; font-weight: 700;"><i class="bi bi-file-earmark-check me-1"></i> MoA</th>
+                                        <th class="text-center py-3" style="color: #15803d; font-weight: 700;"><i class="bi bi-file-earmark-code me-1"></i> IA</th>
+                                        <th class="text-center py-3" style="color: #0d6efd; font-weight: 700;"><i class="bi bi-flag me-1"></i> Nasional</th>
+                                        <th class="text-center py-3" style="color: #6f42c1; font-weight: 700;"><i class="bi bi-globe me-1"></i> Internasional</th>
+                                        <th class="text-center py-3" style="color: #15803d; font-weight: 700;"><i class="bi bi-check-circle me-1"></i> Aktif</th>
+                                        <th class="text-center py-3 pe-3 text-dark fw-bold">Total Dokumen</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -575,15 +575,15 @@
                                                 <td class="ps-3 text-muted">{{ $noIndex++ }}</td>
                                                 <td class="text-dark">
                                                     <span class="badge bg-primary me-2">Universitas</span>
-                                                    {{ $group['nama'] }}
+                                                    <span class="fw-bold text-dark">{{ $group['nama'] }}</span>
                                                 </td>
-                                                <td class="text-center"><span class="badge bg-info bg-opacity-20 text-info fw-bold px-2.5 py-1 rounded-2">{{ $group['mou_count'] }}</span></td>
-                                                <td class="text-center"><span class="badge bg-warning bg-opacity-20 text-dark fw-bold px-2.5 py-1 rounded-2">{{ $group['moa_count'] }}</span></td>
-                                                <td class="text-center"><span class="badge bg-success bg-opacity-20 text-success fw-bold px-2.5 py-1 rounded-2">{{ $group['ia_count'] }}</span></td>
-                                                <td class="text-center text-primary">{{ $group['nasional_count'] }}</td>
-                                                <td class="text-center" style="color: #6f42c1;">{{ $group['internasional_count'] }}</td>
-                                                <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">{{ $group['aktif_count'] }}</span></td>
-                                                <td class="text-center pe-3 text-primary fs-6">{{ $group['total_kerjasama'] }}</td>
+                                                <td class="text-center"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.85rem;">{{ $group['mou_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.85rem;">{{ $group['moa_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.85rem;">{{ $group['ia_count'] }}</span></td>
+                                                <td class="text-center fw-bold" style="color: #0d6efd;">{{ $group['nasional_count'] }}</td>
+                                                <td class="text-center fw-bold" style="color: #6f42c1;">{{ $group['internasional_count'] }}</td>
+                                                <td class="text-center"><span class="badge px-3 py-1 rounded-pill fw-semibold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.82rem;">{{ $group['aktif_count'] }}</span></td>
+                                                <td class="text-center pe-3"><span class="badge px-2.5 py-1 rounded-2 fw-bold" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.9rem;">{{ $group['total_kerjasama'] }}</span></td>
                                             </tr>
                                         @else
                                             {{-- Faculty Header Row (Clickable Accordion) --}}
@@ -597,13 +597,13 @@
                                                         <span class="badge bg-white text-muted border ms-1" style="font-size: 0.75rem;">{{ $group['prodis']->count() }} Prodi <i class="bi bi-caret-down-fill ms-0.5"></i></span>
                                                     </div>
                                                 </td>
-                                                <td class="text-center"><span class="badge bg-info bg-opacity-20 text-info fw-bold px-2.5 py-1.5 rounded-2" style="font-size: 0.88rem;">{{ $group['mou_count'] }}</span></td>
-                                                <td class="text-center"><span class="badge bg-warning bg-opacity-20 text-dark fw-bold px-2.5 py-1.5 rounded-2" style="font-size: 0.88rem;">{{ $group['moa_count'] }}</span></td>
-                                                <td class="text-center"><span class="badge bg-success bg-opacity-20 text-success fw-bold px-2.5 py-1.5 rounded-2" style="font-size: 0.88rem;">{{ $group['ia_count'] }}</span></td>
-                                                <td class="text-center text-primary fw-bold">{{ $group['nasional_count'] }}</td>
+                                                <td class="text-center"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.88rem;">{{ $group['mou_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.88rem;">{{ $group['moa_count'] }}</span></td>
+                                                <td class="text-center"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.88rem;">{{ $group['ia_count'] }}</span></td>
+                                                <td class="text-center fw-bold" style="color: #0d6efd;">{{ $group['nasional_count'] }}</td>
                                                 <td class="text-center fw-bold" style="color: #6f42c1;">{{ $group['internasional_count'] }}</td>
-                                                <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">{{ $group['aktif_count'] }}</span></td>
-                                                <td class="text-center pe-3 text-primary fw-bold" style="font-size: 0.95rem;">{{ $group['total_kerjasama'] }}</td>
+                                                <td class="text-center"><span class="badge px-3 py-1 rounded-pill fw-semibold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.85rem;">{{ $group['aktif_count'] }}</span></td>
+                                                <td class="text-center pe-3"><span class="badge px-2.5 py-1 rounded-2 fw-bold" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.95rem;">{{ $group['total_kerjasama'] }}</span></td>
                                             </tr>
 
                                             {{-- Child Prodi Rows (Collapsible) --}}
@@ -614,12 +614,12 @@
                                                         <i class="bi bi-arrow-return-right me-2 text-primary opacity-75"></i>
                                                         <span class="fw-semibold text-dark">{{ $prodi->nama_unit_kerja }}</span>
                                                     </td>
-                                                    <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info px-2 py-0.5 rounded-2">{{ $prodi->mou_count }}</span></td>
-                                                    <td class="text-center"><span class="badge bg-warning bg-opacity-10 text-dark px-2 py-0.5 rounded-2">{{ $prodi->moa_count }}</span></td>
-                                                    <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success px-2 py-0.5 rounded-2">{{ $prodi->ia_count }}</span></td>
-                                                    <td class="text-center small text-muted">{{ $prodi->nasional_count }}</td>
-                                                    <td class="text-center small text-muted">{{ $prodi->internasional_count }}</td>
-                                                    <td class="text-center small"><span class="badge bg-light text-success border px-2 py-0.5 rounded-pill">{{ $prodi->aktif_count }}</span></td>
+                                                    <td class="text-center"><span class="badge px-2 py-0.5 rounded-2 fw-semibold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.78rem;">{{ $prodi->mou_count }}</span></td>
+                                                    <td class="text-center"><span class="badge px-2 py-0.5 rounded-2 fw-semibold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.78rem;">{{ $prodi->moa_count }}</span></td>
+                                                    <td class="text-center"><span class="badge px-2 py-0.5 rounded-2 fw-semibold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.78rem;">{{ $prodi->ia_count }}</span></td>
+                                                    <td class="text-center small text-secondary fw-semibold">{{ $prodi->nasional_count }}</td>
+                                                    <td class="text-center small text-secondary fw-semibold">{{ $prodi->internasional_count }}</td>
+                                                    <td class="text-center small"><span class="badge px-2.5 py-0.5 rounded-pill fw-semibold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.78rem;">{{ $prodi->aktif_count }}</span></td>
                                                     <td class="text-center pe-3 fw-bold text-dark" style="font-size: 0.88rem;">{{ $prodi->total_kerjasama }}</td>
                                                 </tr>
                                             @endforeach
@@ -627,15 +627,17 @@
                                     @endforeach
                                 </tbody>
                                 <tfoot class="table-light fw-bold">
-                                    <tr>
-                                        <td colspan="2" class="ps-3 py-3 text-dark">TOTAL KESELURUHAN (UNIVERSITAS, FAKULTAS & PRODI)</td>
-                                        <td class="text-center py-3 text-info">{{ $rekapUnitKerjaList->sum('mou_count') }}</td>
-                                        <td class="text-center py-3 text-warning">{{ $rekapUnitKerjaList->sum('moa_count') }}</td>
-                                        <td class="text-center py-3 text-success">{{ $rekapUnitKerjaList->sum('ia_count') }}</td>
-                                        <td class="text-center py-3 text-primary">{{ $rekapUnitKerjaList->sum('nasional_count') }}</td>
-                                        <td class="text-center py-3" style="color: #6f42c1;">{{ $rekapUnitKerjaList->sum('internasional_count') }}</td>
-                                        <td class="text-center py-3 text-success">{{ $rekapUnitKerjaList->sum('aktif_count') }}</td>
-                                        <td class="text-center py-3 pe-3 text-primary fs-6">{{ $rekapUnitKerjaList->sum('total_kerjasama') }}</td>
+                                    <tr style="border-top: 2px solid #cbd5e1;">
+                                        <td colspan="2" class="ps-3 py-3 text-dark fw-bold" style="font-size: 0.9rem;">
+                                            <i class="bi bi-check2-all text-primary me-1"></i> TOTAL KESELURUHAN UNIVERSITAS
+                                        </td>
+                                        <td class="text-center py-3"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.9rem;">{{ $mouTotalCount }}</span></td>
+                                        <td class="text-center py-3"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.9rem;">{{ $moaTotalCount }}</span></td>
+                                        <td class="text-center py-3"><span class="badge px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.9rem;">{{ $iaTotalCount }}</span></td>
+                                        <td class="text-center py-3 fw-bold" style="color: #0d6efd; font-size: 0.95rem;">{{ $nasionalCount }}</td>
+                                        <td class="text-center py-3 fw-bold" style="color: #6f42c1; font-size: 0.95rem;">{{ $internasionalCount }}</td>
+                                        <td class="text-center py-3"><span class="badge px-3 py-1 rounded-pill fw-bold" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.88rem;">{{ $aktifCount }}</span></td>
+                                        <td class="text-center py-3 pe-3"><span class="badge px-3 py-1.5 rounded-2 fw-bold" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.95rem;">{{ $totalKerjasamaCount }}</span></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -687,7 +689,7 @@
                         name: 'MoU',
                         type: 'bar',
                         data: dokUkData.mou,
-                        label: { show: true, position: 'top', fontWeight: 'bold', fontSize: 11, color: '#0dcaf0' },
+                        label: { show: true, position: 'top', fontWeight: 'bold', fontSize: 11, color: '#0284c7' },
                         itemStyle: { color: '#0dcaf0', borderRadius: [4, 4, 0, 0] },
                         barGap: '15%'
                     },
@@ -695,14 +697,14 @@
                         name: 'MoA',
                         type: 'bar',
                         data: dokUkData.moa,
-                        label: { show: true, position: 'top', fontWeight: 'bold', fontSize: 11, color: '#ffc107' },
+                        label: { show: true, position: 'top', fontWeight: 'bold', fontSize: 11, color: '#b45309' },
                         itemStyle: { color: '#ffc107', borderRadius: [4, 4, 0, 0] }
                     },
                     {
                         name: 'IA',
                         type: 'bar',
                         data: dokUkData.ia,
-                        label: { show: true, position: 'top', fontWeight: 'bold', fontSize: 11, color: '#198754' },
+                        label: { show: true, position: 'top', fontWeight: 'bold', fontSize: 11, color: '#15803d' },
                         itemStyle: { color: '#198754', borderRadius: [4, 4, 0, 0] }
                     }
                 ]
@@ -1013,7 +1015,7 @@
                     name: 'Jumlah Mitra',
                     type: 'bar',
                     data: kritValues,
-                    label: { show: true, position: 'top', fontWeight: 'bold', color: '#ffc107' },
+                    label: { show: true, position: 'top', fontWeight: 'bold', color: '#b45309' },
                     itemStyle: {
                         color: '#ffc107',
                         borderRadius: [4, 4, 0, 0]

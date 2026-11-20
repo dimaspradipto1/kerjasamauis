@@ -84,8 +84,26 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
                 $anggaran = is_numeric($cleanAnggaran) ? (int)$cleanAnggaran : 0;
             }
 
-            // 7. Status Kerjasama (Nullable -> default Aktif)
-            $statusKerjasama = !empty($statusKerjasamaText) ? $statusKerjasamaText : 'Aktif';
+            // 7. Status Kerjasama (Normalisasi agar sinkron dengan filter & dashboard)
+            $statusRawLower = strtolower(trim((string)$statusKerjasamaText));
+            if (in_array($statusRawLower, ['berakhir', 'expired', 'kadaluarsa', 'kedaluwarsa', 'selesai'])) {
+                $statusKerjasama = 'Kedaluwarsa';
+            } elseif (in_array($statusRawLower, ['perpanjangan'])) {
+                $statusKerjasama = 'Perpanjangan';
+            } elseif (in_array($statusRawLower, ['tidak aktif', 'nonaktif', 'inactive'])) {
+                $statusKerjasama = 'Tidak Aktif';
+            } elseif (!empty($statusKerjasamaText)) {
+                $statusKerjasama = $statusKerjasamaText;
+            } else {
+                $statusKerjasama = ($tanggalAkhir && $tanggalAkhir->lt(Carbon::now())) ? 'Kedaluwarsa' : 'Aktif';
+            }
+
+            // 7b. Tentukan Skala Kerjasama dari Mitra
+            $mitraObj = Mitra::find($mitraId);
+            $skalaKerjasama = ['Nasional'];
+            if ($mitraObj && !empty($mitraObj->lingkup_mitra)) {
+                $skalaKerjasama = [$mitraObj->lingkup_mitra];
+            }
 
             // 8. Tentukan Nomor Dokumen & Kondisi Pencarian (agar nullable tidak duplikat saat import berulang)
             if (!empty($nomorDokumenKerjasama)) {
@@ -120,6 +138,7 @@ class KerjasamaImport implements ToCollection, WithHeadingRow
                     'tanggal_waktu_berlaku'   => $tanggalAwal,
                     'tanggal_akhir_berlaku'   => $tanggalAkhir,
                     'status_kerjasama'        => $statusKerjasama,
+                    'skala_kerjasama'         => $skalaKerjasama,
                     'url_file'                => null, // Nullable: upload file fisik dapat dilakukan menyusul
                     'status'                  => 'active',
                 ]
